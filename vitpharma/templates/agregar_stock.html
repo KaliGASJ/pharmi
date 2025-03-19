@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block title %}Agregar Stock | VIT PHARMA{% endblock %}
+
+{% block content %}
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: auto;
+        padding: 20px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+        text-align: center;
+    }
+
+    h2 {
+        color: #004AAD;
+        margin-bottom: 15px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+        text-align: left;
+    }
+
+    label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    input, select {
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+    }
+
+    .button {
+        display: inline-block;
+        padding: 12px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        width: 48%;
+        text-align: center;
+    }
+
+    .submit-button {
+        background-color: #28A745;
+        color: white;
+    }
+
+    .submit-button:hover {
+        background-color: #218838;
+    }
+
+    .cancel-button {
+        background-color: #DC3545;
+        color: white;
+    }
+
+    .cancel-button:hover {
+        background-color: #A52A2A;
+    }
+
+    .messages {
+        margin-bottom: 15px;
+        padding: 10px;
+        border-radius: 5px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .success-message {
+        background-color: #D4EDDA;
+        color: #155724;
+    }
+
+    .error-message {
+        background-color: #F8D7DA;
+        color: #721C24;
+    }
+</style>
+
+<div class="form-container">
+    <h2>📦 Agregar Stock</h2>
+    <p>Por favor, completa los datos para agregar más stock a un producto existente.</p>
+
+    <!-- Mensajes de éxito/error -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="messages {% if message.tags == 'success' %}success-message{% else %}error-message{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form id="stock-form" method="POST">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="id_producto">🔹 Producto</label>
+            {{ form.producto }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_lote">🔢 Número de Lote</label>
+            {{ form.lote }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_proveedor">🏢 Proveedor</label>
+            {{ form.id_proveedor }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_fecha_caducidad">📆 Fecha de Caducidad</label>
+            {{ form.fecha_caducidad }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_cantidad">📦 Cantidad a Agregar</label>
+            {{ form.cantidad }}
+            <small class="error-message" id="error-cantidad"></small>
+        </div>
+
+        <div class="button-container">
+            <button type="submit" class="button submit-button">✅ Agregar Stock</button>
+            <a href="{% url 'inventario:listar_productos' %}" class="button cancel-button">🔙 Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.getElementById("stock-form").addEventListener("submit", function(event) {
+        let cantidad = document.getElementById("id_cantidad").value.trim();
+        let errorCantidad = document.getElementById("error-cantidad");
+
+        if (cantidad === "" || parseInt(cantidad) <= 0) {
+            errorCantidad.innerText = "⚠ La cantidad debe ser mayor a cero.";
+            event.preventDefault();
+        } else {
+            errorCantidad.innerText = "";
+        }
+    });
+</script>
+
+{% endblock %}

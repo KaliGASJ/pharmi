@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Panel Administrativo | VIT PHARMA{% endblock %}
+
+{% block content %}
+<style>
+    .dashboard-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+    }
+
+    /* Barra superior */
+    .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        background-color: #004AAD;
+        padding: 15px;
+        border-radius: 10px;
+        color: white;
+        font-weight: bold;
+        font-size: 18px;
+    }
+
+    .top-bar .left-section {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .top-bar img {
+        height: 50px;
+    }
+
+    .top-bar .right-section {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .top-bar input {
+        border: none;
+        padding: 8px;
+        border-radius: 5px;
+        font-size: 16px;
+        text-align: center;
+        background-color: white;
+        width: 120px;
+    }
+
+    /* Contenedor del Menú */
+    .menu-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
+        width: 100%;
+    }
+
+    .menu-button {
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        padding: 15px 25px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.3s ease-in-out;
+        min-width: 200px;
+        text-align: center;
+    }
+
+    .menu-button:hover {
+        background-color: #0056b3;
+    }
+
+    /* Responsividad */
+    @media (max-width: 768px) {
+        .top-bar {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .top-bar .right-section {
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .menu-container {
+            flex-direction: column;
+            align-items: center;
+        }
+    }
+</style>
+
+<div class="dashboard-container">
+    <!-- Barra superior con el logo, título y fecha/hora -->
+    <div class="top-bar">
+        <div class="left-section">
+            <img src="{% static 'img/logo.png' %}" alt="Farmacia Vital Logo">
+            <span>VITPHARMA - MENÚ PRINCIPAL</span>
+        </div>
+        <div class="right-section">
+            <label>Hora: <input type="text" id="hora" aria-label="Hora actual" readonly></label>
+            <label>Fecha: <input type="text" id="fecha" aria-label="Fecha actual" readonly></label>
+        </div>
+    </div>
+
+    <!-- Menú de opciones -->
+    <div class="menu-container">
+        <button class="menu-button" onclick="window.location.href='{% url 'authapp:admin_usuarios' %}'">Administrar Usuarios</button>
+        <button class="menu-button" onclick="window.location.href='{% url 'authapp:admin_inventario' %}'">Inventario</button>
+        <button class="menu-button" onclick="window.location.href='{% url 'authapp:admin_reportes' %}'">Reportes</button>
+        <button class="menu-button" onclick="window.location.href='{% url 'authapp:admin_proveedores' %}'">Proveedores</button>
+        <button class="menu-button" onclick="window.location.href='{% url 'authapp:admin_soporte' %}'">Soporte</button>
+    </div>
+</div>
+
+<script>
+    function actualizarFechaHora() {
+        let fecha = new Date();
+        document.getElementById("hora").value = fecha.toLocaleTimeString();
+        document.getElementById("fecha").value = fecha.toLocaleDateString();
+    }
+
+    actualizarFechaHora(); // Ejecutar inmediatamente
+    setInterval(actualizarFechaHora, 1000); // Luego cada segundo
+</script>
+
+{% endblock %}

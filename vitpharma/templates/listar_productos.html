@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+
+{% block title %}Inventario | VIT PHARMA{% endblock %}
+
+{% block content %}
+<style>
+    .inventario-container {
+        padding: 20px;
+        text-align: center;
+    }
+
+    .search-bar {
+        margin-bottom: 20px;
+        text-align: right;
+    }
+
+    .search-bar input {
+        padding: 8px;
+        width: 300px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    table, th, td {
+        border: 1px solid #ddd;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: center;
+    }
+
+    th {
+        background-color: #004AAD;
+        color: white;
+        font-weight: bold;
+    }
+
+    .button {
+        padding: 8px 12px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        display: inline-block;
+        margin: 5px;
+    }
+
+    .edit-button {
+        background-color: #FFC107;
+        color: black;
+    }
+
+    .delete-button {
+        background-color: #DC3545;
+        color: white;
+    }
+
+    .stock-button {
+        background-color: #007BFF;
+        color: white;
+    }
+
+    .add-button {
+        background-color: #28A745;
+        color: white;
+        padding: 10px 15px;
+    }
+
+    /* Mensajes de alerta */
+    .messages {
+        margin-bottom: 20px;
+        padding: 10px;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+
+    .success-message {
+        background-color: #28A745;
+        color: white;
+    }
+
+    .error-message {
+        background-color: #DC3545;
+        color: white;
+    }
+</style>
+
+<div class="inventario-container">
+    <h2>Gestión de Inventario</h2>
+
+    <!-- Mensajes de éxito/error -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="messages {% if message.tags == 'success' %}success-message{% else %}error-message{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Barra de búsqueda -->
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Buscar producto..." onkeyup="filtrarProductos()">
+    </div>
+
+    <!-- Botón para agregar producto (solo administradores) -->
+    {% if request.user.is_authenticated and request.user.groups.all %}
+        {% for group in request.user.groups.all %}
+            {% if group.name == "administrador" %}
+                <a href="{% url 'inventario:agregar_producto' %}" class="button add-button">➕ Agregar Producto</a>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    <!-- Tabla de productos -->
+    <table id="tablaInventario">
+        <tr>
+            <th>ID</th>
+            <th>Producto</th>
+            <th>Stock</th>
+            <th>Precio Venta</th>
+            <th>Acciones</th>
+        </tr>
+        {% for producto in productos %}
+        <tr>
+            <td>{{ producto.id_producto }}</td>
+            <td>{{ producto.nombre }}</td>
+            <td>{{ producto.total_stock }}</td>
+            <td>${{ producto.precio_venta }}</td>
+            <td>
+                {% if request.user.is_authenticated and request.user.groups.all %}
+                    {% for group in request.user.groups.all %}
+                        {% if group.name == "administrador" %}
+                            <a href="{% url 'inventario:editar_producto' producto.id_producto %}" class="button edit-button">✏ Editar</a>
+                            <a href="{% url 'inventario:eliminar_producto' producto.id_producto %}" class="button delete-button" onclick="return confirm('⚠ ¿Estás seguro de eliminar este producto?')">🗑 Eliminar</a>
+                            <a href="{% url 'inventario:gestionar_stock' producto.id_producto %}" class="button stock-button">📦 Gestionar Stock</a>
+                        {% elif group.name == "vendedor" %}
+                            <a href="{% url 'inventario:agregar_stock' %}" class="button stock-button">➕ Agregar Stock</a>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5"><strong>No hay productos registrados.</strong></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<!-- Script para la búsqueda en tiempo real -->
+<script>
+    function filtrarProductos() {
+        let input = document.getElementById("searchInput").value.toLowerCase();
+        let filas = document.querySelectorAll("#tablaInventario tr");
+
+        filas.forEach((fila, index) => {
+            if (index === 0) return; // Saltar encabezado
+            let nombre = fila.cells[1].textContent.toLowerCase();
+            fila.style.display = nombre.includes(input) ? "" : "none";
+        });
+    }
+</script>
+
+{% endblock %}

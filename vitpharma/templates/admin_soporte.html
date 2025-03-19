@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Soporte | VIT PHARMA{% endblock %}
+
+{% block content %}
+<style>
+    .support-container {
+        max-width: 900px;
+        margin: 20px auto;
+        padding: 20px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .support-header {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        color: #004AAD;
+        margin-bottom: 20px;
+    }
+
+    .support-text {
+        font-size: 16px;
+        line-height: 1.5;
+        color: #333;
+        text-align: center;
+    }
+
+    .support-options {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .support-button {
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        padding: 12px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 5px;
+        cursor: pointer;
+        text-align: center;
+        transition: background 0.3s ease-in-out;
+        text-decoration: none;
+        display: block;
+        width: 100%;
+        text-align: center;
+    }
+
+    .support-button:hover {
+        background-color: #0056b3;
+    }
+</style>
+
+<div class="support-container">
+    <div class="support-header">
+        Centro de Soporte
+    </div>
+    
+    <p class="support-text">
+        Bienvenido al centro de soporte de VIT PHARMA. Aquí puedes gestionar solicitudes, contactar al equipo de soporte y acceder a documentación técnica.
+    </p>
+
+    <div class="support-options">
+        <a href="#" class="support-button">Solicitar Soporte Técnico</a>
+        <a href="#" class="support-button">Ver Historial de Soporte</a>
+        <a href="#" class="support-button">Documentación y Manuales</a>
+        <a href="{% url 'admin_dashboard' %}" class="support-button" style="background-color: #FFD700; color: black;">Volver al Panel</a>
+    </div>
+</div>
+
+{% endblock %}

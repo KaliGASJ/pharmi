@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestionar Stock | VIT PHARMA{% endblock %}
+
+{% block content %}
+<style>
+    .stock-container {
+        max-width: 900px;
+        margin: auto;
+        padding: 20px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+        text-align: center;
+    }
+
+    h2 {
+        color: #004AAD;
+        margin-bottom: 15px;
+    }
+
+    .search-bar {
+        margin-bottom: 20px;
+        text-align: right;
+    }
+
+    .search-bar input {
+        padding: 10px;
+        width: 250px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-top: 10px;
+    }
+
+    table, th, td {
+        border: 1px solid #ddd;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: center;
+    }
+
+    th {
+        background-color: #004AAD;
+        color: white;
+        font-weight: bold;
+    }
+
+    .alerta-stock {
+        color: #DC3545;
+        font-weight: bold;
+    }
+
+    .form-container {
+        margin-top: 20px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        display: none;
+    }
+
+    .form-group {
+        margin-bottom: 10px;
+        text-align: left;
+    }
+
+    label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    input, select {
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+    }
+
+    .button-container {
+        text-align: center;
+        margin-top: 15px;
+    }
+
+    .button {
+        padding: 12px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        width: 48%;
+        text-align: center;
+    }
+
+    .submit-button {
+        background-color: #007BFF;
+        color: white;
+    }
+
+    .submit-button:hover {
+        background-color: #0056b3;
+    }
+
+    .add-lote-button {
+        background-color: #28A745;
+        color: white;
+    }
+
+    .add-lote-button:hover {
+        background-color: #218838;
+    }
+
+    .back-button {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .back-button:hover {
+        background-color: #545b62;
+    }
+</style>
+
+<div class="stock-container">
+    <h2>📦 Gestión de Stock - {{ producto.nombre }}</h2>
+
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="🔍 Buscar lote o proveedor..." onkeyup="filtrarStock()">
+    </div>
+
+    <table id="tablaStock">
+        <tr>
+            <th>Lote</th>
+            <th>Proveedor</th>
+            <th>Fecha Caducidad</th>
+            <th>Precio Compra</th>
+            <th>Precio Venta</th>
+            <th>Cantidad</th>
+            <th>Última Modificación</th>
+        </tr>
+        {% for lote in lotes %}
+        <tr class="{% if lote.proximo_a_caducar %}alerta-stock{% endif %}">
+            <td>{{ lote.lote|default:"N/A" }}</td>
+            <td>{{ lote.id_proveedor.nombre|default:"No asignado" }}</td>
+            <td>{{ lote.fecha_caducidad|default:"-" }}</td>
+            <td>${{ lote.precio_compra }}</td>
+            <td>${{ lote.precio_venta }}</td>
+            <td>{{ lote.cantidad }}</td>
+            <td>{{ lote.usuario_modificacion.username|default:"-" }} ({{ lote.fecha_modificacion|date:"d/m/Y H:i" }})</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="7"><strong>No hay lotes registrados para este producto.</strong></td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <!-- Botón para agregar lote si no hay lotes -->
+    <div class="button-container">
+        <button onclick="mostrarFormulario()" class="button add-lote-button">➕ Agregar Nuevo Lote</button>
+    </div>
+
+    <div class="form-container" id="formularioLote">
+        <h3>📝 Actualizar / Agregar Stock</h3>
+        <form id="stock-form" method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="lote">🔢 Lote</label>
+                <input type="text" id="lote" name="lote" placeholder="Ingrese el número de lote" required>
+            </div>
+            <div class="form-group">
+                <label for="id_proveedor">🏢 Proveedor</label>
+                <select id="id_proveedor" name="id_proveedor" required>
+                    <option value="">Seleccione un proveedor</option>
+                    {% for proveedor in proveedores %}
+                        <option value="{{ proveedor.id_proveedor }}">{{ proveedor.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="fecha_caducidad">📆 Fecha de Caducidad</label>
+                <input type="date" id="fecha_caducidad" name="fecha_caducidad" required>
+            </div>
+            <div class="form-group">
+                <label for="precio_compra">💰 Precio de Compra</label>
+                <input type="number" step="0.01" id="precio_compra" name="precio_compra" required>
+            </div>
+            <div class="form-group">
+                <label for="precio_venta">💲 Precio de Venta</label>
+                <input type="number" step="0.01" id="precio_venta" name="precio_venta" required>
+            </div>
+            <div class="form-group">
+                <label for="cantidad">📦 Cantidad</label>
+                <input type="number" min="1" id="cantidad" name="cantidad" required>
+            </div>
+
+            <div class="button-container">
+                <button type="submit" class="button submit-button">✅ Guardar</button>
+                <a href="javascript:history.back()" class="button back-button">🔙 Volver</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function filtrarStock() {
+        let input = document.getElementById("searchInput").value.toLowerCase();
+        let filas = document.querySelectorAll("#tablaStock tr");
+
+        filas.forEach((fila, index) => {
+            if (index === 0) return;
+            let lote = fila.cells[0].textContent.toLowerCase();
+            let proveedor = fila.cells[1].textContent.toLowerCase();
+            fila.style.display = (lote.includes(input) || proveedor.includes(input)) ? "" : "none";
+        });
+    }
+
+    function mostrarFormulario() {
+        document.getElementById("formularioLote").style.display = "block";
+    }
+</script>
+
+{% endblock %}

@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block title %}Agregar Producto | VIT PHARMA{% endblock %}
+
+{% block content %}
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: auto;
+        padding: 20px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+        text-align: center;
+    }
+
+    h2 {
+        color: #004AAD;
+        margin-bottom: 10px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+        text-align: left;
+    }
+
+    label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    input, select, textarea {
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+    }
+
+    textarea {
+        resize: none;
+    }
+
+    .button {
+        display: inline-block;
+        padding: 12px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        width: 48%;
+        text-align: center;
+    }
+
+    .submit-button {
+        background-color: #28A745;
+        color: white;
+    }
+
+    .submit-button:hover {
+        background-color: #218838;
+    }
+
+    .cancel-button {
+        background-color: #DC3545;
+        color: white;
+    }
+
+    .cancel-button:hover {
+        background-color: #A52A2A;
+    }
+
+    .messages {
+        margin-bottom: 15px;
+        padding: 10px;
+        border-radius: 5px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .success-message {
+        background-color: #D4EDDA;
+        color: #155724;
+    }
+
+    .error-message {
+        background-color: #F8D7DA;
+        color: #721C24;
+    }
+
+    .error-text {
+        color: #DC3545;
+        font-size: 14px;
+        display: block;
+        margin-top: 5px;
+    }
+</style>
+
+<div class="form-container">
+    <h2>🆕 Agregar Nuevo Producto</h2>
+    <p>Complete los campos para registrar un nuevo producto en el inventario.</p>
+
+    <!-- Mensajes de éxito/error -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="messages {% if message.tags == 'success' %}success-message{% else %}error-message{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form id="product-form" method="POST">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            {{ form.nombre.label_tag }}
+            {{ form.nombre }}
+            <small class="error-text" id="error-nombre"></small>
+        </div>
+
+        <div class="form-group">
+            {{ form.descripcion.label_tag }}
+            {{ form.descripcion }}
+        </div>
+
+        <div class="form-group">
+            {{ form.id_categoria.label_tag }}
+            {{ form.id_categoria }}
+        </div>
+
+        <div class="form-group">
+            {{ form.id_departamento.label_tag }}
+            {{ form.id_departamento }}
+        </div>
+
+        <div class="form-group">
+            {{ form.estado.label_tag }}
+            {{ form.estado }}
+        </div>
+
+        <button type="submit" class="button submit-button">✅ Guardar Producto</button>
+        <a href="{% url 'inventario:listar_productos' %}" class="button cancel-button">❌ Cancelar</a>
+    </form>
+</div>
+
+<script>
+    document.getElementById("product-form").addEventListener("submit", function(event) {
+        let nombre = document.getElementById("id_nombre").value.trim();
+        let errorNombre = document.getElementById("error-nombre");
+
+        if (nombre === "") {
+            errorNombre.innerText = "⚠ El nombre del producto es obligatorio.";
+            event.preventDefault();
+        } else {
+            errorNombre.innerText = "";
+        }
+    });
+</script>
+
+{% endblock %}

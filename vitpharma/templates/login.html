@@ -1,0 +1,237 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión | VIT PHARMA</title>
+    <style>
+        /* Configuración global */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #e0eafc, #cfdef3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* Contenedor general */
+        .login-container {
+            display: flex;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Contenedor del logo */
+        .logo-container {
+            flex: 1;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .logo-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        /* Contenedor del formulario */
+        .login-form {
+            flex: 1;
+            background-color: #004aad;
+            padding: 30px;
+            border-radius: 12px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-form h2 {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+
+        /* Alerta general de error del backend */
+        .general-alert {
+            width: 100%;
+            background: #d9534f;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-weight: bold;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        /* Contenedor de cada campo con su ícono */
+        .input-container {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        /* Íconos a la izquierda */
+        .input-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 5px;
+            margin-right: 10px;
+            font-size: 22px;
+            color: #004aad;
+        }
+
+        /* Campos de entrada */
+        .input-group {
+            position: relative;
+            width: 100%;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .input-group input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+        }
+
+        /* Botón de inicio de sesión */
+        .login-button {
+            background-color: white;
+            color: #004aad;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease-in-out;
+            margin-top: 10px;
+        }
+
+        .login-button:hover {
+            background-color: #003580;
+            color: white;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Mensajes de error */
+        .error-message {
+            text-align: left;
+            font-size: 14px;
+            color: white;
+            background: #d9534f;
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin-top: 5px;
+            font-weight: bold;
+            display: none;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .error-active {
+            display: block;
+        }
+
+        /* Borde rojo en caso de error */
+        .input-error {
+            border: 2px solid #d9534f !important;
+            box-shadow: 0 0 8px rgba(217, 83, 79, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <!-- Logo de la Farmacia -->
+    <div class="logo-container">
+        <img src="{% static 'img/logo.png' %}" alt="Farmacia Vital Logo">
+    </div>
+
+    <!-- Formulario de Inicio de Sesión -->
+    <div class="login-form">
+        <h2>Iniciar Sesión</h2>
+
+        <!-- Alerta General de Error desde Backend -->
+        {% if messages %}
+            <div id="general-alert" class="general-alert">
+                {% for message in messages %}
+                    {{ message }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="POST" action="{% url 'authapp:login' %}" onsubmit="return validarFormulario()">
+            {% csrf_token %}
+
+            <div class="input-container">
+                <div class="input-icon">👤</div>
+                <div class="input-group">
+                    <input type="text" name="username" id="username" placeholder="Usuario" aria-label="Usuario" required>
+                    <p class="error-message" id="error-username">⚠ Debes ingresar tu usuario.</p>
+                </div>
+            </div>
+
+            <div class="input-container">
+                <div class="input-icon">🔒</div>
+                <div class="input-group">
+                    <input type="password" name="password" id="password" placeholder="Contraseña" aria-label="Contraseña" required>
+                    <p class="error-message" id="error-password">⚠ Debes ingresar tu contraseña.</p>
+                </div>
+            </div>
+
+            <button type="submit" class="login-button">Ingresar</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let generalAlert = document.getElementById("general-alert");
+        if (generalAlert && generalAlert.innerText.trim() !== "") {
+            generalAlert.style.opacity = "1";
+            setTimeout(() => {
+                generalAlert.style.opacity = "0";
+            }, 4000);
+        }
+    });
+
+    function validarFormulario() {
+        let username = document.getElementById("username").value.trim();
+        let password = document.getElementById("password").value.trim();
+
+        if (username === "" || password === "") {
+            alert("⚠ Debes completar todos los campos antes de enviar.");
+            return false;
+        }
+        return true;
+    }
+</script>
+
+</body>
+</html>

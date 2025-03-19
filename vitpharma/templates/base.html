@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}VIT PHARMA{% endblock %}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar {
+            background-color: #004AAD; /* Azul más fuerte */
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .logout-button {
+            background-color: #DC3545;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+            border: none;
+            outline: none;
+        }
+
+        .logout-button:hover {
+            background-color: #A52A2A;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            min-height: 70vh;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #004AAD;
+            color: white;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+            font-weight: bold;
+        }
+
+        /* Modal de confirmación */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            width: 300px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .modal-button {
+            padding: 10px 15px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .modal-button.confirm {
+            background-color: #DC3545;
+            color: white;
+        }
+
+        .modal-button.confirm:hover {
+            background-color: #A52A2A;
+        }
+
+        .modal-button.cancel {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .modal-button.cancel:hover {
+            background-color: #495057;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <span>SISTEMA DE INFORMACIÓN VIT PHARMA</span>
+        <button class="logout-button" onclick="mostrarModal()">🚪 Cerrar Sesión</button>
+    </div>
+
+    <div class="container">
+        {% block content %}
+        <!-- Aquí se insertará el contenido de cada página -->
+        {% endblock %}
+    </div>
+
+    <div class="footer">
+        <p>Farmacia Vital &copy; 2025</p>
+    </div>
+
+    <!-- Modal de confirmación -->
+    <div id="logoutModal" class="modal">
+        <div class="modal-content">
+            <p><strong>¿Seguro que deseas cerrar sesión?</strong></p>
+            <div class="modal-buttons">
+                <button class="modal-button confirm" onclick="confirmarLogout()">Sí, cerrar sesión</button>
+                <button class="modal-button cancel" onclick="cerrarModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function mostrarModal() {
+            document.getElementById("logoutModal").style.display = "flex";
+        }
+
+        function cerrarModal() {
+            document.getElementById("logoutModal").style.display = "none";
+        }
+
+        function confirmarLogout() {
+            window.location.href = "{% url 'authapp:logout' %}";
+        }
+    </script>
+
+</body>
+</html>

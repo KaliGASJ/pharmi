@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}Agregar Usuario | VIT PHARMA{% endblock %}
+
+{% block content %}
+<style>
+    .form-container {
+        max-width: 500px;
+        margin: auto;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    h2 {
+        color: #004AAD;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+        text-align: left;
+    }
+
+    label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    input, select {
+        width: 100%;
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+
+    .button {
+        display: inline-block;
+        padding: 10px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    .submit-button {
+        background-color: #28A745;
+    }
+
+    .cancel-button {
+        background-color: #DC3545;
+    }
+
+    .error-message {
+        color: #DC3545;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+
+    .messages {
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+    }
+
+    .success-message {
+        background-color: #D4EDDA;
+        color: #155724;
+    }
+
+    .error-message {
+        background-color: #F8D7DA;
+        color: #721C24;
+    }
+</style>
+
+<div class="form-container">
+    <h2>Agregar Nuevo Usuario</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="messages {% if message.tags == 'success' %}success-message{% else %}error-message{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            {{ form.username.label_tag }}
+            {{ form.username }}
+            <span class="error-message">{{ form.username.errors }}</span>
+        </div>
+
+        <div class="form-group">
+            {{ form.first_name.label_tag }}
+            {{ form.first_name }}
+            <span class="error-message">{{ form.first_name.errors }}</span>
+        </div>
+
+        <div class="form-group">
+            {{ form.last_name.label_tag }}
+            {{ form.last_name }}
+            <span class="error-message">{{ form.last_name.errors }}</span>
+        </div>
+
+        <div class="form-group">
+            {{ form.email.label_tag }}
+            {{ form.email }}
+            <span class="error-message">{{ form.email.errors }}</span>
+        </div>
+
+        <div class="form-group">
+            {{ form.password1.label_tag }}
+            {{ form.password1 }}
+            <span class="error-message">{{ form.password1.errors }}</span>
+        </div>
+
+        <div class="form-group">
+            {{ form.password2.label_tag }}
+            {{ form.password2 }}
+            <span class="error-message">{{ form.password2.errors }}</span>
+        </div>
+
+        <!-- Campo para seleccionar el Rol (Administrador o Vendedor) -->
+        <div class="form-group">
+            {{ form.rol.label_tag }}
+            {{ form.rol }}
+            <span class="error-message">{{ form.rol.errors }}</span>
+        </div>
+
+        <button type="submit" class="button submit-button">Guardar</button>
+        <a href="{% url 'authapp:admin_usuarios' %}" class="button cancel-button">Cancelar</a>
+    </form>
+</div>
+
+{% endblock %}

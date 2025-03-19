@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Producto | VIT PHARMA{% endblock %}
+
+{% block content %}
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: auto;
+        padding: 20px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+        text-align: center;
+    }
+
+    h2 {
+        color: #004AAD;
+        margin-bottom: 10px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+        text-align: left;
+    }
+
+    label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    input, select, textarea {
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+    }
+
+    textarea {
+        resize: none;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+    }
+
+    .button {
+        padding: 12px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        width: 48%;
+        text-align: center;
+    }
+
+    .submit-button {
+        background-color: #007BFF;
+        color: white;
+    }
+
+    .submit-button:hover {
+        background-color: #0056b3;
+    }
+
+    .cancel-button {
+        background-color: #DC3545;
+        color: white;
+    }
+
+    .cancel-button:hover {
+        background-color: #A52A2A;
+    }
+
+    .messages {
+        margin-bottom: 15px;
+        padding: 10px;
+        border-radius: 5px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .success-message {
+        background-color: #D4EDDA;
+        color: #155724;
+    }
+
+    .error-message {
+        background-color: #F8D7DA;
+        color: #721C24;
+    }
+
+    .error-text {
+        color: #DC3545;
+        font-size: 14px;
+        display: block;
+        margin-top: 5px;
+    }
+</style>
+
+<div class="form-container">
+    <h2>✏️ Editar Producto</h2>
+    <p>Modifica los datos del producto. El stock se gestiona en otra sección.</p>
+
+    <!-- Mensajes de éxito/error -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="messages {% if message.tags == 'success' %}success-message{% else %}error-message{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form id="product-form" method="POST">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label>Nombre del Producto</label>
+            {{ form.nombre }}
+            <small class="error-text" id="error-nombre"></small>
+        </div>
+
+        <div class="form-group">
+            <label>Descripción</label>
+            {{ form.descripcion }}
+        </div>
+
+        <div class="form-group">
+            <label>Categoría</label>
+            {{ form.id_categoria }}
+        </div>
+
+        <div class="form-group">
+            <label>Departamento</label>
+            {{ form.id_departamento }}
+        </div>
+
+        <div class="form-group">
+            <label>Estado</label>
+            {{ form.estado }}
+        </div>
+
+        <div class="button-container">
+            <button type="submit" class="button submit-button">✅ Guardar Cambios</button>
+            <a href="{% url 'inventario:listar_productos' %}" class="button cancel-button">❌ Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.getElementById("product-form").addEventListener("submit", function(event) {
+        let nombre = document.getElementById("id_nombre").value.trim();
+        let errorNombre = document.getElementById("error-nombre");
+
+        if (nombre === "") {
+            errorNombre.innerText = "⚠ El nombre del producto es obligatorio.";
+            event.preventDefault();
+        } else {
+            errorNombre.innerText = "";
+        }
+    });
+</script>
+
+{% endblock %}

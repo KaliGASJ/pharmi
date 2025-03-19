@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}Historial de Modificaciones | VIT PHARMA{% endblock %}
+
+{% block content %}
+<style>
+    .historial-container {
+        max-width: 1000px;
+        margin: auto;
+        padding: 20px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+        text-align: center;
+    }
+
+    h2 {
+        color: #004AAD;
+        margin-bottom: 15px;
+    }
+
+    .search-bar {
+        margin-bottom: 20px;
+        text-align: right;
+    }
+
+    .search-bar input {
+        padding: 10px;
+        width: 280px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-top: 10px;
+    }
+
+    table, th, td {
+        border: 1px solid #ddd;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    th {
+        background-color: #004AAD;
+        color: white;
+        font-weight: bold;
+    }
+
+    .recent-change {
+        background-color: #FFF3CD !important;
+    }
+
+    .button-container {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .back-button {
+        background-color: #6c757d;
+        color: white;
+        padding: 12px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .back-button:hover {
+        background-color: #545b62;
+    }
+</style>
+
+<div class="historial-container">
+    <h2>📜 Historial de Modificaciones del Inventario</h2>
+
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="🔍 Buscar por producto, usuario o lote..." onkeyup="filtrarHistorial()">
+    </div>
+
+    <table id="tablaHistorial">
+        <tr>
+            <th>📅 Fecha</th>
+            <th>📦 Producto</th>
+            <th>🔢 Lote</th>
+            <th>🏢 Proveedor</th>
+            <th>👤 Usuario</th>
+            <th>📝 Acción</th>
+            <th>📊 Cantidad</th>
+        </tr>
+        {% for item in historial %}
+        <tr class="{% if forloop.first %}recent-change{% endif %}">
+            <td>{{ item.fecha_modificacion|date:"d/m/Y H:i" }}</td>
+            <td>{{ item.producto.nombre }}</td>
+            <td>{{ item.lote|default:"N/A" }}</td>
+            <td>{{ item.id_proveedor.nombre|default:"No asignado" }}</td>
+            <td>{{ item.usuario_modificacion.username|default:"-" }}</td>
+            <td>{{ item.accion }}</td>
+            <td>{{ item.cantidad }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="7"><strong>No hay modificaciones registradas.</strong></td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div class="button-container">
+        <a href="{% url 'inventario:listar_productos' %}" class="back-button">🔙 Volver al Inventario</a>
+    </div>
+</div>
+
+<script>
+    function filtrarHistorial() {
+        let input = document.getElementById("searchInput").value.toLowerCase();
+        let filas = document.querySelectorAll("#tablaHistorial tr");
+
+        filas.forEach((fila, index) => {
+            if (index === 0) return; // Saltar encabezado
+            let producto = fila.cells[1].textContent.toLowerCase();
+            let lote = fila.cells[2].textContent.toLowerCase();
+            let proveedor = fila.cells[3].textContent.toLowerCase();
+            let usuario = fila.cells[4].textContent.toLowerCase();
+            fila.style.display = (producto.includes(input) || lote.includes(input) || proveedor.includes(input) || usuario.includes(input)) ? "" : "none";
+        });
+    }
+</script>
+
+{% endblock %}

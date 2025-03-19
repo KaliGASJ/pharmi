@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block title %}Panel de Vendedor{% endblock %}
+
+{% block content %}
+    <h1>Bienvenido, Vendedor</h1>
+    <p>Aquí puedes gestionar ventas, consultar inventario y generar reportes.</p>
+    <a href="{% url 'authapp:logout' %}">Cerrar sesión</a>
+{% endblock %}

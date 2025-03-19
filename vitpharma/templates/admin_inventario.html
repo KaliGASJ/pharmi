@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}Inventario | VIT PHARMA{% endblock %}
+
+{% block content %}
+<style>
+    .inventario-container {
+        padding: 20px;
+        text-align: center;
+    }
+
+    .search-bar {
+        margin-bottom: 20px;
+        text-align: right;
+    }
+
+    .search-bar input {
+        padding: 8px;
+        width: 250px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    table, th, td {
+        border: 1px solid #ddd;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: center;
+    }
+
+    th {
+        background-color: #004AAD;
+        color: white;
+        font-weight: bold;
+    }
+
+    .button {
+        padding: 8px 12px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        display: inline-block;
+        margin: 5px;
+    }
+
+    .edit-button {
+        background-color: #FFC107;
+        color: black;
+    }
+
+    .delete-button {
+        background-color: #DC3545;
+        color: white;
+    }
+
+    .add-button {
+        background-color: #28A745;
+        color: white;
+        padding: 10px 15px;
+    }
+</style>
+
+<div class="inventario-container">
+    <h2>Gestión de Inventario</h2>
+
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Buscar producto..." onkeyup="filtrarProductos()">
+    </div>
+
+    <a href="{% url 'inventario:agregar_producto' %}" class="button add-button">Agregar Producto</a>
+
+    <table id="tablaInventario">
+        <tr>
+            <th>ID</th>
+            <th>Producto</th>
+            <th>Descripción</th>
+            <th>Cantidad</th>
+            <th>Precio</th>
+            <th>Acciones</th>
+        </tr>
+        {% for producto in productos %}
+        <tr>
+            <td>{{ producto.id_producto }}</td>
+            <td>{{ producto.nombre }}</td>
+            <td>{{ producto.descripcion }}</td>
+            <td>{{ producto.total_stock }}</td>
+            <td>${{ producto.precio_venta }}</td>
+            <td>
+                <a href="{% url 'inventario:editar_producto' producto.id_producto %}" class="button edit-button">Editar</a>
+                <a href="{% url 'inventario:eliminar_producto' producto.id_producto %}" class="button delete-button" onclick="return confirm('¿Estás seguro de eliminar este producto?')">Eliminar</a>
+                <a href="{% url 'inventario:gestionar_stock' producto.id_producto %}" class="button">Gestionar Stock</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6"><strong>No hay productos registrados.</strong></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<script>
+    function filtrarProductos() {
+        let input = document.getElementById("searchInput").value.toLowerCase();
+        let filas = document.querySelectorAll("#tablaInventario tr");
+
+        filas.forEach((fila, index) => {
+            if (index === 0) return; // Saltar encabezado
+            let nombre = fila.cells[1].textContent.toLowerCase();
+            fila.style.display = nombre.includes(input) ? "" : "none";
+        });
+    }
+</script>
+
+{% endblock %}
