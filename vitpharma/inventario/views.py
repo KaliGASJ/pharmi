@@ -2,32 +2,50 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from .models import Producto, InventarioProducto, Proveedor
-from .forms import ProductoForm, InventarioProductoForm, AgregarStockForm
+from .forms import ProductoForm, AgregarLoteForm, AgregarStockForm, EditarLoteForm, EliminarLoteForm
+
 
 # -------------------- PERMISOS --------------------
 
 def es_administrador(user):
-    """Verifica si el usuario es administrador."""
     return user.is_authenticated and user.groups.filter(name="administrador").exists()
 
 def es_vendedor(user):
-    """Verifica si el usuario es vendedor."""
     return user.is_authenticated and user.groups.filter(name="vendedor").exists()
+
 
 # -------------------- LISTAR PRODUCTOS --------------------
 
 @login_required
 def listar_productos(request):
-    """Lista todos los productos en el inventario."""
     productos = Producto.objects.all()
     return render(request, "listar_productos.html", {"productos": productos})
+
+
+# -------------------- DETALLE DEL PRODUCTO --------------------
+
+@login_required
+def detalle_producto(request, producto_id):
+    """Muestra todos los detalles del producto."""
+    producto = get_object_or_404(Producto, id_producto=producto_id)
+    return render(request, "detalle_producto.html", {"producto": producto})
+
+
+# -------------------- DETALLE DE LOTES --------------------
+
+@login_required
+def detalle_lotes(request, producto_id):
+    """Muestra todos los lotes de un producto específico."""
+    producto = get_object_or_404(Producto, id_producto=producto_id)
+    lotes = InventarioProducto.objects.filter(producto=producto)
+    return render(request, "detalle_lotes.html", {"producto": producto, "lotes": lotes})
+
 
 # -------------------- ADMINISTRADOR: GESTIÓN DE PRODUCTOS --------------------
 
 @login_required
 @user_passes_test(es_administrador)
 def agregar_producto(request):
-    """Permite al administrador agregar un nuevo producto."""
     if request.method == "POST":
         form = ProductoForm(request.POST)
         if form.is_valid():
@@ -36,17 +54,15 @@ def agregar_producto(request):
             producto.save()
             messages.success(request, f"Producto '{producto.nombre}' agregado correctamente.")
             return redirect("inventario:listar_productos")
-        else:
-            messages.error(request, "Error al agregar el producto. Verifique los datos.")
+        messages.error(request, "Error al agregar el producto. Verifique los datos.")
     else:
         form = ProductoForm()
-
     return render(request, "agregar_producto.html", {"form": form})
+
 
 @login_required
 @user_passes_test(es_administrador)
 def editar_producto(request, producto_id):
-    """Permite al administrador editar un producto existente (NO modifica stock)."""
     producto = get_object_or_404(Producto, id_producto=producto_id)
 
     if request.method == "POST":
@@ -57,19 +73,18 @@ def editar_producto(request, producto_id):
             producto.save()
             messages.success(request, f"Producto '{producto.nombre}' actualizado correctamente.")
             return redirect("inventario:listar_productos")
-        else:
-            messages.error(request, "Error al actualizar el producto. Verifique los datos.")
+        messages.error(request, "Error al actualizar el producto. Verifique los datos.")
     else:
         form = ProductoForm(instance=producto)
 
     return render(request, "editar_producto.html", {"form": form, "producto": producto})
 
+
 @login_required
 @user_passes_test(es_administrador)
 def eliminar_producto(request, producto_id):
-    """Permite al administrador eliminar un producto del inventario."""
     producto = get_object_or_404(Producto, id_producto=producto_id)
-    
+
     if InventarioProducto.objects.filter(producto=producto).exists():
         messages.error(request, "No se puede eliminar un producto con stock disponible.")
         return redirect("inventario:listar_productos")
@@ -81,12 +96,35 @@ def eliminar_producto(request, producto_id):
 
     return render(request, "eliminar_producto.html", {"producto": producto})
 
+
+# -------------------- ADMINISTRADOR: AGREGAR LOTE --------------------
+
+@login_required
+@user_passes_test(es_administrador)
+def agregar_lote(request, producto_id):
+    producto = get_object_or_404(Producto, id_producto=producto_id)
+
+    if request.method == "POST":
+        form = AgregarLoteForm(request.POST)
+        if form.is_valid():
+            lote = form.save(commit=False)
+            lote.producto = producto  # Asociar el lote con el producto
+            lote.usuario_registro = request.user
+            lote.save()
+            messages.success(request, f"Lote '{lote.lote}' agregado correctamente.")
+            return redirect("inventario:detalle_lotes", producto_id=producto.id_producto)
+        messages.error(request, "Error al agregar el lote. Verifique los datos.")
+    else:
+        form = AgregarLoteForm()
+
+    return render(request, "agregar_lote.html", {"form": form, "producto": producto})
+
+
 # -------------------- VENDEDORES: AGREGAR STOCK --------------------
 
 @login_required
 @user_passes_test(es_vendedor)
 def agregar_stock(request):
-    """Permite a los vendedores agregar stock a un producto existente."""
     if request.method == "POST":
         form = AgregarStockForm(request.POST)
         if form.is_valid():
@@ -94,80 +132,59 @@ def agregar_stock(request):
             stock.usuario_registro = request.user
 
             lote_existente = InventarioProducto.objects.filter(
-                producto=stock.producto, 
+                producto=stock.producto,
                 lote=stock.lote,
                 id_proveedor=stock.id_proveedor
             ).first()
 
             if lote_existente:
                 lote_existente.cantidad += stock.cantidad
-                lote_existente.usuario_modificacion = request.user
                 lote_existente.save()
                 messages.success(request, f"Stock del lote '{stock.lote}' actualizado correctamente.")
             else:
-                stock.save()
-                messages.success(request, f"Nuevo lote agregado para '{stock.producto.nombre}'.")
+                messages.error(request, "Solo se permite agregar stock a lotes existentes.")
 
-            return redirect("inventario:listar_productos")
-        else:
-            messages.error(request, "Error al agregar stock. Verifique los datos ingresados.")
+            return redirect("inventario:detalle_lotes", producto_id=stock.producto.id_producto)
+        messages.error(request, "Error al agregar stock. Verifique los datos.")
     else:
         form = AgregarStockForm()
 
     return render(request, "agregar_stock.html", {"form": form})
 
-# -------------------- ADMINISTRADOR: GESTIÓN DE LOTES --------------------
+
+# -------------------- ADMINISTRADOR: EDITAR LOTE --------------------
 
 @login_required
 @user_passes_test(es_administrador)
-def gestionar_stock(request, producto_id):
-    """Permite al administrador gestionar los lotes y el stock de un producto."""
-    producto = get_object_or_404(Producto, id_producto=producto_id)
-    lotes = InventarioProducto.objects.filter(producto=producto)
-    proveedores = Proveedor.objects.all()  # Obtener la lista de proveedores
+def editar_lote(request, lote_id):
+    lote = get_object_or_404(InventarioProducto, id_inventario=lote_id)
 
     if request.method == "POST":
-        form = InventarioProductoForm(request.POST)
+        form = EditarLoteForm(request.POST, instance=lote)
         if form.is_valid():
             lote = form.save(commit=False)
-            lote.producto = producto
             lote.usuario_modificacion = request.user
-
-            lote_existente = InventarioProducto.objects.filter(
-                producto=producto, 
-                lote=lote.lote,
-                id_proveedor=lote.id_proveedor
-            ).first()
-
-            if lote_existente:
-                lote_existente.cantidad += lote.cantidad
-                lote_existente.usuario_modificacion = request.user
-                lote_existente.save()
-                messages.success(request, f"Stock del lote '{lote.lote}' actualizado correctamente.")
-            else:
-                lote.save()
-                messages.success(request, f"Nuevo lote agregado para '{producto.nombre}'.")
-
-            return redirect("inventario:gestionar_stock", producto_id=producto.id_producto)
-        else:
-            # 🔴 Imprimir errores en la consola del servidor
-            print("Errores del formulario:", form.errors)
-            messages.error(request, "Error al actualizar stock. Verifique los datos.")
+            lote.save()
+            messages.success(request, f"Lote '{lote.lote}' actualizado correctamente.")
+            return redirect("inventario:detalle_lotes", producto_id=lote.producto.id_producto)
+        messages.error(request, "Error al editar el lote. Verifique los datos.")
     else:
-        form = InventarioProductoForm(initial={"producto": producto})
+        form = EditarLoteForm(instance=lote)
 
-    return render(request, "gestionar_stock.html", {
-        "form": form, 
-        "producto": producto, 
-        "lotes": lotes,
-        "proveedores": proveedores  # Pasar proveedores al contexto
-    })
+    return render(request, "editar_lote.html", {"form": form, "lote": lote})
 
-# -------------------- ADMINISTRADOR: HISTORIAL DE MODIFICACIONES --------------------
+
+# -------------------- ADMINISTRADOR: ELIMINAR LOTE --------------------
 
 @login_required
 @user_passes_test(es_administrador)
-def historial_modificaciones(request):
-    """Muestra el historial de modificaciones de inventario."""
-    historial = InventarioProducto.objects.all().order_by("-fecha_modificacion")
-    return render(request, "historial_modificaciones.html", {"historial": historial})
+def eliminar_lote(request, lote_id):
+    lote = get_object_or_404(InventarioProducto, id_inventario=lote_id)
+    producto = lote.producto
+
+    if request.method == "POST":
+        lote.delete()
+        messages.success(request, f"Lote '{lote.lote}' eliminado correctamente.")
+        return redirect("inventario:detalle_lotes", producto_id=producto.id_producto)
+
+    return render(request, "eliminar_lote.html", {"lote": lote, "producto": producto})

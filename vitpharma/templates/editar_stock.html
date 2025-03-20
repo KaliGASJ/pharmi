@@ -1,20 +1,22 @@
 {% extends 'base.html' %}
 
-{% block title %}Agregar Stock | VIT PHARMA{% endblock %}
+{% block title %}Editar Stock | VIT PHARMA{% endblock %}
 
 {% block content %}
 <style>
-    .stock-container {
+    .form-container {
         max-width: 700px;
         margin: auto;
-        padding: 20px;
+        padding: 25px;
         background: white;
         border-radius: 10px;
         box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
         text-align: center;
     }
 
-    h2 {
+    .form-title {
+        font-size: 24px;
+        font-weight: bold;
         color: #004AAD;
         margin-bottom: 15px;
     }
@@ -32,7 +34,7 @@
 
     input, select {
         width: 100%;
-        padding: 10px;
+        padding: 12px;
         border-radius: 5px;
         border: 1px solid #ccc;
         font-size: 16px;
@@ -45,7 +47,7 @@
     }
 
     .button {
-        padding: 12px 15px;
+        padding: 12px 18px;
         text-decoration: none;
         border-radius: 5px;
         font-weight: bold;
@@ -62,12 +64,30 @@
         color: white;
     }
 
-    .back-button {
-        background-color: #6c757d;
+    .cancel-button {
+        background-color: #DC3545;
         color: white;
     }
 
+    .messages {
+        margin-bottom: 15px;
+        padding: 10px;
+        border-radius: 5px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .success-message {
+        background-color: #D4EDDA;
+        color: #155724;
+    }
+
     .error-message {
+        background-color: #F8D7DA;
+        color: #721C24;
+    }
+
+    .error-text {
         color: #DC3545;
         font-size: 14px;
         display: block;
@@ -75,9 +95,9 @@
     }
 </style>
 
-<div class="stock-container">
-    <h2>📦 Agregar Stock</h2>
-    <p>Ingresa los detalles del stock adicional.</p>
+<div class="form-container">
+    <h2 class="form-title">✏ Editar Stock</h2>
+    <p>Modifica los datos del stock y guarda los cambios.</p>
 
     <!-- Mensajes de éxito/error -->
     {% if messages %}
@@ -99,7 +119,7 @@
         <div class="form-group">
             {{ form.lote.label_tag }}
             {{ form.lote }}
-            <small class="error-message" id="error-lote"></small>
+            <small class="error-text" id="error-lote"></small>
         </div>
 
         <div class="form-group">
@@ -110,30 +130,36 @@
         <div class="form-group">
             {{ form.fecha_caducidad.label_tag }}
             {{ form.fecha_caducidad }}
-            <small class="error-message" id="error-fecha"></small>
+            <small class="error-text" id="error-fecha"></small>
         </div>
 
         <div class="form-group">
             {{ form.precio_compra.label_tag }}
             {{ form.precio_compra }}
-            <small class="error-message" id="error-precio-compra"></small>
+            <small class="error-text" id="error-precio-compra"></small>
         </div>
 
         <div class="form-group">
             {{ form.precio_venta.label_tag }}
             {{ form.precio_venta }}
-            <small class="error-message" id="error-precio-venta"></small>
+            <small class="error-text" id="error-precio-venta"></small>
+        </div>
+
+        <div class="form-group">
+            {{ form.descuento_porcentaje.label_tag }}
+            {{ form.descuento_porcentaje }}
+            <small class="error-text" id="error-descuento"></small>
         </div>
 
         <div class="form-group">
             {{ form.cantidad.label_tag }}
             {{ form.cantidad }}
-            <small class="error-message" id="error-cantidad"></small>
+            <small class="error-text" id="error-cantidad"></small>
         </div>
 
         <div class="button-container">
-            <button type="submit" class="button submit-button">✅ Guardar Stock</button>
-            <a href="{% url 'inventario:listar_productos' %}" class="button back-button">🔙 Volver</a>
+            <button type="submit" class="button submit-button">💾 Guardar Cambios</button>
+            <a href="{% url 'inventario:detalle_lotes' lote.producto.id_producto %}" class="button cancel-button">🔙 Cancelar</a>
         </div>
     </form>
 </div>
@@ -146,12 +172,14 @@
         let lote = document.getElementById("id_lote").value.trim();
         let precioCompra = document.getElementById("id_precio_compra").value.trim();
         let precioVenta = document.getElementById("id_precio_venta").value.trim();
+        let descuento = document.getElementById("id_descuento_porcentaje").value.trim();
 
         let errorCantidad = document.getElementById("error-cantidad");
         let errorFecha = document.getElementById("error-fecha");
         let errorLote = document.getElementById("error-lote");
         let errorPrecioCompra = document.getElementById("error-precio-compra");
         let errorPrecioVenta = document.getElementById("error-precio-venta");
+        let errorDescuento = document.getElementById("error-descuento");
 
         let valid = true;
 
@@ -193,6 +221,13 @@
         if (precioCompra !== "" && precioVenta !== "" && parseFloat(precioVenta) < parseFloat(precioCompra)) {
             errorPrecioVenta.innerText = "⚠ El precio de venta no puede ser menor al de compra.";
             valid = false;
+        }
+
+        if (descuento !== "" && (parseFloat(descuento) < 0 || parseFloat(descuento) > 100)) {
+            errorDescuento.innerText = "⚠ El descuento debe estar entre 0% y 100%.";
+            valid = false;
+        } else {
+            errorDescuento.innerText = "";
         }
 
         if (!valid) {

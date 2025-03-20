@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalles del Producto | VIT PHARMA{% endblock %}
+
+{% block content %}
+<style>
+    .product-container {
+        max-width: 800px;
+        margin: auto;
+        padding: 20px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+        text-align: center;
+    }
+
+    .product-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #004AAD;
+        margin-bottom: 15px;
+    }
+
+    .product-info {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: left;
+        font-size: 16px;
+        margin-bottom: 15px;
+    }
+
+    .product-info p {
+        margin: 8px 0;
+    }
+
+    .product-info strong {
+        color: #004AAD;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+    }
+
+    .button {
+        padding: 12px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        width: 48%;
+        text-align: center;
+        transition: 0.3s;
+    }
+
+    .edit-button {
+        background-color: #FFC107;
+        color: black;
+    }
+
+    .back-button {
+        background-color: #6c757d;
+        color: white;
+    }
+</style>
+
+<div class="product-container">
+    <h2 class="product-title">📄 Detalles del Producto</h2>
+
+    <div class="product-info">
+        <p><strong>📌 Nombre:</strong> {{ producto.nombre }}</p>
+        <p><strong>📂 Categoría:</strong> {{ producto.id_categoria.nombre }}</p>
+        <p><strong>🏢 Departamento:</strong> {{ producto.id_departamento.nombre }}</p>
+        <p><strong>📦 Stock Mínimo:</strong> {{ producto.stock_minimo }}</p>
+        <p><strong>📊 Stock Actual:</strong> {{ producto.total_stock }}</p>
+        <p><strong>🆔 Código de Barras:</strong> {{ producto.codigo_barras|default:"N/A" }}</p>
+        <p><strong>🕒 Fecha de Creación:</strong> {{ producto.fecha_creacion|date:"d/m/Y H:i" }}</p>
+        <p><strong>✍ Última Modificación:</strong> {{ producto.fecha_modificacion|date:"d/m/Y H:i" }}</p>
+        <p><strong>👤 Registrado por:</strong> {{ producto.usuario_registro.username|default:"-" }}</p>
+        <p><strong>👤 Modificado por:</strong> {{ producto.usuario_modificacion.username|default:"-" }}</p>
+    </div>
+
+    <div class="button-container">
+        <a href="{% url 'inventario:editar_producto' producto.id_producto %}" class="button edit-button">✏ Editar Producto</a>
+        <a href="{% url 'inventario:listar_productos' %}" class="button back-button">🔙 Volver a la Lista</a>
+    </div>
+</div>
+
+{% endblock %}

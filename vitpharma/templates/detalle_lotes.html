@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalle de Lotes | VIT PHARMA{% endblock %}
+
+{% block content %}
+<style>
+    .container {
+        max-width: 90%;
+        margin: auto;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .header-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #004AAD;
+        margin-bottom: 20px;
+    }
+
+    .product-info {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: left;
+        font-size: 16px;
+        margin-bottom: 20px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .product-info strong {
+        color: #004AAD;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .button {
+        padding: 10px 15px;
+        border-radius: 5px;
+        font-weight: bold;
+        text-decoration: none;
+        text-align: center;
+        transition: 0.3s;
+    }
+
+    .button:hover {
+        opacity: 0.8;
+    }
+
+    .add-button { background-color: #28A745; color: white; }
+    .edit-button { background-color: #FFC107; color: black; }
+    .delete-button { background-color: #DC3545; color: white; }
+    .back-button { background-color: #6c757d; color: white; }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #004AAD;
+        color: white;
+        font-weight: bold;
+    }
+
+    tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    .low-stock { color: #DC3545; font-weight: bold; }
+    .expiring { color: #FFC107; font-weight: bold; }
+
+</style>
+
+<div class="container">
+    <h2 class="header-title">📦 Detalle de Lotes - {{ producto.nombre }}</h2>
+
+    <div class="product-info">
+        <p><strong>📂 Categoría:</strong> {{ producto.id_categoria.nombre }}</p>
+        <p><strong>🏢 Departamento:</strong> {{ producto.id_departamento.nombre }}</p>
+        <p><strong>📦 Stock Mínimo:</strong> {{ producto.stock_minimo }}</p>
+        <p><strong>📌 Código de Barras:</strong> {{ producto.codigo_barras }}</p>
+        <p><strong>📆 Fecha de Creación:</strong> {{ producto.fecha_creacion|date:"d/m/Y H:i" }}</p>
+    </div>
+
+    <div class="button-container">
+        <a href="{% url 'inventario:agregar_lote' producto.id_producto %}" class="button add-button">➕ Agregar Nuevo Lote</a>
+        <a href="{% url 'inventario:listar_productos' %}" class="button back-button">🔙 Volver a la Lista</a>
+    </div>
+
+    <!-- Tabla de lotes -->
+    <table>
+        <thead>
+            <tr>
+                <th>Lote</th>
+                <th>Proveedor</th>
+                <th>Fecha de Caducidad</th>
+                <th>Precio Compra</th>
+                <th>Precio Venta</th>
+                <th>Cantidad</th>
+                <th>Descuento (%)</th>
+                <th>Última Modificación</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lote in lotes %}
+            <tr class="{% if lote.cantidad <= producto.stock_minimo %}low-stock{% elif lote.fecha_caducidad and lote.fecha_caducidad <= today %}expiring{% endif %}">
+                <td>{{ lote.lote }}</td>
+                <td>{{ lote.id_proveedor.nombre|default:"No asignado" }}</td>
+                <td>{{ lote.fecha_caducidad|default:"-" }}</td>
+                <td>${{ lote.precio_compra }}</td>
+                <td>${{ lote.precio_venta }}</td>
+                <td>{{ lote.cantidad }}</td>
+                <td>{{ lote.descuento_porcentaje }}%</td>
+                <td>{{ lote.usuario_modificacion.username|default:"-" }} ({{ lote.fecha_modificacion|date:"d/m/Y H:i" }})</td>
+                <td>
+                    <a href="{% url 'inventario:editar_lote' lote.id_inventario %}" class="button edit-button">✏ Editar</a>
+                    <a href="{% url 'inventario:eliminar_lote' lote.id_inventario %}" class="button delete-button" onclick="return confirm('⚠ ¿Estás seguro de eliminar este lote?')">🗑 Eliminar</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9"><strong>No hay lotes registrados para este producto.</strong></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}Agregar Lote | VIT PHARMA{% endblock %}
+
+{% block content %}
+<style>
+    .form-container {
+        max-width: 700px;
+        margin: auto;
+        padding: 25px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+        text-align: center;
+    }
+
+    .form-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #004AAD;
+        margin-bottom: 15px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+        text-align: left;
+    }
+
+    label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    input, select {
+        width: 100%;
+        padding: 12px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+    }
+
+    .button {
+        padding: 12px 18px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        width: 48%;
+        text-align: center;
+        transition: 0.3s;
+    }
+
+    .submit-button {
+        background-color: #28A745;
+        color: white;
+    }
+
+    .cancel-button {
+        background-color: #DC3545;
+        color: white;
+    }
+</style>
+
+<div class="form-container">
+    <h2 class="form-title">➕ Agregar Nuevo Lote</h2>
+    <p>Complete la información para registrar un nuevo lote en el inventario.</p>
+
+    <!-- Mensajes de éxito/error -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="messages {% if message.tags == 'success' %}success-message{% else %}error-message{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="form-group">
+            {{ form.producto.label_tag }}
+            {{ form.producto }}
+        </div>
+
+        <div class="form-group">
+            {{ form.lote.label_tag }}
+            {{ form.lote }}
+        </div>
+
+        <div class="form-group">
+            {{ form.id_proveedor.label_tag }}
+            {{ form.id_proveedor }}
+        </div>
+
+        <div class="form-group">
+            {{ form.fecha_caducidad.label_tag }}
+            {{ form.fecha_caducidad }}
+        </div>
+
+        <div class="form-group">
+            {{ form.precio_compra.label_tag }}
+            {{ form.precio_compra }}
+        </div>
+
+        <div class="form-group">
+            {{ form.precio_venta.label_tag }}
+            {{ form.precio_venta }}
+        </div>
+
+        <div class="form-group">
+            {{ form.descuento_porcentaje.label_tag }}
+            {{ form.descuento_porcentaje }}
+        </div>
+
+        <div class="form-group">
+            {{ form.cantidad.label_tag }}
+            {{ form.cantidad }}
+        </div>
+
+        <div class="button-container">
+            <button type="submit" class="button submit-button">✅ Guardar Lote</button>
+            <a href="{% url 'inventario:detalle_lotes' producto.id_producto %}" class="button cancel-button">🔙 Cancelar</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+

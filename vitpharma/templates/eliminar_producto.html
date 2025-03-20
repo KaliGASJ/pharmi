@@ -59,6 +59,7 @@
         cursor: pointer;
         width: 48%;
         text-align: center;
+        transition: 0.3s;
     }
 
     .delete-button {
@@ -90,15 +91,21 @@
         <p><strong>📂 Categoría:</strong> {{ producto.id_categoria.nombre }}</p>
         <p><strong>🏢 Departamento:</strong> {{ producto.id_departamento.nombre }}</p>
         <p><strong>📦 Stock Disponible:</strong> {{ producto.total_stock }}</p>
+        <p><strong>🆔 Código de Barras:</strong> {{ producto.codigo_barras|default:"N/A" }}</p>
     </div>
 
-    <form method="POST" onsubmit="return confirmarEliminacion()">
-        {% csrf_token %}
-        <div class="button-container">
-            <button type="submit" class="button delete-button">❌ Confirmar Eliminación</button>
-            <a href="{% url 'inventario:listar_productos' %}" class="button cancel-button">🔙 Cancelar</a>
-        </div>
-    </form>
+    {% if producto.total_stock > 0 %}
+        <p class="warning-text">⚠️ No se puede eliminar un producto con stock disponible. Debe gestionar el stock antes de proceder.</p>
+        <a href="{% url 'inventario:listar_productos' %}" class="button cancel-button">🔙 Volver</a>
+    {% else %}
+        <form method="POST" onsubmit="return confirmarEliminacion()">
+            {% csrf_token %}
+            <div class="button-container">
+                <button type="submit" class="button delete-button">❌ Confirmar Eliminación</button>
+                <a href="{% url 'inventario:listar_productos' %}" class="button cancel-button">🔙 Cancelar</a>
+            </div>
+        </form>
+    {% endif %}
 </div>
 
 <script>

@@ -5,7 +5,7 @@
 {% block content %}
 <style>
     .form-container {
-        max-width: 600px;
+        max-width: 700px;
         margin: auto;
         padding: 20px;
         background: white;
@@ -14,9 +14,11 @@
         text-align: center;
     }
 
-    h2 {
+    .form-title {
+        font-size: 22px;
+        font-weight: bold;
         color: #004AAD;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
     }
 
     .form-group {
@@ -39,7 +41,8 @@
     }
 
     textarea {
-        resize: none;
+        resize: vertical;
+        min-height: 80px;
     }
 
     .button-container {
@@ -58,24 +61,21 @@
         cursor: pointer;
         width: 48%;
         text-align: center;
+        transition: 0.3s;
+    }
+
+    .button:hover {
+        opacity: 0.8;
     }
 
     .submit-button {
-        background-color: #007BFF;
+        background-color: #28A745;
         color: white;
-    }
-
-    .submit-button:hover {
-        background-color: #0056b3;
     }
 
     .cancel-button {
         background-color: #DC3545;
         color: white;
-    }
-
-    .cancel-button:hover {
-        background-color: #A52A2A;
     }
 
     .messages {
@@ -105,8 +105,8 @@
 </style>
 
 <div class="form-container">
-    <h2>✏️ Editar Producto</h2>
-    <p>Modifica los datos del producto. El stock se gestiona en otra sección.</p>
+    <h2 class="form-title">✏ Editar Producto</h2>
+    <p>Modifica los datos del producto y guarda los cambios.</p>
 
     <!-- Mensajes de éxito/error -->
     {% if messages %}
@@ -117,52 +117,85 @@
         {% endfor %}
     {% endif %}
 
-    <form id="product-form" method="POST">
+    <form id="producto-form" method="POST">
         {% csrf_token %}
-        
+
         <div class="form-group">
-            <label>Nombre del Producto</label>
+            {{ form.nombre.label_tag }}
             {{ form.nombre }}
             <small class="error-text" id="error-nombre"></small>
         </div>
 
         <div class="form-group">
-            <label>Descripción</label>
+            {{ form.descripcion.label_tag }}
             {{ form.descripcion }}
         </div>
 
         <div class="form-group">
-            <label>Categoría</label>
+            {{ form.id_categoria.label_tag }}
             {{ form.id_categoria }}
         </div>
 
         <div class="form-group">
-            <label>Departamento</label>
+            {{ form.id_departamento.label_tag }}
             {{ form.id_departamento }}
         </div>
 
         <div class="form-group">
-            <label>Estado</label>
-            {{ form.estado }}
+            {{ form.codigo_barras.label_tag }}
+            {{ form.codigo_barras }}
+            <small class="error-text" id="error-codigo"></small>
+        </div>
+
+        <div class="form-group">
+            {{ form.stock_minimo.label_tag }}
+            {{ form.stock_minimo }}
+            <small class="error-text" id="error-stock"></small>
         </div>
 
         <div class="button-container">
-            <button type="submit" class="button submit-button">✅ Guardar Cambios</button>
-            <a href="{% url 'inventario:listar_productos' %}" class="button cancel-button">❌ Cancelar</a>
+            <button type="submit" class="button submit-button">💾 Guardar Cambios</button>
+            <a href="{% url 'inventario:listar_productos' %}" class="button cancel-button">🔙 Cancelar</a>
         </div>
     </form>
 </div>
 
+<!-- Validaciones en tiempo real -->
 <script>
-    document.getElementById("product-form").addEventListener("submit", function(event) {
+    document.getElementById("producto-form").addEventListener("submit", function(event) {
         let nombre = document.getElementById("id_nombre").value.trim();
+        let codigoBarras = document.getElementById("id_codigo_barras").value.trim();
+        let stockMinimo = document.getElementById("id_stock_minimo").value.trim();
+
         let errorNombre = document.getElementById("error-nombre");
+        let errorCodigo = document.getElementById("error-codigo");
+        let errorStock = document.getElementById("error-stock");
+
+        let valid = true;
 
         if (nombre === "") {
             errorNombre.innerText = "⚠ El nombre del producto es obligatorio.";
-            event.preventDefault();
+            valid = false;
         } else {
             errorNombre.innerText = "";
+        }
+
+        if (codigoBarras !== "" && !/^\d+$/.test(codigoBarras)) {
+            errorCodigo.innerText = "⚠ El código de barras solo debe contener números.";
+            valid = false;
+        } else {
+            errorCodigo.innerText = "";
+        }
+
+        if (stockMinimo === "" || parseInt(stockMinimo) < 1) {
+            errorStock.innerText = "⚠ El stock mínimo debe ser mayor a 0.";
+            valid = false;
+        } else {
+            errorStock.innerText = "";
+        }
+
+        if (!valid) {
+            event.preventDefault();
         }
     });
 </script>

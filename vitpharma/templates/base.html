@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}VIT PHARMA{% endblock %}</title>
+    
     <style>
+        /* Estilos generales */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
@@ -12,8 +14,9 @@
             padding: 0;
         }
 
+        /* Navbar */
         .navbar {
-            background-color: #004AAD; /* Azul más fuerte */
+            background-color: #004AAD;
             padding: 15px;
             display: flex;
             justify-content: space-between;
@@ -21,6 +24,17 @@
             color: white;
             font-size: 18px;
             font-weight: bold;
+        }
+
+        .nav-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-title img {
+            width: 40px;
+            height: 40px;
         }
 
         .logout-button {
@@ -41,6 +55,7 @@
             background-color: #A52A2A;
         }
 
+        /* Contenedor principal */
         .container {
             max-width: 1200px;
             margin: 20px auto;
@@ -51,6 +66,7 @@
             min-height: 70vh;
         }
 
+        /* Footer */
         .footer {
             text-align: center;
             padding: 15px;
@@ -81,14 +97,14 @@
             padding: 20px;
             border-radius: 10px;
             text-align: center;
-            width: 300px;
+            width: 350px;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
         }
 
         .modal-buttons {
             margin-top: 20px;
             display: flex;
-            justify-content: space-around;
+            justify-content: space-between;
         }
 
         .modal-button {
@@ -99,6 +115,7 @@
             border-radius: 5px;
             cursor: pointer;
             transition: background 0.3s;
+            width: 45%;
         }
 
         .modal-button.confirm {
@@ -122,19 +139,25 @@
 </head>
 <body>
 
+    <!-- Navbar -->
     <div class="navbar">
-        <span>SISTEMA DE INFORMACIÓN VIT PHARMA</span>
+        <div class="nav-title">
+            <img src="/static/img/logo.png" alt="Logo"> 
+            <span>SISTEMA DE INFORMACIÓN VIT PHARMA</span>
+        </div>
         <button class="logout-button" onclick="mostrarModal()">🚪 Cerrar Sesión</button>
     </div>
 
+    <!-- Contenedor principal -->
     <div class="container">
         {% block content %}
         <!-- Aquí se insertará el contenido de cada página -->
         {% endblock %}
     </div>
 
+    <!-- Footer -->
     <div class="footer">
-        <p>Farmacia Vital &copy; 2025</p>
+        <p>Farmacia Vital &copy; 2025 | Todos los derechos reservados</p>
     </div>
 
     <!-- Modal de confirmación -->

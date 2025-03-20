@@ -5,7 +5,7 @@
 {% block content %}
 <style>
     .form-container {
-        max-width: 600px;
+        max-width: 800px;
         margin: auto;
         padding: 20px;
         background: white;
@@ -16,7 +16,7 @@
 
     h2 {
         color: #004AAD;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
     }
 
     .form-group {
@@ -38,8 +38,10 @@
         font-size: 16px;
     }
 
-    textarea {
-        resize: none;
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
     }
 
     .button {
@@ -53,6 +55,11 @@
         cursor: pointer;
         width: 48%;
         text-align: center;
+        transition: 0.3s;
+    }
+
+    .button:hover {
+        opacity: 0.8;
     }
 
     .submit-button {
@@ -60,17 +67,9 @@
         color: white;
     }
 
-    .submit-button:hover {
-        background-color: #218838;
-    }
-
     .cancel-button {
         background-color: #DC3545;
         color: white;
-    }
-
-    .cancel-button:hover {
-        background-color: #A52A2A;
     }
 
     .messages {
@@ -101,7 +100,7 @@
 
 <div class="form-container">
     <h2>🆕 Agregar Nuevo Producto</h2>
-    <p>Complete los campos para registrar un nuevo producto en el inventario.</p>
+    <p>Por favor, completa los datos para registrar un nuevo producto.</p>
 
     <!-- Mensajes de éxito/error -->
     {% if messages %}
@@ -114,11 +113,10 @@
 
     <form id="product-form" method="POST">
         {% csrf_token %}
-        
+
         <div class="form-group">
             {{ form.nombre.label_tag }}
             {{ form.nombre }}
-            <small class="error-text" id="error-nombre"></small>
         </div>
 
         <div class="form-group">
@@ -137,25 +135,51 @@
         </div>
 
         <div class="form-group">
-            {{ form.estado.label_tag }}
-            {{ form.estado }}
+            {{ form.codigo_barras.label_tag }}
+            {{ form.codigo_barras }}
+            <small class="error-text" id="error-codigo"></small>
         </div>
 
-        <button type="submit" class="button submit-button">✅ Guardar Producto</button>
-        <a href="{% url 'inventario:listar_productos' %}" class="button cancel-button">❌ Cancelar</a>
+        <div class="form-group">
+            {{ form.stock_minimo.label_tag }}
+            {{ form.stock_minimo }}
+            <small class="error-text" id="error-stock"></small>
+        </div>
+
+        <div class="button-container">
+            <button type="submit" class="button submit-button">✅ Agregar Producto</button>
+            <a href="{% url 'inventario:listar_productos' %}" class="button cancel-button">🔙 Cancelar</a>
+        </div>
     </form>
 </div>
 
+<!-- Script de validación en tiempo real -->
 <script>
     document.getElementById("product-form").addEventListener("submit", function(event) {
-        let nombre = document.getElementById("id_nombre").value.trim();
-        let errorNombre = document.getElementById("error-nombre");
+        let codigoBarras = document.getElementById("id_codigo_barras").value.trim();
+        let stockMinimo = document.getElementById("id_stock_minimo").value.trim();
 
-        if (nombre === "") {
-            errorNombre.innerText = "⚠ El nombre del producto es obligatorio.";
-            event.preventDefault();
+        let errorCodigo = document.getElementById("error-codigo");
+        let errorStock = document.getElementById("error-stock");
+
+        let valid = true;
+
+        if (codigoBarras === "" || !/^\d+$/.test(codigoBarras)) {
+            errorCodigo.innerText = "⚠ El código de barras debe contener solo números.";
+            valid = false;
         } else {
-            errorNombre.innerText = "";
+            errorCodigo.innerText = "";
+        }
+
+        if (stockMinimo === "" || parseInt(stockMinimo) <= 0) {
+            errorStock.innerText = "⚠ El stock mínimo debe ser mayor a 0.";
+            valid = false;
+        } else {
+            errorStock.innerText = "";
+        }
+
+        if (!valid) {
+            event.preventDefault();
         }
     });
 </script>

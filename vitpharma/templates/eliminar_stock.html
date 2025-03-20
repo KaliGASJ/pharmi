@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar Stock | VIT PHARMA{% endblock %}
+
+{% block content %}
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: auto;
+        padding: 25px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+        text-align: center;
+    }
+
+    .form-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #DC3545;
+        margin-bottom: 15px;
+    }
+
+    .warning-text {
+        font-size: 18px;
+        color: #DC3545;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    .stock-info {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: left;
+        font-size: 16px;
+        margin-bottom: 20px;
+    }
+
+    .stock-info strong {
+        color: #004AAD;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 25px;
+    }
+
+    .button {
+        padding: 12px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        width: 48%;
+        text-align: center;
+        transition: 0.3s;
+    }
+
+    .delete-button {
+        background-color: #DC3545;
+        color: white;
+    }
+
+    .cancel-button {
+        background-color: #6c757d;
+        color: white;
+    }
+</style>
+
+<div class="form-container">
+    <h2 class="form-title">🗑 Eliminar Stock</h2>
+    <p class="warning-text">⚠ ¿Estás seguro de que deseas eliminar este lote?</p>
+
+    <div class="stock-info">
+        <p><strong>📦 Producto:</strong> {{ lote.producto.nombre }}</p>
+        <p><strong>🔢 Lote:</strong> {{ lote.lote }}</p>
+        <p><strong>🏢 Proveedor:</strong> {{ lote.id_proveedor.nombre }}</p>
+        <p><strong>📆 Fecha de Caducidad:</strong> {{ lote.fecha_caducidad|default:"-" }}</p>
+        <p><strong>💰 Precio de Compra:</strong> ${{ lote.precio_compra }}</p>
+        <p><strong>💵 Precio de Venta:</strong> ${{ lote.precio_venta }}</p>
+        <p><strong>📊 Cantidad Disponible:</strong> {{ lote.cantidad }}</p>
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="button-container">
+            <button type="submit" class="button delete-button">🗑 Eliminar</button>
+            <a href="{% url 'inventario:detalle_lotes' lote.producto.id_producto %}" class="button cancel-button">🔙 Cancelar</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

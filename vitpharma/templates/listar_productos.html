@@ -6,19 +6,66 @@
 <style>
     .inventario-container {
         padding: 20px;
+        max-width: 90%;
+        margin: auto;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .header-title {
         text-align: center;
+        font-size: 28px;
+        font-weight: bold;
+        color: #004AAD;
+        margin-bottom: 20px;
     }
 
     .search-bar {
+        display: flex;
+        justify-content: center;
         margin-bottom: 20px;
-        text-align: right;
     }
 
     .search-bar input {
-        padding: 8px;
-        width: 300px;
-        border: 1px solid #ccc;
+        padding: 12px;
+        width: 400px;
+        border: 2px solid #004AAD;
         border-radius: 5px;
+        font-size: 16px;
+        text-align: center;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+    .button {
+        padding: 12px 18px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 16px;
+        border: none;
+        text-decoration: none;
+        text-align: center;
+        color: white;
+        transition: 0.3s;
+        box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .button:hover {
+        opacity: 0.8;
+    }
+
+    .back-button {
+        background-color: #6c757d;
+    }
+
+    .add-button {
+        background-color: #28A745;
     }
 
     table {
@@ -28,15 +75,13 @@
         background: white;
         border-radius: 8px;
         overflow: hidden;
-    }
-
-    table, th, td {
-        border: 1px solid #ddd;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
     }
 
     th, td {
         padding: 12px;
         text-align: center;
+        border-bottom: 1px solid #ddd;
     }
 
     th {
@@ -45,128 +90,104 @@
         font-weight: bold;
     }
 
-    .button {
-        padding: 8px 12px;
+    tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    .low-stock {
+        color: #DC3545;
+        font-weight: bold;
+    }
+
+    .expiring {
+        color: #FFC107;
+        font-weight: bold;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .btn-small {
+        padding: 8px 10px;
+        font-size: 14px;
+        border-radius: 5px;
+        font-weight: bold;
         text-decoration: none;
-        border-radius: 5px;
-        font-weight: bold;
-        display: inline-block;
-        margin: 5px;
+        text-align: center;
+        transition: 0.3s;
     }
 
-    .edit-button {
-        background-color: #FFC107;
-        color: black;
-    }
-
-    .delete-button {
-        background-color: #DC3545;
-        color: white;
-    }
-
-    .stock-button {
-        background-color: #007BFF;
-        color: white;
-    }
-
-    .add-button {
-        background-color: #28A745;
-        color: white;
-        padding: 10px 15px;
-    }
-
-    /* Mensajes de alerta */
-    .messages {
-        margin-bottom: 20px;
-        padding: 10px;
-        border-radius: 5px;
-        font-weight: bold;
-    }
-
-    .success-message {
-        background-color: #28A745;
-        color: white;
-    }
-
-    .error-message {
-        background-color: #DC3545;
-        color: white;
-    }
+    .view-button { background-color: #17A2B8; color: white; }
+    .stock-button { background-color: #007BFF; color: white; }
+    .edit-button { background-color: #FFC107; color: black; }
+    .delete-button { background-color: #DC3545; color: white; }
 </style>
 
 <div class="inventario-container">
-    <h2>Gestión de Inventario</h2>
-
-    <!-- Mensajes de éxito/error -->
-    {% if messages %}
-        {% for message in messages %}
-            <div class="messages {% if message.tags == 'success' %}success-message{% else %}error-message{% endif %}">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
+    <h2 class="header-title">📦 Listado de Productos</h2>
 
     <!-- Barra de búsqueda -->
     <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Buscar producto..." onkeyup="filtrarProductos()">
+        <input type="text" id="searchInput" placeholder="🔍 Buscar producto, código, categoría..." onkeyup="filtrarProductos()">
     </div>
 
-    <!-- Botón para agregar producto (solo administradores) -->
-    {% if request.user.is_authenticated and request.user.groups.all %}
-        {% for group in request.user.groups.all %}
-            {% if group.name == "administrador" %}
-                <a href="{% url 'inventario:agregar_producto' %}" class="button add-button">➕ Agregar Producto</a>
-            {% endif %}
-        {% endfor %}
-    {% endif %}
+    <!-- Botones de acción -->
+    <div class="button-container">
+        <a href="{% url 'inventario:agregar_producto' %}" class="button add-button">➕ Agregar Producto</a>
+        <a href="javascript:history.back()" class="button back-button">🔙 Regresar</a>
+    </div>
 
     <!-- Tabla de productos -->
     <table id="tablaInventario">
-        <tr>
-            <th>ID</th>
-            <th>Producto</th>
-            <th>Stock</th>
-            <th>Precio Venta</th>
-            <th>Acciones</th>
-        </tr>
-        {% for producto in productos %}
-        <tr>
-            <td>{{ producto.id_producto }}</td>
-            <td>{{ producto.nombre }}</td>
-            <td>{{ producto.total_stock }}</td>
-            <td>${{ producto.precio_venta }}</td>
-            <td>
-                {% if request.user.is_authenticated and request.user.groups.all %}
-                    {% for group in request.user.groups.all %}
-                        {% if group.name == "administrador" %}
-                            <a href="{% url 'inventario:editar_producto' producto.id_producto %}" class="button edit-button">✏ Editar</a>
-                            <a href="{% url 'inventario:eliminar_producto' producto.id_producto %}" class="button delete-button" onclick="return confirm('⚠ ¿Estás seguro de eliminar este producto?')">🗑 Eliminar</a>
-                            <a href="{% url 'inventario:gestionar_stock' producto.id_producto %}" class="button stock-button">📦 Gestionar Stock</a>
-                        {% elif group.name == "vendedor" %}
-                            <a href="{% url 'inventario:agregar_stock' %}" class="button stock-button">➕ Agregar Stock</a>
-                        {% endif %}
-                    {% endfor %}
-                {% endif %}
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="5"><strong>No hay productos registrados.</strong></td>
-        </tr>
-        {% endfor %}
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Producto</th>
+                <th>Categoría</th>
+                <th>Departamento</th>
+                <th>Código de Barras</th>
+                <th>Stock Actual</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producto in productos %}
+            <tr class="{% if producto.total_stock <= 5 %}low-stock{% elif producto.proximo_a_caducar %}expiring{% endif %}">
+                <td>{{ producto.id_producto }}</td>
+                <td>{{ producto.nombre }}</td>
+                <td>{{ producto.id_categoria.nombre }}</td>
+                <td>{{ producto.id_departamento.nombre }}</td>
+                <td>{{ producto.codigo_barras|default:"N/A" }}</td>
+                <td>{{ producto.total_stock }}</td>
+                <td class="action-buttons">
+                    <a href="{% url 'inventario:detalle_producto' producto.id_producto %}" class="btn-small view-button">👁 Ver</a>
+                    <a href="{% url 'inventario:detalle_lotes' producto.id_producto %}" class="btn-small stock-button">📦 Lotes</a>
+                    <a href="{% url 'inventario:editar_producto' producto.id_producto %}" class="btn-small edit-button">✏ Editar</a>
+                    <a href="{% url 'inventario:eliminar_producto' producto.id_producto %}" class="btn-small delete-button">🗑 Eliminar</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7"><strong>No hay productos registrados.</strong></td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
 </div>
 
-<!-- Script para la búsqueda en tiempo real -->
 <script>
     function filtrarProductos() {
         let input = document.getElementById("searchInput").value.toLowerCase();
-        let filas = document.querySelectorAll("#tablaInventario tr");
+        let filas = document.querySelectorAll("#tablaInventario tbody tr");
 
-        filas.forEach((fila, index) => {
-            if (index === 0) return; // Saltar encabezado
+        filas.forEach(fila => {
             let nombre = fila.cells[1].textContent.toLowerCase();
-            fila.style.display = nombre.includes(input) ? "" : "none";
+            let codigoBarras = fila.cells[4].textContent.toLowerCase();
+            let categoria = fila.cells[2].textContent.toLowerCase();
+            fila.style.display = nombre.includes(input) || codigoBarras.includes(input) || categoria.includes(input) ? "" : "none";
         });
     }
 </script>
