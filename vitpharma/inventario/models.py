@@ -46,7 +46,7 @@ class Producto(models.Model):
 
     # Código de Barras (Obligatorio y único)
     codigo_barras = models.CharField(
-        max_length=50,
+        max_length=20,
         unique=True,
         null=False,
         validators=[RegexValidator(regex='^[0-9]*$', message="El código de barras solo puede contener números.")]

@@ -9,129 +9,160 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 20px;
+        padding: 30px;
+        width: 100%;
+        max-width: 1200px;
+        margin: auto;
     }
 
-    /* Barra superior */
     .top-bar {
         display: flex;
+        align-items: center;
         justify-content: space-between;
-        align-items: center;
         width: 100%;
+        max-width: 1000px;
         background-color: #004AAD;
-        padding: 15px;
-        border-radius: 10px;
+        padding: 15px 20px;
+        border-radius: 12px;
         color: white;
-        font-weight: bold;
+        font-weight: 600;
         font-size: 18px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
     }
 
-    .top-bar .left-section {
+    .top-bar .title {
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+
+    .top-bar .date-time {
         display: flex;
-        align-items: center;
         gap: 15px;
     }
 
-    .top-bar img {
-        height: 50px;
-    }
-
-    .top-bar .right-section {
-        display: flex;
-        align-items: center;
-        gap: 15px;
+    .top-bar label {
+        font-size: 14px;
+        font-weight: 500;
     }
 
     .top-bar input {
         border: none;
-        padding: 8px;
-        border-radius: 5px;
-        font-size: 16px;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: bold;
         text-align: center;
+        color: #004AAD;
         background-color: white;
-        width: 120px;
+        box-shadow: 0 0 4px rgba(0,0,0,0.1);
+        width: 110px;
     }
 
-    /* Contenedor del Menú */
     .menu-container {
         display: flex;
-        justify-content: center;
-        margin-top: 20px;
-        flex-wrap: wrap;
-        gap: 15px;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: nowrap;
+        gap: 10px;
         width: 100%;
+        max-width: 1000px;
     }
 
     .menu-button {
+        flex: 1;
         background-color: #007BFF;
         color: white;
+        padding: 12px 0;
+        font-size: 16px;
+        font-weight: 600;
         border: none;
-        padding: 15px 25px;
-        font-size: 18px;
-        font-weight: bold;
-        border-radius: 8px;
+        border-radius: 10px;
         cursor: pointer;
-        transition: background 0.3s ease-in-out;
-        min-width: 200px;
+        transition: all 0.3s ease;
+        min-width: 0;
         text-align: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     .menu-button:hover {
         background-color: #0056b3;
+        transform: translateY(-2px);
     }
 
-    /* Responsividad */
-    @media (max-width: 768px) {
-        .top-bar {
-            flex-direction: column;
-            text-align: center;
-        }
+    .animation-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 250px;
+        margin-top: 40px;
+    }
 
-        .top-bar .right-section {
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
+    @media (max-width: 1024px) {
         .menu-container {
-            flex-direction: column;
-            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .menu-button {
+            flex: none;
+            width: 180px;
+            margin-bottom: 10px;
         }
     }
 </style>
 
 <div class="dashboard-container">
-    <!-- Barra superior con el logo, título y fecha/hora -->
     <div class="top-bar">
-        <div class="left-section">
-            <img src="{% static 'img/logo.png' %}" alt="Farmacia Vital Logo">
-            <span>VITPHARMA - MENÚ PRINCIPAL</span>
+        <div class="title">
+            PANEL ADMINISTRATIVO - VIT PHARMA
         </div>
-        <div class="right-section">
-            <label>Hora: <input type="text" id="hora" aria-label="Hora actual" readonly></label>
-            <label>Fecha: <input type="text" id="fecha" aria-label="Fecha actual" readonly></label>
+        <div class="date-time">
+            <label>
+                Hora:
+                <input type="text" id="hora" readonly>
+            </label>
+            <label>
+                Fecha:
+                <input type="text" id="fecha" readonly>
+            </label>
         </div>
     </div>
 
-    <!-- Menú de opciones -->
     <div class="menu-container">
-        <button class="menu-button" onclick="window.location.href='{% url 'authapp:admin_usuarios' %}'">Administrar Usuarios</button>
+        <button class="menu-button" onclick="window.location.href='{% url 'authapp:admin_usuarios' %}'">Usuarios</button>
         <button class="menu-button" onclick="window.location.href='{% url 'authapp:admin_inventario' %}'">Inventario</button>
         <button class="menu-button" onclick="window.location.href='{% url 'authapp:admin_reportes' %}'">Reportes</button>
         <button class="menu-button" onclick="window.location.href='{% url 'authapp:admin_proveedores' %}'">Proveedores</button>
         <button class="menu-button" onclick="window.location.href='{% url 'authapp:admin_soporte' %}'">Soporte</button>
     </div>
+
+    <!-- Contenedor de la animación -->
+    <div class="animation-container">
+        <lottie-player src="https://assets1.lottiefiles.com/packages/lf20_1pxqjqps.json"  
+            background="transparent"  
+            speed="1"  
+            style="width: 250px; height: 250px;"  
+            loop  
+            autoplay>
+        </lottie-player>
+    </div>
 </div>
+
+<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 
 <script>
     function actualizarFechaHora() {
-        let fecha = new Date();
-        document.getElementById("hora").value = fecha.toLocaleTimeString();
-        document.getElementById("fecha").value = fecha.toLocaleDateString();
+        const fecha = new Date();
+        const opcionesFecha = { day: '2-digit', month: '2-digit', year: 'numeric' };
+        const opcionesHora = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+
+        document.getElementById("hora").value = fecha.toLocaleTimeString('es-ES', opcionesHora);
+        document.getElementById("fecha").value = fecha.toLocaleDateString('es-ES', opcionesFecha);
     }
 
-    actualizarFechaHora(); // Ejecutar inmediatamente
-    setInterval(actualizarFechaHora, 1000); // Luego cada segundo
+    actualizarFechaHora();
+    setInterval(actualizarFechaHora, 1000);
 </script>
-
 {% endblock %}

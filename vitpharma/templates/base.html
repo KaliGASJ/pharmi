@@ -1,84 +1,95 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>{% block title %}VIT PHARMA{% endblock %}</title>
-    
+
+    <!-- Fuente profesional -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
     <style>
-        /* Estilos generales */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            font-family: 'Inter', sans-serif;
+            background-color: #f2f4f8;
             margin: 0;
             padding: 0;
+            color: #333;
         }
 
-        /* Navbar */
         .navbar {
             background-color: #004AAD;
-            padding: 15px;
+            padding: 20px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             color: white;
-            font-size: 18px;
-            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         .nav-title {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 20px;
         }
 
         .nav-title img {
-            width: 40px;
-            height: 40px;
+            width: 120px;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .nav-title span {
+            font-size: 26px;
+            font-weight: 600;
+            letter-spacing: 1px;
         }
 
         .logout-button {
-            background-color: #DC3545;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.3s;
+            background-color: white;
+            color: #004AAD;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 18px;
             border: none;
-            outline: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+        }
+
+        .logout-button svg {
+            width: 20px;
+            height: 20px;
         }
 
         .logout-button:hover {
-            background-color: #A52A2A;
+            background-color: #e2e6ea;
+            transform: scale(1.03);
         }
 
-        /* Contenedor principal */
         .container {
             max-width: 1200px;
-            margin: 20px auto;
-            padding: 20px;
+            margin: 40px auto;
+            padding: 30px;
             background: white;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
             min-height: 70vh;
         }
 
-        /* Footer */
         .footer {
-            text-align: center;
-            padding: 15px;
             background-color: #004AAD;
             color: white;
-            position: relative;
-            bottom: 0;
-            width: 100%;
-            font-weight: bold;
+            text-align: center;
+            padding: 20px;
+            font-weight: 500;
+            font-size: 14px;
         }
 
-        /* Modal de confirmación */
         .modal {
             display: none;
             position: fixed;
@@ -87,44 +98,50 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.4);
             align-items: center;
             justify-content: center;
         }
 
         .modal-content {
-            background-color: white;
-            padding: 20px;
+            background-color: #fff;
+            padding: 30px;
             border-radius: 10px;
-            text-align: center;
             width: 350px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-content p {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
         }
 
         .modal-buttons {
-            margin-top: 20px;
+            margin-top: 25px;
             display: flex;
             justify-content: space-between;
         }
 
         .modal-button {
             padding: 10px 15px;
-            font-size: 16px;
-            font-weight: bold;
+            font-size: 15px;
+            font-weight: 600;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: background 0.3s;
-            width: 45%;
+            width: 48%;
+            transition: background-color 0.3s ease;
         }
 
         .modal-button.confirm {
-            background-color: #DC3545;
+            background-color: #dc3545;
             color: white;
         }
 
         .modal-button.confirm:hover {
-            background-color: #A52A2A;
+            background-color: #b02a37;
         }
 
         .modal-button.cancel {
@@ -142,35 +159,42 @@
     <!-- Navbar -->
     <div class="navbar">
         <div class="nav-title">
-            <img src="/static/img/logo.png" alt="Logo"> 
+            <img src="/static/img/log.png" alt="Logo">
             <span>SISTEMA DE INFORMACIÓN VIT PHARMA</span>
         </div>
-        <button class="logout-button" onclick="mostrarModal()">🚪 Cerrar Sesión</button>
+        <button class="logout-button" onclick="mostrarModal()">
+            <!-- Icono SVG de logout -->
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0-10V5m-6 0h-.01" />
+            </svg>
+            Cerrar Sesión
+        </button>
     </div>
 
-    <!-- Contenedor principal -->
+    <!-- Contenido dinámico -->
     <div class="container">
         {% block content %}
-        <!-- Aquí se insertará el contenido de cada página -->
+        <!-- Contenido aquí -->
         {% endblock %}
     </div>
 
     <!-- Footer -->
     <div class="footer">
-        <p>Farmacia Vital &copy; 2025 | Todos los derechos reservados</p>
+        Farmacia Vital &copy; 2025 | Todos los derechos reservados
     </div>
 
     <!-- Modal de confirmación -->
     <div id="logoutModal" class="modal">
         <div class="modal-content">
-            <p><strong>¿Seguro que deseas cerrar sesión?</strong></p>
+            <p>¿Seguro que deseas cerrar sesión?</p>
             <div class="modal-buttons">
-                <button class="modal-button confirm" onclick="confirmarLogout()">Sí, cerrar sesión</button>
+                <button class="modal-button confirm" onclick="confirmarLogout()">Sí, cerrar</button>
                 <button class="modal-button cancel" onclick="cerrarModal()">Cancelar</button>
             </div>
         </div>
     </div>
 
+    <!-- Scripts -->
     <script>
         function mostrarModal() {
             document.getElementById("logoutModal").style.display = "flex";

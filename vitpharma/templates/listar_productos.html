@@ -21,6 +21,18 @@
         margin-bottom: 20px;
     }
 
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .alert-success { background-color: #D4EDDA; color: #155724; border: 1px solid #C3E6CB; }
+    .alert-warning { background-color: #FFF3CD; color: #856404; border: 1px solid #FFEEBA; }
+    .alert-error { background-color: #F8D7DA; color: #721C24; border: 1px solid #F5C6CB; }
+
     .search-bar {
         display: flex;
         justify-content: center;
@@ -56,17 +68,10 @@
         box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
     }
 
-    .button:hover {
-        opacity: 0.8;
-    }
+    .button:hover { opacity: 0.8; }
 
-    .back-button {
-        background-color: #6c757d;
-    }
-
-    .add-button {
-        background-color: #28A745;
-    }
+    .back-button { background-color: #6c757d; }
+    .add-button { background-color: #28A745; }
 
     table {
         width: 100%;
@@ -90,19 +95,10 @@
         font-weight: bold;
     }
 
-    tr:hover {
-        background-color: #f1f1f1;
-    }
+    tr:hover { background-color: #f1f1f1; }
 
-    .low-stock {
-        color: #DC3545;
-        font-weight: bold;
-    }
-
-    .expiring {
-        color: #FFC107;
-        font-weight: bold;
-    }
+    .low-stock { color: #DC3545; font-weight: bold; }
+    .expiring { color: #FFC107; font-weight: bold; }
 
     .action-buttons {
         display: flex;
@@ -129,25 +125,32 @@
 <div class="inventario-container">
     <h2 class="header-title">📦 Listado de Productos</h2>
 
+    <!-- Mensajes del sistema -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert 
+                {% if message.tags == 'success' %}alert-success{% elif message.tags == 'warning' %}alert-warning{% elif message.tags == 'error' or message.tags == 'danger' %}alert-error{% else %}alert-warning{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
     <!-- Barra de búsqueda -->
     <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="🔍 Buscar producto, código, categoría..." onkeyup="filtrarProductos()">
+        <input type="text" id="searchInput" placeholder="🔍 Buscar producto o código de barras..." onkeyup="filtrarProductos()">
     </div>
 
     <!-- Botones de acción -->
     <div class="button-container">
         <a href="{% url 'inventario:agregar_producto' %}" class="button add-button">➕ Agregar Producto</a>
-        <a href="javascript:history.back()" class="button back-button">🔙 Regresar</a>
+        <a href="{% url 'authapp:admin_inventario' %}" class="button back-button">🔙 Regresar</a>
     </div>
 
     <!-- Tabla de productos -->
     <table id="tablaInventario">
         <thead>
             <tr>
-                <th>ID</th>
                 <th>Producto</th>
-                <th>Categoría</th>
-                <th>Departamento</th>
                 <th>Código de Barras</th>
                 <th>Stock Actual</th>
                 <th>Acciones</th>
@@ -156,10 +159,7 @@
         <tbody>
             {% for producto in productos %}
             <tr class="{% if producto.total_stock <= 5 %}low-stock{% elif producto.proximo_a_caducar %}expiring{% endif %}">
-                <td>{{ producto.id_producto }}</td>
-                <td>{{ producto.nombre }}</td>
-                <td>{{ producto.id_categoria.nombre }}</td>
-                <td>{{ producto.id_departamento.nombre }}</td>
+                <td title="{{ producto.nombre }}">{{ producto.nombre|truncatechars:20 }}</td>
                 <td>{{ producto.codigo_barras|default:"N/A" }}</td>
                 <td>{{ producto.total_stock }}</td>
                 <td class="action-buttons">
@@ -171,7 +171,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="7"><strong>No hay productos registrados.</strong></td>
+                <td colspan="4"><strong>No hay productos registrados.</strong></td>
             </tr>
             {% endfor %}
         </tbody>
@@ -180,14 +180,18 @@
 
 <script>
     function filtrarProductos() {
-        let input = document.getElementById("searchInput").value.toLowerCase();
-        let filas = document.querySelectorAll("#tablaInventario tbody tr");
+        const input = document.getElementById("searchInput").value.toLowerCase();
+        const filas = document.querySelectorAll("#tablaInventario tbody tr");
 
         filas.forEach(fila => {
-            let nombre = fila.cells[1].textContent.toLowerCase();
-            let codigoBarras = fila.cells[4].textContent.toLowerCase();
-            let categoria = fila.cells[2].textContent.toLowerCase();
-            fila.style.display = nombre.includes(input) || codigoBarras.includes(input) || categoria.includes(input) ? "" : "none";
+            const nombre = fila.cells[0].textContent.toLowerCase();
+            const codigoBarras = fila.cells[1].textContent.toLowerCase();
+
+            if (nombre.includes(input) || codigoBarras.includes(input)) {
+                fila.style.display = "";
+            } else {
+                fila.style.display = "none";
+            }
         });
     }
 </script>
