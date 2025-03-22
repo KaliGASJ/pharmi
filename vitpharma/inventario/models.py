@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
+from datetime import date
 
 
 # -------------------- CATEGORÍAS Y DEPARTAMENTOS --------------------
@@ -52,13 +53,19 @@ class Producto(models.Model):
         validators=[RegexValidator(regex='^[0-9]*$', message="El código de barras solo puede contener números.")]
     )
 
+    estado = models.CharField(
+        max_length=10,
+        choices=[("activo", "Activo"), ("inactivo", "Inactivo")],
+        default="inactivo"
+    )
+
     fecha_creacion = models.DateTimeField(auto_now_add=True, null=False)
     usuario_registro = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="registro_producto")
     usuario_modificacion = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="modificacion_producto")
     fecha_modificacion = models.DateTimeField(auto_now=True, null=False)
 
     def __str__(self):
-        return f"{self.nombre} - Código: {self.codigo_barras}"
+        return f"{self.nombre} (CB: {self.codigo_barras})"
 
     def total_stock(self):
         return sum(lote.cantidad for lote in self.lotes.all())
@@ -67,7 +74,11 @@ class Producto(models.Model):
         return self.total_stock() <= self.stock_minimo
 
     def actualizar_stock_total(self):
-        self.save()
+        stock_actual = self.total_stock()
+        nuevo_estado = "activo" if stock_actual > 0 else "inactivo"
+        if self.estado != nuevo_estado:
+            self.estado = nuevo_estado
+            self.save(update_fields=["estado"])
 
 
 # -------------------- INVENTARIO PRODUCTOS (LOTES) --------------------
@@ -91,18 +102,26 @@ class InventarioProducto(models.Model):
         return f"{self.producto.nombre} - Lote: {self.lote} - Cantidad: {self.cantidad}"
 
     def clean(self):
-        # Validación personalizada antes de guardar
         if self.precio_compra < 0 or self.precio_venta < 0:
             raise ValidationError("El precio de compra y venta no pueden ser negativos.")
-
         if self.precio_venta < self.precio_compra:
             raise ValidationError("El precio de venta no puede ser menor al precio de compra.")
+        if self.fecha_caducidad and self.fecha_caducidad < date.today():
+            raise ValidationError("La fecha de caducidad no puede ser anterior a hoy.")
 
     def save(self, *args, **kwargs):
-        self.full_clean()  # Ejecuta clean()
+        self.full_clean()  # Valida antes de guardar
         super().save(*args, **kwargs)
         self.producto.actualizar_stock_total()
 
     def eliminar_lote(self):
-        self.producto.actualizar_stock_total()
         self.delete()
+
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+        self.producto.actualizar_stock_total()
+
+    def dias_para_caducar(self):
+        if self.fecha_caducidad:
+            return (self.fecha_caducidad - date.today()).days
+        return None

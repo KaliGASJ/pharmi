@@ -4,233 +4,384 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión | VIT PHARMA</title>
+    <title>Iniciar Sesión | FARMACIA VITAL</title>
+
+    <!-- Fuente moderna + FontAwesome (CDN actualizado) -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     <style>
-        /* Configuración global */
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(to right, #e0eafc, #cfdef3);
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #dfefff, #ffffff);
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
         }
 
-        /* Contenedor general */
-        .login-container {
+        .login-wrapper {
+            background: #ffffff;
             display: flex;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
-            width: 800px;
-            align-items: center;
-            justify-content: space-between;
+            flex-direction: row;
+            border-radius: 16px;
+            box-shadow: 0 15px 50px rgba(0, 74, 173, 0.15);
+            overflow: hidden;
+            width: 90%;
+            max-width: 920px;
+            animation: fadeIn 0.8s ease-in-out;
         }
 
-        /* Contenedor del logo */
-        .logo-container {
-            flex: 1;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .logo-container img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-        }
-
-        /* Contenedor del formulario */
-        .login-form {
-            flex: 1;
-            background-color: #004aad;
-            padding: 30px;
-            border-radius: 12px;
+        .logo-section {
+            background: linear-gradient(135deg, #004AAD, #0066e0);
             color: white;
+            padding: 40px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            width: 50%;
         }
 
-        .login-form h2 {
+        .logo-section img {
+            max-width: 80%;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .company-tagline {
+            font-size: 16px;
             text-align: center;
-            margin-bottom: 15px;
-            font-size: 24px;
-            letter-spacing: 1px;
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.9);
         }
 
-        /* Alerta general de error del backend */
-        .general-alert {
-            width: 100%;
-            background: #d9534f;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            font-weight: bold;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            opacity: 1;
-            transition: opacity 0.5s ease-in-out;
-        }
-
-        /* Contenedor de cada campo con su ícono */
-        .input-container {
+        .form-section {
+            width: 50%;
+            padding: 40px;
             display: flex;
-            align-items: center;
-            width: 100%;
-            margin-bottom: 15px;
-        }
-
-        /* Íconos a la izquierda */
-        .input-icon {
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
-            background: white;
-            border-radius: 5px;
-            margin-right: 10px;
-            font-size: 22px;
-            color: #004aad;
         }
 
-        /* Campos de entrada */
+        .form-section h2 {
+            color: #004AAD;
+            margin-bottom: 25px;
+            font-size: 26px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .form-title-icon {
+            color: #004AAD;
+            margin-right: 10px;
+            font-size: 28px;
+        }
+
         .input-group {
+            margin-bottom: 24px;
             position: relative;
-            width: 100%;
+        }
+
+        .input-group i {
+            position: absolute;
+            top: 50%;
+            left: 16px;
+            transform: translateY(-50%);
+            color: #6b7280;
+            font-size: 18px;
         }
 
         .input-group input {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            padding: 16px 16px 16px 48px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
             font-size: 16px;
-            outline: none;
-            transition: all 0.3s ease-in-out;
+            transition: all 0.3s ease;
+            background-color: #f9fafb;
         }
 
         .input-group input:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+            border-color: #004AAD;
+            box-shadow: 0 0 0 4px rgba(0, 74, 173, 0.15);
+            outline: none;
+            background-color: #fff;
         }
 
-        /* Botón de inicio de sesión */
+        .input-group input::placeholder {
+            color: #9ca3af;
+        }
+
+        .error-message {
+            font-size: 14px;
+            color: #dc3545;
+            margin-top: 8px;
+            display: none;
+            padding-left: 10px;
+        }
+
         .login-button {
-            background-color: white;
-            color: #004aad;
+            background-color: #004AAD;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
             border: none;
-            padding: 12px;
-            width: 100%;
-            border-radius: 5px;
-            font-size: 18px;
+            padding: 16px;
+            border-radius: 10px;
             cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease-in-out;
+            transition: all 0.3s ease;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
             margin-top: 10px;
+            box-shadow: 0 4px 6px rgba(0, 74, 173, 0.1);
         }
 
         .login-button:hover {
             background-color: #003580;
+            transform: translateY(-2px);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        .alert {
+            background-color: #dc3545;
             color: white;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+            padding: 14px;
+            border-radius: 10px;
+            margin-bottom: 24px;
+            font-weight: 600;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            animation: shake 0.5s ease-in-out;
         }
 
-        /* Mensajes de error */
-        .error-message {
-            text-align: left;
-            font-size: 14px;
-            color: white;
-            background: #d9534f;
-            padding: 8px 12px;
-            border-radius: 5px;
-            margin-top: 5px;
-            font-weight: bold;
-            display: none;
-            transition: opacity 0.3s ease-in-out;
-        }
-
-        .error-active {
-            display: block;
-        }
-
-        /* Borde rojo en caso de error */
         .input-error {
-            border: 2px solid #d9534f !important;
-            box-shadow: 0 0 8px rgba(217, 83, 79, 0.5);
+            border-color: #dc3545 !important;
+            background-color: #fff6f6 !important;
+        }
+        
+        /* Nuevo estilo para notificaciones */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #dc3545;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+            max-width: 350px;
+        }
+
+        @media (max-width: 768px) {
+            .login-wrapper {
+                flex-direction: column;
+            }
+
+            .logo-section,
+            .form-section {
+                width: 100%;
+            }
+
+            .logo-section {
+                padding: 30px 20px;
+            }
+            
+            .notification {
+                width: 90%;
+                right: 5%;
+                top: 10px;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="login-container">
-    <!-- Logo de la Farmacia -->
-    <div class="logo-container">
-        <img src="{% static 'img/logo.png' %}" alt="Farmacia Vital Logo">
+<div class="login-wrapper">
+    <!-- Lado izquierdo: Logo -->
+    <div class="logo-section">
+        <img src="{% static 'img/log.png' %}" alt="Logo FARMACIA VITAL">
+        <div class="company-tagline">Innovación y calidad en productos farmacéuticos</div>
     </div>
 
-    <!-- Formulario de Inicio de Sesión -->
-    <div class="login-form">
-        <h2>Iniciar Sesión</h2>
+    <!-- Lado derecho: Formulario -->
+    <div class="form-section">
+        <h2><i class="fas fa-user-shield form-title-icon"></i>Iniciar Sesión</h2>
 
-        <!-- Alerta General de Error desde Backend -->
         {% if messages %}
-            <div id="general-alert" class="general-alert">
+            <div class="alert">
+                <i class="fas fa-exclamation-circle"></i>
                 {% for message in messages %}
                     {{ message }}
                 {% endfor %}
             </div>
         {% endif %}
 
-        <form method="POST" action="{% url 'authapp:login' %}" onsubmit="return validarFormulario()">
+        <form method="POST" action="{% url 'authapp:login' %}" id="loginForm">
             {% csrf_token %}
 
-            <div class="input-container">
-                <div class="input-icon">👤</div>
-                <div class="input-group">
-                    <input type="text" name="username" id="username" placeholder="Usuario" aria-label="Usuario" required>
-                    <p class="error-message" id="error-username">⚠ Debes ingresar tu usuario.</p>
-                </div>
+            <!-- Campo de usuario con icono -->
+            <div class="input-group">
+                <i class="fas fa-user-circle"></i>
+                <input type="text" name="username" id="username" placeholder="Nombre de usuario" autocomplete="username">
+                <div class="error-message" id="error-username"><i class="fas fa-exclamation-triangle"></i> Debes ingresar tu usuario.</div>
             </div>
 
-            <div class="input-container">
-                <div class="input-icon">🔒</div>
-                <div class="input-group">
-                    <input type="password" name="password" id="password" placeholder="Contraseña" aria-label="Contraseña" required>
-                    <p class="error-message" id="error-password">⚠ Debes ingresar tu contraseña.</p>
-                </div>
+            <!-- Campo de contraseña con icono -->
+            <div class="input-group">
+                <i class="fas fa-key"></i>
+                <input type="password" name="password" id="password" placeholder="Contraseña" autocomplete="current-password">
+                <div class="error-message" id="error-password"><i class="fas fa-exclamation-triangle"></i> Debes ingresar tu contraseña.</div>
             </div>
 
-            <button type="submit" class="login-button">Ingresar</button>
+            <button type="submit" class="login-button" id="submitBtn">
+                <i class="fas fa-sign-in-alt"></i> Ingresar al Sistema
+            </button>
         </form>
     </div>
 </div>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        let generalAlert = document.getElementById("general-alert");
-        if (generalAlert && generalAlert.innerText.trim() !== "") {
-            generalAlert.style.opacity = "1";
+        // Manejar la desaparición de alertas existentes
+        let alertBox = document.querySelector('.alert');
+        if (alertBox) {
             setTimeout(() => {
-                generalAlert.style.opacity = "0";
+                alertBox.style.transition = 'opacity 0.5s ease';
+                alertBox.style.opacity = '0';
+                setTimeout(() => {
+                    alertBox.style.display = 'none';
+                }, 500);
+            }, 5000);
+        }
+        
+        // Función para mostrar notificaciones
+        function showNotification(message) {
+            // Eliminar notificaciones anteriores
+            const oldNotifications = document.querySelectorAll('.notification');
+            oldNotifications.forEach(note => note.remove());
+            
+            // Crear nueva notificación
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+            document.body.appendChild(notification);
+            
+            // Eliminar después de 4 segundos
+            setTimeout(() => {
+                notification.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    notification.remove();
+                }, 500);
             }, 4000);
         }
+        
+        // Validación del formulario
+        const loginForm = document.getElementById('loginForm');
+        const username = document.getElementById('username');
+        const password = document.getElementById('password');
+        const errorUsername = document.getElementById('error-username');
+        const errorPassword = document.getElementById('error-password');
+        
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            let isValid = true;
+            
+            // Validar usuario
+            if (username.value.trim() === '') {
+                errorUsername.style.display = 'block';
+                username.classList.add('input-error');
+                isValid = false;
+                showNotification('Debes ingresar tu nombre de usuario');
+            } else {
+                errorUsername.style.display = 'none';
+                username.classList.remove('input-error');
+            }
+            
+            // Validar contraseña
+            if (password.value.trim() === '') {
+                errorPassword.style.display = 'block';
+                password.classList.add('input-error');
+                isValid = false;
+                if (username.value.trim() !== '') {
+                    showNotification('Debes ingresar tu contraseña');
+                }
+            } else {
+                errorPassword.style.display = 'none';
+                password.classList.remove('input-error');
+            }
+            
+            // Si todo es válido, enviar el formulario
+            if (isValid) {
+                this.submit();
+            }
+        });
+        
+        // Eliminar clases de error al escribir
+        username.addEventListener('input', function() {
+            if (this.value.trim() !== '') {
+                errorUsername.style.display = 'none';
+                this.classList.remove('input-error');
+            }
+        });
+        
+        password.addEventListener('input', function() {
+            if (this.value.trim() !== '') {
+                errorPassword.style.display = 'none';
+                this.classList.remove('input-error');
+            }
+        });
     });
-
-    function validarFormulario() {
-        let username = document.getElementById("username").value.trim();
-        let password = document.getElementById("password").value.trim();
-
-        if (username === "" || password === "") {
-            alert("⚠ Debes completar todos los campos antes de enviar.");
-            return false;
-        }
-        return true;
-    }
 </script>
 
 </body>

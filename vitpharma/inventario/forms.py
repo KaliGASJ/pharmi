@@ -1,5 +1,6 @@
 from django import forms
 from .models import Producto, InventarioProducto, Proveedor
+from datetime import date
 
 
 # -------------------- FORMULARIO DE REGISTRO Y EDICIÓN DE PRODUCTOS --------------------
@@ -75,6 +76,18 @@ class AgregarLoteForm(forms.ModelForm):
             "precio_venta": forms.NumberInput(attrs={"step": "0.01", "min": "0", "class": "form-control"}),
         }
 
+    def clean(self):
+        cleaned_data = super().clean()
+        precio_compra = cleaned_data.get("precio_compra")
+        precio_venta = cleaned_data.get("precio_venta")
+        fecha_caducidad = cleaned_data.get("fecha_caducidad")
+
+
+        if fecha_caducidad and fecha_caducidad < date.today():
+            self.add_error("fecha_caducidad", "La fecha de caducidad no puede ser menor al día actual.")
+
+        return cleaned_data
+
 
 # -------------------- FORMULARIO PARA AGREGAR STOCK --------------------
 
@@ -104,6 +117,12 @@ class AgregarStockForm(forms.ModelForm):
             "lote": forms.TextInput(attrs={"class": "form-control", "readonly": "readonly"}),
             "cantidad": forms.NumberInput(attrs={"min": 1, "class": "form-control"}),
         }
+
+    def clean_cantidad(self):
+        cantidad = self.cleaned_data.get("cantidad")
+        if cantidad is None or cantidad <= 0:
+            raise forms.ValidationError("La cantidad debe ser mayor a cero.")
+        return cantidad
 
 
 # -------------------- FORMULARIO PARA EDITAR UN LOTE --------------------

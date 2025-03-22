@@ -76,6 +76,7 @@
         <p><strong>📄 Descripción:</strong> {{ producto.descripcion }}</p>
         <p><strong>📂 Categoría:</strong> {{ producto.id_categoria.nombre }}</p>
         <p><strong>🏢 Departamento:</strong> {{ producto.id_departamento.nombre }}</p>
+        <p><strong>❓ Estado:</strong> {{ producto.estado }}</p>
         <p><strong>📦 Stock Mínimo:</strong> {{ producto.stock_minimo }}</p>
         <p><strong>📊 Stock Actual:</strong> {{ producto.total_stock }}</p>
         <p><strong>🆔 Código de Barras:</strong> {{ producto.codigo_barras|default:"N/A" }}</p>

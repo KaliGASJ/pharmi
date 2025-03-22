@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}Productos en Bajo Stock | VIT PHARMA{% endblock %}
+
+{% block content %}
+<style>
+    .container {
+        max-width: 96%;
+        margin: auto;
+        padding: 30px;
+    }
+
+    .btn-regresar {
+        margin-bottom: 20px;
+        display: inline-block;
+        background-color: #6c757d;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 16px;
+        transition: background-color 0.3s ease, transform 0.2s;
+    }
+
+    .btn-regresar:hover {
+        background-color: #5a6268;
+        transform: scale(1.05);
+    }
+
+    .top-bar {
+        display: flex;
+        justify-content: flex-start;
+        margin-bottom: 10px;
+    }
+
+    .header-title {
+        font-size: 28px;
+        font-weight: bold;
+        color: #DC3545;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .alert-table {
+        width: 100%;
+        border-collapse: collapse;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0px 5px 15px rgba(220, 53, 69, 0.3);
+        background-color: #fff1f1;
+    }
+
+    .alert-table th, .alert-table td {
+        padding: 14px 12px;
+        text-align: center;
+        border-bottom: 1px solid #f5c6cb;
+        font-size: 15px;
+    }
+
+    .alert-table th {
+        background-color: #DC3545;
+        color: white;
+        font-size: 16px;
+    }
+
+    .alert-table tr:hover {
+        background-color: #ffe6e6;
+    }
+
+    .stock-critico {
+        color: #dc3545;
+        font-weight: bold;
+    }
+
+    .estado-activo {
+        background-color: #28a745;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-weight: bold;
+    }
+
+    .estado-inactivo {
+        background-color: #dc3545;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-weight: bold;
+    }
+
+    .no-data {
+        text-align: center;
+        font-weight: bold;
+        color: #28a745;
+        font-size: 18px;
+        margin-top: 40px;
+    }
+</style>
+
+<div class="container">
+    <div class="top-bar">
+        <a href="{% url 'authapp:admin_inventario' %}" class="btn-regresar">🔙 Volver al Inventario</a>
+    </div>
+
+    <h2 class="header-title">🔴 Productos con Bajo Stock</h2>
+
+    {% if productos %}
+    <table class="alert-table">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Código de Barras</th>
+                <th>Categoría</th>
+                <th>Departamento</th>
+                <th>Stock Mínimo</th>
+                <th>Stock Actual</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producto in productos %}
+            <tr>
+                <td>{{ producto.nombre }}</td>
+                <td>{{ producto.codigo_barras }}</td>
+                <td>{{ producto.id_categoria.nombre }}</td>
+                <td>{{ producto.id_departamento.nombre }}</td>
+                <td>{{ producto.stock_minimo }}</td>
+                <td class="stock-critico">{{ producto.total_stock }}</td>
+                <td>
+                    {% if producto.estado == "activo" %}
+                        <span class="estado-activo">Activo</span>
+                    {% else %}
+                        <span class="estado-inactivo">Inactivo</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="no-data">✅ No hay productos con bajo stock actualmente.</p>
+    {% endif %}
+</div>
+{% endblock %}

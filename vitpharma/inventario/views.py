@@ -3,8 +3,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from .models import Producto, InventarioProducto, Proveedor
 from .forms import ProductoForm, AgregarLoteForm, AgregarStockForm, EditarLoteForm, EliminarLoteForm
-
-
+from datetime import date, timedelta
+from django.db.models import Q  # 👈 Importación adicional necesaria
 # -------------------- PERMISOS --------------------
 
 def es_administrador(user):
@@ -188,3 +188,60 @@ def eliminar_lote(request, lote_id):
         return redirect("inventario:detalle_lotes", producto_id=producto.id_producto)
 
     return render(request, "eliminar_lote.html", {"lote": lote, "producto": producto})
+
+# -------------------- NUEVAS VISTAS: BAJO STOCK Y PRÓXIMOS A CADUCAR --------------------
+@login_required
+@user_passes_test(es_administrador)
+def productos_bajo_stock(request):
+    """Muestra los productos cuyo stock total es menor o igual al mínimo."""
+    productos = Producto.objects.all()
+    productos_bajo_stock = sorted(
+        [p for p in productos if p.en_bajo_stock()],
+        key=lambda x: x.total_stock()
+    )
+    return render(request, "productos_bajo_stock.html", {"productos": productos_bajo_stock})
+
+
+@login_required
+@user_passes_test(es_administrador)
+def lotes_proximos_caducar(request):
+    """
+    Muestra todos los lotes con fecha de caducidad futura,
+    resaltando los colores según días restantes, y permitiendo búsqueda por nombre, código o lote.
+    Ordenados de menor a mayor según días restantes.
+    """
+    hoy = date.today()
+    query = request.GET.get("q", "").strip()
+
+    # Filtra lotes con fecha de caducidad válida
+    lotes = InventarioProducto.objects.exclude(fecha_caducidad=None).filter(fecha_caducidad__gte=hoy)
+
+    # Si hay búsqueda, filtra por nombre, código o número de lote
+    if query:
+        lotes = lotes.filter(
+            Q(producto__nombre__icontains=query) |
+            Q(producto__codigo_barras__icontains=query) |
+            Q(lote__icontains=query)
+        )
+
+    # Clasifica los lotes y calcula días restantes
+    lotes_coloreados = []
+    for lote in lotes:
+        dias = (lote.fecha_caducidad - hoy).days
+        lote.dias_restantes = dias
+        if dias <= 60:
+            lote.alerta = "rojo"
+        elif dias <= 180:
+            lote.alerta = "amarillo"
+        else:
+            lote.alerta = "verde"
+        lotes_coloreados.append(lote)
+
+    # 🔥 Aquí está el cambio: ordenamos directamente por días restantes
+    lotes_ordenados = sorted(lotes_coloreados, key=lambda x: x.dias_restantes)
+
+    return render(request, "lotes_proximos_caducar.html", {
+        "lotes": lotes_ordenados,
+        "hoy": hoy,
+        "query": query
+    })

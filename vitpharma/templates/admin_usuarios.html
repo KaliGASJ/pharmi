@@ -6,123 +6,137 @@
 <style>
     body {
         overflow: auto;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f7f9fc;
     }
 
     .usuarios-container {
-        padding: 20px;
-        text-align: center;
-        max-width: 95%;
+        padding: 30px;
+        max-width: 1200px;
         margin: auto;
+        text-align: left;
     }
 
-    .table-container {
-        overflow-y: auto;
-        max-height: 70vh;
-        overflow-x: auto;
-        border-radius: 8px;
-        margin-top: 15px;
+    .usuarios-container h2 {
+        font-size: 28px;
+        color: #004AAD;
+        margin-bottom: 25px;
+        border-left: 5px solid #004AAD;
+        padding-left: 15px;
     }
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        background: white;
+    .actions {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
     }
 
-    table, th, td {
-        border: 1px solid #ddd;
-    }
-
-    th, td {
-        padding: 12px;
-        text-align: center;
-        white-space: nowrap;
-    }
-
-    th {
-        background-color: #004AAD;
-        color: white;
-        font-weight: bold;
-        position: sticky;
-        top: 0;
-        z-index: 2;
-    }
-
-    /* Botones */
     .button {
-        padding: 10px 15px;
+        padding: 12px 18px;
         text-decoration: none;
-        border-radius: 5px;
-        font-weight: bold;
-        display: inline-block;
-        margin: 5px;
+        border-radius: 8px;
+        font-weight: 600;
         font-size: 16px;
-        transition: all 0.3s ease;
-    }
-
-    .edit-button {
-        background-color: #FFC107;
-        color: black;
-    }
-
-    .delete-button {
-        background-color: #DC3545;
-        color: white;
+        transition: 0.3s ease;
         border: none;
         cursor: pointer;
-        padding: 10px 15px;
-        border-radius: 8px;
-        transition: 0.3s ease-in-out;
         display: inline-flex;
         align-items: center;
-        gap: 5px;
-        font-size: 16px;
-    }
-
-    .delete-button:hover {
-        background-color: #B22222;
-        transform: scale(1.05);
-        box-shadow: 0px 4px 10px rgba(220, 53, 69, 0.3);
+        gap: 8px;
     }
 
     .add-button {
         background-color: #28A745;
         color: white;
-        padding: 12px 18px;
+    }
+
+    .add-button:hover {
+        background-color: #218838;
     }
 
     .back-button {
-        background-color:rgb(255, 102, 0);
+        background-color: #FF6600;
         color: white;
-        padding: 12px 18px;
     }
 
     .back-button:hover {
-        background-color: #0056b3;
+        background-color: #cc5200;
     }
 
-    /* Avisos de Mensajes */
+    .table-container {
+        overflow-x: auto;
+        border-radius: 12px;
+        background-color: white;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        border-radius: 12px;
+    }
+
+    th {
+        background-color: #004AAD;
+        color: white;
+        padding: 14px;
+        font-weight: bold;
+        text-align: center;
+        position: sticky;
+        top: 0;
+    }
+
+    td {
+        padding: 12px;
+        text-align: center;
+        border-bottom: 1px solid #e0e0e0;
+        background-color: #fff;
+        white-space: nowrap;
+    }
+
+    .edit-button {
+        background-color: #FFC107;
+        color: #212529;
+    }
+
+    .edit-button:hover {
+        background-color: #e0a800;
+    }
+
+    .delete-button {
+        background-color: #DC3545;
+        color: white;
+    }
+
+    .delete-button:hover {
+        background-color: #b02a37;
+    }
+
+    .no-users {
+        text-align: center;
+        padding: 20px;
+        font-weight: bold;
+        color: #777;
+    }
+
+    /* Mensajes */
     .messages-container {
         position: fixed;
         top: 20px;
         right: 20px;
         z-index: 1000;
-        max-width: 350px;
     }
 
     .message-box {
-        display: flex;
-        align-items: center;
-        padding: 15px;
+        padding: 15px 20px;
         margin-bottom: 10px;
         border-radius: 8px;
         font-size: 16px;
-        font-weight: bold;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-        opacity: 0;
-        transform: translateX(50px);
+        display: flex;
+        align-items: center;
         animation: fadeInSlide 0.5s forwards;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
 
     .message-box.success {
@@ -135,22 +149,69 @@
         color: white;
     }
 
-    .message-icon {
-        font-size: 20px;
-        margin-right: 10px;
-    }
-
     .close-message {
+        margin-left: auto;
         background: none;
         border: none;
         color: white;
         font-size: 18px;
         cursor: pointer;
-        margin-left: auto;
     }
 
-    .close-message:hover {
-        opacity: 0.8;
+    /* Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.4);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background-color: #fff;
+        padding: 25px 30px;
+        border-radius: 10px;
+        text-align: center;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-header {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #DC3545;
+    }
+
+    .modal-buttons {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .confirm-button {
+        background-color: #DC3545;
+        color: white;
+    }
+
+    .cancel-button {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .confirm-button:hover {
+        background-color: #b02a37;
+    }
+
+    .cancel-button:hover {
+        background-color: #5a6268;
     }
 
     @keyframes fadeInSlide {
@@ -166,67 +227,68 @@
 </style>
 
 <div class="usuarios-container">
-    <h2>Administración de Usuarios</h2>
+    <h2>Gestión de Usuarios</h2>
 
-    <!-- Contenedor de Mensajes -->
     <div class="messages-container">
         {% if messages %}
             {% for message in messages %}
                 <div class="message-box {% if message.tags == 'success' %}success{% else %}error{% endif %}">
-                    <span class="message-icon">
+                    <span>
                         {% if message.tags == 'success' %}✅{% else %}⚠️{% endif %}
                     </span>
-                    {{ message }}
-                    <button class="close-message" onclick="this.parentElement.style.display='none'">✖</button>
+                    &nbsp; {{ message }}
+                    <button class="close-message" onclick="this.parentElement.remove()">✖</button>
                 </div>
             {% endfor %}
         {% endif %}
     </div>
 
-    <div>
+    <div class="actions">
         <a href="{% url 'authapp:agregar_usuario' %}" class="button add-button">➕ Agregar Usuario</a>
         <a href="{% url 'authapp:admin_dashboard' %}" class="button back-button">↩️ Regresar</a>
     </div>
 
     <div class="table-container">
         <table>
-            <tr>
-                <th>ID</th>
-                <th>Usuario</th>
-                <th>Nombre</th>
-                <th>Email</th>
-                <th>Acciones</th>
-            </tr>
-            {% for usuario in usuarios %}
-            <tr>
-                <td>{{ usuario.id }}</td>
-                <td>{{ usuario.username }}</td>
-                <td>{{ usuario.first_name }} {{ usuario.last_name }}</td>
-                <td>{{ usuario.email }}</td>
-                <td>
-                    <a href="{% url 'authapp:editar_usuario' usuario.id %}" class="button edit-button">✏ Editar</a>
-                    <button class="delete-button" onclick="confirmDelete('{{ usuario.id }}')">
-                        🗑 Eliminar
-                    </button>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5"><strong>No hay usuarios registrados.</strong></td>
-            </tr>
-            {% endfor %}
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usuario in usuarios %}
+                <tr>
+                    <td>{{ usuario.id }}</td>
+                    <td>{{ usuario.username }}</td>
+                    <td>{{ usuario.first_name }} {{ usuario.last_name }}</td>
+                    <td>{{ usuario.email }}</td>
+                    <td>
+                        <a href="{% url 'authapp:editar_usuario' usuario.id %}" class="button edit-button">✏ Editar</a>
+                        <button class="button delete-button" onclick="confirmDelete('{{ usuario.id }}')">🗑 Eliminar</button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="no-users">No hay usuarios registrados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
     </div>
 </div>
 
-<!-- Modal de confirmación -->
+<!-- Modal -->
 <div id="deleteModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">⚠ Confirmar Eliminación</div>
         <p>¿Estás seguro de que deseas eliminar este usuario?</p>
         <div class="modal-buttons">
-            <button id="confirmDeleteBtn" class="confirm-button">Eliminar</button>
-            <button onclick="closeModal()" class="cancel-button">Cancelar</button>
+            <button id="confirmDeleteBtn" class="button confirm-button">Eliminar</button>
+            <button onclick="closeModal()" class="button cancel-button">Cancelar</button>
         </div>
     </div>
 </div>
@@ -247,7 +309,6 @@
         window.location.href = deleteUrl;
     });
 
-    // Cierra el modal si se hace clic fuera de él
     window.onclick = function (event) {
         let modal = document.getElementById('deleteModal');
         if (event.target === modal) {
@@ -255,7 +316,6 @@
         }
     };
 
-    // Auto ocultar mensajes después de 4 segundos
     document.addEventListener("DOMContentLoaded", function () {
         setTimeout(() => {
             document.querySelectorAll('.message-box').forEach(msg => {
@@ -265,5 +325,4 @@
         }, 4000);
     });
 </script>
-
 {% endblock %}

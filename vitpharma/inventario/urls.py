@@ -24,4 +24,8 @@ urlpatterns = [
 
     # Vendedor: Agregar stock a un lote existente
     path("stock/agregar-stock/<int:lote_id>/", views.agregar_stock, name="agregar_stock"),  # Se pasa el lote_id
+
+    # NUEVAS FUNCIONALIDADES - ADMIN
+    path("alerta/bajo-stock/", views.productos_bajo_stock, name="productos_bajo_stock"),
+    path("alerta/proximos-caducar/", views.lotes_proximos_caducar, name="lotes_proximos_caducar"),
 ]

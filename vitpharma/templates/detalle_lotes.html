@@ -35,7 +35,9 @@
     .button-container {
         display: flex;
         justify-content: space-between;
+        flex-wrap: wrap;
         margin-bottom: 20px;
+        gap: 10px;
     }
 
     .button {
@@ -70,6 +72,7 @@
         padding: 12px;
         text-align: center;
         border-bottom: 1px solid #ddd;
+        vertical-align: middle;
     }
 
     th {
@@ -85,6 +88,13 @@
     .low-stock { color: #DC3545; font-weight: bold; }
     .expiring { color: #FFC107; font-weight: bold; }
 
+    .actions {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
 </style>
 
 <div class="container">
@@ -103,7 +113,6 @@
         <a href="{% url 'inventario:listar_productos' %}" class="button back-button">🔙 Volver a la Lista</a>
     </div>
 
-    <!-- Tabla de lotes -->
     <table>
         <thead>
             <tr>
@@ -127,11 +136,16 @@
                 <td>${{ lote.precio_compra }}</td>
                 <td>${{ lote.precio_venta }}</td>
                 <td>{{ lote.cantidad }}</td>
-                <td>{{ lote.descuento_porcentaje }}%</td>
-                <td>{{ lote.usuario_modificacion.username|default:"-" }} ({{ lote.fecha_modificacion|date:"d/m/Y H:i" }})</td>
+                <td>{{ lote.descuento_porcentaje|default:"0.00" }}%</td>
                 <td>
-                    <a href="{% url 'inventario:editar_lote' lote.id_inventario %}" class="button edit-button">✏ Editar</a>
-                    <a href="{% url 'inventario:eliminar_lote' lote.id_inventario %}" class="button delete-button" onclick="return confirm('⚠ ¿Estás seguro de eliminar este lote?')">🗑 Eliminar</a>
+                    {{ lote.usuario_modificacion.username|default:"-" }}<br>
+                    ({{ lote.fecha_modificacion|date:"d/m/Y H:i" }})
+                </td>
+                <td>
+                    <div class="actions">
+                        <a href="{% url 'inventario:editar_lote' lote.id_inventario %}" class="button edit-button">✏ Editar</a>
+                        <a href="{% url 'inventario:eliminar_lote' lote.id_inventario %}" class="button delete-button">🗑 Eliminar</a>
+                    </div>
                 </td>
             </tr>
             {% empty %}

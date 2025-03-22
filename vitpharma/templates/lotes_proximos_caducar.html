@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}Lotes Próximos a Caducar | VIT PHARMA{% endblock %}
+
+{% block content %}
+<style>
+    .container {
+        max-width: 95%;
+        margin: auto;
+        padding: 30px;
+    }
+
+    .btn-regresar {
+        margin-bottom: 20px;
+        display: inline-block;
+        background-color: #6c757d;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-regresar:hover {
+        background-color: #5a6268;
+    }
+
+    .header-title {
+        font-size: 28px;
+        font-weight: bold;
+        color: #FFC107;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .search-bar {
+        max-width: 500px;
+        margin: 0 auto 25px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .search-bar input {
+        width: 100%;
+        padding: 10px 15px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+        outline: none;
+    }
+
+    .caducidad-table {
+        width: 100%;
+        border-collapse: collapse;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        background-color: #fffbea;
+    }
+
+    .caducidad-table th, .caducidad-table td {
+        padding: 14px;
+        text-align: center;
+        border-bottom: 1px solid #f8d7da;
+    }
+
+    .caducidad-table th {
+        background-color: #FFC107;
+        color: black;
+        font-weight: bold;
+    }
+
+    .caducidad-table tr:hover {
+        background-color: #fff3cd;
+    }
+
+    .rojo {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .amarillo {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .verde {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .dias-restantes {
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+    .no-data {
+        text-align: center;
+        font-weight: bold;
+        color: #28a745;
+        font-size: 18px;
+        margin-top: 40px;
+    }
+
+    .top-bar {
+        display: flex;
+        justify-content: flex-start;
+        margin-bottom: 10px;
+    }
+</style>
+
+<div class="container">
+    <div class="top-bar">
+        <a href="{% url 'authapp:admin_inventario' %}" class="btn-regresar">🔙 Volver al Inventario</a>
+    </div>
+
+    <h2 class="header-title">⏰ Lotes Próximos a Caducar</h2>
+
+    <!-- Buscador -->
+    <div class="search-bar">
+        <form method="GET">
+            <input type="text" name="q" placeholder="🔍 Buscar por nombre, código de barras o lote" value="{{ query }}">
+        </form>
+    </div>
+
+    {% if lotes %}
+    <table class="caducidad-table">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Código de Barras</th>
+                <th>Lote</th>
+                <th>Cantidad</th>
+                <th>Fecha de Caducidad</th>
+                <th>Días Restantes</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lote in lotes %}
+            <tr class="{{ lote.alerta }}">
+                <td>{{ lote.producto.nombre }}</td>
+                <td>{{ lote.producto.codigo_barras }}</td>
+                <td>{{ lote.lote }}</td>
+                <td>{{ lote.cantidad }}</td>
+                <td>{{ lote.fecha_caducidad|date:"d/m/Y" }}</td>
+                <td class="dias-restantes">
+                    {% if lote.dias_restantes < 0 %}
+                        Caducado
+                    {% else %}
+                        {{ lote.dias_restantes }} días
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="no-data">✅ No hay lotes próximos a caducar actualmente.</p>
+    {% endif %}
+</div>
+{% endblock %}
