@@ -5,20 +5,24 @@
 {% block content %}
 <style>
     .form-container {
-        max-width: 700px;
+        max-width: 650px;
         margin: auto;
         padding: 25px;
         background: white;
-        border-radius: 10px;
-        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+        box-shadow: 0px 5px 18px rgba(0, 0, 0, 0.15);
         text-align: center;
     }
 
-    .form-title {
-        font-size: 24px;
-        font-weight: bold;
+    .form-container h2 {
         color: #004AAD;
-        margin-bottom: 15px;
+        margin-bottom: 10px;
+    }
+
+    .form-container p {
+        font-size: 15px;
+        color: #555;
+        margin-bottom: 20px;
     }
 
     .form-group {
@@ -27,60 +31,78 @@
     }
 
     label {
-        font-weight: bold;
-        display: block;
+        font-weight: 600;
         margin-bottom: 5px;
+        display: block;
     }
 
-    input, select {
+    input, select, textarea {
         width: 100%;
-        padding: 12px;
+        padding: 10px;
+        font-size: 15px;
         border-radius: 5px;
         border: 1px solid #ccc;
-        font-size: 16px;
+    }
+
+    .error-text {
+        color: #DC3545;
+        font-size: 14px;
+        margin-top: 5px;
+        display: block;
+    }
+
+    .form-error {
+        background-color: #F8D7DA;
+        color: #721C24;
+        border: 1px solid #F5C6CB;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        font-weight: bold;
     }
 
     .button-container {
         display: flex;
         justify-content: space-between;
+        gap: 10px;
         margin-top: 20px;
     }
 
-    .button {
-        padding: 12px 18px;
-        text-decoration: none;
-        border-radius: 5px;
-        font-weight: bold;
-        font-size: 16px;
-        border: none;
-        cursor: pointer;
+    .btn {
         width: 48%;
-        text-align: center;
-        transition: 0.3s;
+        padding: 12px;
+        font-size: 16px;
+        font-weight: bold;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: 0.2s;
     }
 
-    .submit-button {
+    .btn-success {
         background-color: #28A745;
         color: white;
     }
 
-    .cancel-button {
+    .btn-danger {
         background-color: #DC3545;
         color: white;
+    }
+
+    .btn:hover {
+        opacity: 0.9;
     }
 </style>
 
 <div class="form-container">
-    <h2 class="form-title">➕ Agregar Nuevo Lote</h2>
+    <h2>➕ Agregar Nuevo Lote</h2>
     <p>Complete la información para registrar un nuevo lote en el inventario.</p>
 
-    <!-- Mensajes de éxito/error -->
-    {% if messages %}
-        {% for message in messages %}
-            <div class="messages {% if message.tags == 'success' %}success-message{% else %}error-message{% endif %}">
-                {{ message }}
-            </div>
-        {% endfor %}
+    <!-- Mensaje de error general -->
+    {% if form.non_field_errors %}
+        <div class="form-error">
+            {{ form.non_field_errors.as_text|slice:"2:" }}
+        </div>
     {% endif %}
 
     <form method="POST">
@@ -89,49 +111,71 @@
         <div class="form-group">
             {{ form.producto.label_tag }}
             {{ form.producto }}
+            {% if form.producto.errors %}
+                <span class="error-text">{{ form.producto.errors.0 }}</span>
+            {% endif %}
         </div>
 
         <div class="form-group">
             {{ form.lote.label_tag }}
             {{ form.lote }}
+            {% if form.lote.errors %}
+                <span class="error-text">{{ form.lote.errors.0 }}</span>
+            {% endif %}
         </div>
 
         <div class="form-group">
             {{ form.id_proveedor.label_tag }}
             {{ form.id_proveedor }}
+            {% if form.id_proveedor.errors %}
+                <span class="error-text">{{ form.id_proveedor.errors.0 }}</span>
+            {% endif %}
         </div>
 
         <div class="form-group">
             {{ form.fecha_caducidad.label_tag }}
             {{ form.fecha_caducidad }}
+            {% if form.fecha_caducidad.errors %}
+                <span class="error-text">{{ form.fecha_caducidad.errors.0 }}</span>
+            {% endif %}
         </div>
 
         <div class="form-group">
             {{ form.precio_compra.label_tag }}
             {{ form.precio_compra }}
+            {% if form.precio_compra.errors %}
+                <span class="error-text">{{ form.precio_compra.errors.0 }}</span>
+            {% endif %}
         </div>
 
         <div class="form-group">
             {{ form.precio_venta.label_tag }}
             {{ form.precio_venta }}
+            {% if form.precio_venta.errors %}
+                <span class="error-text">{{ form.precio_venta.errors.0 }}</span>
+            {% endif %}
         </div>
 
         <div class="form-group">
             {{ form.descuento_porcentaje.label_tag }}
             {{ form.descuento_porcentaje }}
+            {% if form.descuento_porcentaje.errors %}
+                <span class="error-text">{{ form.descuento_porcentaje.errors.0 }}</span>
+            {% endif %}
         </div>
 
         <div class="form-group">
             {{ form.cantidad.label_tag }}
             {{ form.cantidad }}
+            {% if form.cantidad.errors %}
+                <span class="error-text">{{ form.cantidad.errors.0 }}</span>
+            {% endif %}
         </div>
 
         <div class="button-container">
-            <button type="submit" class="button submit-button">✅ Guardar Lote</button>
-            <a href="{% url 'inventario:detalle_lotes' producto.id_producto %}" class="button cancel-button">🔙 Cancelar</a>
+            <button type="submit" class="btn btn-success">✅ Guardar Lote</button>
+            <a href="{% url 'inventario:listar_productos' %}" class="btn btn-danger">🔙 Cancelar</a>
         </div>
     </form>
 </div>
-
 {% endblock %}
-

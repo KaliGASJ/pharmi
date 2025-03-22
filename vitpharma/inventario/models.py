@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
 
 
 # -------------------- CATEGORÍAS Y DEPARTAMENTOS --------------------
@@ -44,7 +45,6 @@ class Producto(models.Model):
     id_departamento = models.ForeignKey(Departamento, on_delete=models.CASCADE, null=False)
     stock_minimo = models.PositiveIntegerField(default=5, null=False)
 
-    # Código de Barras (Obligatorio y único)
     codigo_barras = models.CharField(
         max_length=20,
         unique=True,
@@ -61,15 +61,12 @@ class Producto(models.Model):
         return f"{self.nombre} - Código: {self.codigo_barras}"
 
     def total_stock(self):
-        """Calcula el stock total sumando los lotes disponibles."""
         return sum(lote.cantidad for lote in self.lotes.all())
 
     def en_bajo_stock(self):
-        """Determina si el producto está en stock bajo."""
         return self.total_stock() <= self.stock_minimo
 
     def actualizar_stock_total(self):
-        """Recalcula el stock total y lo guarda en la base de datos."""
         self.save()
 
 
@@ -93,18 +90,19 @@ class InventarioProducto(models.Model):
     def __str__(self):
         return f"{self.producto.nombre} - Lote: {self.lote} - Cantidad: {self.cantidad}"
 
-    def save(self, *args, **kwargs):
-        """Al guardar, evita precios negativos y actualiza el stock del producto."""
+    def clean(self):
+        # Validación personalizada antes de guardar
         if self.precio_compra < 0 or self.precio_venta < 0:
-            raise ValueError("El precio de compra y venta no pueden ser negativos.")
+            raise ValidationError("El precio de compra y venta no pueden ser negativos.")
 
         if self.precio_venta < self.precio_compra:
-            raise ValueError("El precio de venta no puede ser menor al precio de compra.")
+            raise ValidationError("El precio de venta no puede ser menor al precio de compra.")
 
+    def save(self, *args, **kwargs):
+        self.full_clean()  # Ejecuta clean()
         super().save(*args, **kwargs)
         self.producto.actualizar_stock_total()
 
     def eliminar_lote(self):
-        """Reduce el stock total del producto al eliminar un lote."""
         self.producto.actualizar_stock_total()
         self.delete()
