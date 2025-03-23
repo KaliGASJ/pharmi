@@ -5,6 +5,7 @@ from .models import Producto, InventarioProducto, Proveedor
 from .forms import ProductoForm, AgregarLoteForm, AgregarStockForm, EditarLoteForm, EliminarLoteForm, AgregarProveedorForm, EditarProveedorForm, EliminarProveedorForm 
 from datetime import date, timedelta
 from django.db.models import Q  # 👈 Importación adicional necesaria
+from django.http import HttpResponse
 
 # -------------------- PERMISOS --------------------
 
@@ -16,7 +17,8 @@ def es_vendedor(user):
 
 
 # -------------------- LISTAR PRODUCTOS --------------------
-
+def volver_atras():
+    return HttpResponse("<script>history.back();</script>")
 @login_required
 def listar_productos(request):
     productos = Producto.objects.all()
@@ -45,7 +47,6 @@ def detalle_lotes(request, producto_id):
 # -------------------- ADMINISTRADOR: GESTIÓN DE PRODUCTOS --------------------
 
 @login_required
-@user_passes_test(es_administrador)
 def agregar_producto(request):
     if request.method == "POST":
         form = ProductoForm(request.POST)
@@ -54,10 +55,20 @@ def agregar_producto(request):
             producto.usuario_registro = request.user
             producto.save()
             messages.success(request, f"Producto '{producto.nombre}' agregado correctamente.")
-            return redirect("inventario:listar_productos")
-        messages.error(request, "Error al agregar el producto. Verifique los datos.")
+
+            # Redirigir según el grupo del usuario
+            grupo = request.user.groups.first().name.lower() if request.user.groups.exists() else None
+            if grupo == "administrador":
+                return redirect("inventario:listar_productos")
+            elif grupo == "vendedor":
+                return redirect("inventariovendedor:inventario_vendedor_dashboard")
+            else:
+                return redirect("home")  # O cualquier ruta de respaldo
+        else:
+            messages.error(request, "Error al agregar el producto. Verifique los datos.")
     else:
         form = ProductoForm()
+
     return render(request, "agregar_producto.html", {"form": form})
 
 
@@ -73,7 +84,7 @@ def editar_producto(request, producto_id):
             producto.usuario_modificacion = request.user
             producto.save()
             messages.success(request, f"Producto '{producto.nombre}' actualizado correctamente.")
-            return redirect("inventario:listar_productos")
+            return volver_atras()
         messages.error(request, "Error al actualizar el producto. Verifique los datos.")
     else:
         form = ProductoForm(instance=producto)
@@ -101,22 +112,21 @@ def eliminar_producto(request, producto_id):
 # -------------------- ADMINISTRADOR: AGREGAR LOTE --------------------
 
 @login_required
-@user_passes_test(es_administrador)
 def agregar_lote(request, producto_id):
     producto = get_object_or_404(Producto, id_producto=producto_id)
 
     if request.method == "POST":
-        form = AgregarLoteForm(request.POST)
+        form = AgregarLoteForm(request.POST, producto_fijo=producto)
         if form.is_valid():
             lote = form.save(commit=False)
-            lote.producto = producto  # Asociar el lote con el producto
+            lote.producto = producto  # Ya no es necesario si se usó producto_fijo, pero lo dejamos por seguridad
             lote.usuario_registro = request.user
             lote.save()
-            messages.success(request, f"Lote '{lote.lote}' agregado correctamente.")
+            messages.success(request, f"Lote '{lote.lote}' agregado correctamente al producto '{producto.nombre}'.")
             return redirect("inventario:detalle_lotes", producto_id=producto.id_producto)
-        messages.error(request, "Error al agregar el lote. Verifique los datos.")
+        messages.error(request, "❌ Error al agregar el lote. Verifique los datos.")
     else:
-        form = AgregarLoteForm()
+        form = AgregarLoteForm(producto_fijo=producto)
 
     return render(request, "agregar_lote.html", {"form": form, "producto": producto})
 
@@ -192,7 +202,6 @@ def eliminar_lote(request, lote_id):
 
 # -------------------- NUEVAS VISTAS: BAJO STOCK Y PRÓXIMOS A CADUCAR --------------------
 @login_required
-@user_passes_test(es_administrador)
 def productos_bajo_stock(request):
     """Muestra los productos cuyo stock total es menor o igual al mínimo."""
     productos = Producto.objects.all()
@@ -204,7 +213,6 @@ def productos_bajo_stock(request):
 
 
 @login_required
-@user_passes_test(es_administrador)
 def lotes_proximos_caducar(request):
     """
     Muestra todos los lotes con fecha de caducidad futura,

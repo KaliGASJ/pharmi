@@ -42,6 +42,8 @@
         display: flex;
         justify-content: space-between;
         margin-top: 20px;
+        flex-wrap: wrap;
+        gap: 10px;
     }
 
     .button {
@@ -66,6 +68,12 @@
         background-color: #6c757d;
         color: white;
     }
+
+    @media (max-width: 768px) {
+        .button {
+            width: 100%;
+        }
+    }
 </style>
 
 <div class="product-container">
@@ -87,8 +95,10 @@
     </div>
 
     <div class="button-container">
-        <a href="{% url 'inventario:editar_producto' producto.id_producto %}" class="button edit-button">✏ Editar Producto</a>
-        <a href="{% url 'inventario:listar_productos' %}" class="button back-button">🔙 Volver a la Lista</a>
+        {% if request.user.groups.first.name == "administrador" %}
+            <a href="{% url 'inventario:editar_producto' producto.id_producto %}" class="button edit-button">✏ Editar Producto</a>
+        {% endif %}
+        <a href="javascript:history.back()" class="button back-button">🔙 Regresar</a>
     </div>
 </div>
 

@@ -56,7 +56,19 @@
     .add-button { background-color: #28A745; color: white; }
     .edit-button { background-color: #FFC107; color: black; }
     .delete-button { background-color: #DC3545; color: white; }
-    .back-button { background-color: #6c757d; color: white; }
+    .cancel-button { background-color: #343a40; color: white; }
+
+    .message-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+        padding: 12px;
+        border-radius: 6px;
+        font-weight: bold;
+        max-width: 700px;
+        margin: 0 auto 20px auto;
+        box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+    }
 
     table {
         width: 100%;
@@ -100,6 +112,15 @@
 <div class="container">
     <h2 class="header-title">📦 Detalle de Lotes - {{ producto.nombre }}</h2>
 
+    <!-- MENSAJE DE ÉXITO -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message-success">
+                ✅ {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
     <div class="product-info">
         <p><strong>📂 Categoría:</strong> {{ producto.id_categoria.nombre }}</p>
         <p><strong>🏢 Departamento:</strong> {{ producto.id_departamento.nombre }}</p>
@@ -108,11 +129,18 @@
         <p><strong>📆 Fecha de Creación:</strong> {{ producto.fecha_creacion|date:"d/m/Y H:i" }}</p>
     </div>
 
+    <!-- Botones: Agregar Lote y Cancelar -->
     <div class="button-container">
         <a href="{% url 'inventario:agregar_lote' producto.id_producto %}" class="button add-button">➕ Agregar Nuevo Lote</a>
-        <a href="{% url 'inventario:listar_productos' %}" class="button back-button">🔙 Volver a la Lista</a>
+
+        {% if request.user.groups.first.name == "vendedor" %}
+            <a href="{% url 'inventariovendedor:inventario_vendedor_dashboard' %}" class="button cancel-button">❌ Cancelar</a>
+        {% elif request.user.groups.first.name == "administrador" %}
+            <a href="{% url 'inventario:listar_productos' %}" class="button cancel-button">❌ Cancelar</a>
+        {% endif %}
     </div>
 
+    <!-- Tabla de lotes -->
     <table>
         <thead>
             <tr>
@@ -124,7 +152,9 @@
                 <th>Cantidad</th>
                 <th>Descuento (%)</th>
                 <th>Última Modificación</th>
-                <th>Acciones</th>
+                {% if request.user.groups.first.name == "administrador" %}
+                    <th>Acciones</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
@@ -141,12 +171,14 @@
                     {{ lote.usuario_modificacion.username|default:"-" }}<br>
                     ({{ lote.fecha_modificacion|date:"d/m/Y H:i" }})
                 </td>
+                {% if request.user.groups.first.name == "administrador" %}
                 <td>
                     <div class="actions">
                         <a href="{% url 'inventario:editar_lote' lote.id_inventario %}" class="button edit-button">✏ Editar</a>
                         <a href="{% url 'inventario:eliminar_lote' lote.id_inventario %}" class="button delete-button">🗑 Eliminar</a>
                     </div>
                 </td>
+                {% endif %}
             </tr>
             {% empty %}
             <tr>
@@ -156,5 +188,4 @@
         </tbody>
     </table>
 </div>
-
 {% endblock %}

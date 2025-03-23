@@ -1,19 +1,3 @@
-"""
-URL configuration for vitpharma project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.1/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path, include
 
@@ -21,4 +5,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('authapp.urls')),  # Rutas de autenticación y usuarios
     path('inventario/', include('inventario.urls')),  # Rutas de la app inventario
+    path('inventario-vendedor/', include('inventariovendedor.urls')),  # Rutas de la app inventariovendedor
+    path('turno/', include('turnos.urls')),  # Rutas de la app turnos
+    path('ventas/', include('ventas.urls')),  # Rutas de la app ventas
+    path('reportes/', include('reportes.urls')),  # Rutas de la app reportes
+    path('consultas/', include('consultas.urls')),  # Rutas de la app consultas
+    path('reportesvendedor/', include('reportesvendedor.urls')),  # Rutas de la app reportesvendedor
+    path('soportevendedor/', include('soportevendedor.urls')),  # Rutas de la app soportevendedor
 ]

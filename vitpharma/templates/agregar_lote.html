@@ -77,6 +77,8 @@
         border-radius: 5px;
         cursor: pointer;
         transition: 0.2s;
+        text-align: center;
+        text-decoration: none;
     }
 
     .btn-success {
@@ -98,7 +100,6 @@
     <h2>➕ Agregar Nuevo Lote</h2>
     <p>Complete la información para registrar un nuevo lote en el inventario.</p>
 
-    <!-- Mensaje de error general -->
     {% if form.non_field_errors %}
         <div class="form-error">
             {{ form.non_field_errors.as_text|slice:"2:" }}
@@ -108,12 +109,13 @@
     <form method="POST">
         {% csrf_token %}
 
+        <!-- Mostrar el nombre del producto como texto y enviar el campo oculto -->
         <div class="form-group">
-            {{ form.producto.label_tag }}
-            {{ form.producto }}
-            {% if form.producto.errors %}
-                <span class="error-text">{{ form.producto.errors.0 }}</span>
-            {% endif %}
+            <label>Producto:</label>
+            <input type="hidden" name="producto" value="{{ producto.id_producto }}">
+            <div style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; background-color: #f8f9fa;">
+                {{ producto.nombre }} (CB: {{ producto.codigo_barras }})
+            </div>
         </div>
 
         <div class="form-group">
@@ -174,7 +176,7 @@
 
         <div class="button-container">
             <button type="submit" class="btn btn-success">✅ Guardar Lote</button>
-            <a href="{% url 'inventario:listar_productos' %}" class="btn btn-danger">🔙 Cancelar</a>
+            <a href="javascript:history.back()" class="btn btn-danger">⛔ Cancelar</a>
         </div>
     </form>
 </div>

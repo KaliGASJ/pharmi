@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+
+{% block title %}Panel de Inventario (Vendedor) | VIT PHARMA{% endblock %}
+
+{% block content %}
+<style>
+    .dashboard-container {
+        max-width: 96%;
+        margin: auto;
+        padding: 30px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        text-align: center;
+    }
+
+    .dashboard-header {
+        font-size: 30px;
+        font-weight: bold;
+        color: #004AAD;
+        margin-bottom: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: center;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        margin-bottom: 35px;
+        gap: 20px;
+        padding-bottom: 10px;
+    }
+
+    .button {
+        padding: 14px 20px;
+        border-radius: 10px;
+        font-weight: bold;
+        font-size: 16px;
+        border: none;
+        text-decoration: none;
+        text-align: center;
+        color: white;
+        min-width: 180px;
+        max-width: 220px;
+        flex-shrink: 0;
+        transition: all 0.3s ease;
+        box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15);
+        display: inline-block;
+    }
+
+    .button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.25);
+    }
+
+    .add-button {
+        background: linear-gradient(to right, #28a745, #1e7e34);
+    }
+
+    .bajo-stock-button {
+        background: linear-gradient(to right, #dc3545, #b02a37);
+    }
+
+    .caducidad-button {
+        background: linear-gradient(to right, #ffc107, #e0a800);
+        color: #212529;
+    }
+
+    .back-button {
+        background: linear-gradient(to right, #6c757d, #495057);
+    }
+
+    .search-form {
+        margin-bottom: 25px;
+    }
+
+    .search-input {
+        padding: 12px 18px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        width: 350px;
+        max-width: 90%;
+        font-size: 16px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th, td {
+        padding: 14px 16px;
+        border-bottom: 1px solid #dee2e6;
+        text-align: center;
+    }
+
+    th {
+        background-color: #004AAD;
+        color: white;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f8f9fa;
+    }
+
+    tr:hover {
+        background-color: #e9ecef;
+    }
+
+    .btn-small {
+        padding: 7px 12px;
+        border-radius: 6px;
+        background-color: #17a2b8;
+        color: white;
+        font-weight: bold;
+        text-decoration: none;
+        font-size: 14px;
+        margin: 4px;
+        display: inline-block;
+    }
+
+    .btn-small:hover {
+        background-color: #138496;
+    }
+
+    .no-results {
+        margin-top: 30px;
+        font-weight: bold;
+        color: #cc0000;
+        font-size: 18px;
+    }
+
+    .estado-activo {
+        color: green;
+        font-weight: bold;
+    }
+
+    .estado-inactivo {
+        color: red;
+        font-weight: bold;
+    }
+
+    .message-box {
+        margin-bottom: 25px;
+        padding: 15px;
+        border-radius: 8px;
+        font-weight: bold;
+        text-align: center;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .success-message {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .error-message {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+</style>
+
+<div class="dashboard-container">
+    <h2 class="dashboard-header">📦 Inventario - Panel de Vendedor</h2>
+
+    <!-- Mensajes -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message-box {% if message.tags == 'success' %}success-message{% else %}error-message{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Botones principales en la misma fila -->
+    <div class="button-container">
+        <a href="{% url 'inventario:agregar_producto' %}" class="button add-button">➕ Agregar Producto</a>
+        <a href="{% url 'inventario:productos_bajo_stock' %}" class="button bajo-stock-button">🔻 Bajo Stock</a>
+        <a href="{% url 'inventario:lotes_proximos_caducar' %}" class="button caducidad-button">⏰ Próximos a Caducar</a>
+        <a href="{% url 'authapp:vendedor_dashboard' %}" class="button back-button">🔙 Regresar</a>
+    </div>
+
+    <!-- Buscador -->
+    <form method="get" class="search-form">
+        <input type="text" name="q" class="search-input" placeholder="🔎 Buscar por nombre o código de barras..." value="{{ query }}">
+    </form>
+
+    <!-- Tabla de productos -->
+    {% if productos %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Código de Barras</th>
+                    <th>Stock Actual</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for producto in productos %}
+                <tr>
+                    <td>{{ producto.nombre }}</td>
+                    <td>{{ producto.codigo_barras }}</td>
+                    <td>{{ producto.total_stock }}</td>
+                    <td>
+                        {% if producto.estado == "activo" %}
+                            <span class="estado-activo">Activo</span>
+                        {% else %}
+                            <span class="estado-inactivo">Inactivo</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'inventario:detalle_producto' producto.id_producto %}" class="btn-small">📄 Detalle</a>
+                        <a href="{% url 'inventario:detalle_lotes' producto.id_producto %}" class="btn-small">📦 Lotes</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="no-results">⚠️ No se encontraron productos.</p>
+    {% endif %}
+</div>
+{% endblock %}

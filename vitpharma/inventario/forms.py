@@ -67,7 +67,7 @@ class AgregarLoteForm(forms.ModelForm):
             "descuento_porcentaje": "Descuento (%)"
         }
         widgets = {
-            "producto": forms.Select(attrs={"class": "form-control"}),
+            "producto": forms.Select(attrs={"class": "form-control", "readonly": True}),
             "lote": forms.TextInput(attrs={"class": "form-control", "placeholder": "Ingrese el número de lote"}),
             "fecha_caducidad": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
             "cantidad": forms.NumberInput(attrs={"min": 1, "class": "form-control"}),
@@ -76,18 +76,26 @@ class AgregarLoteForm(forms.ModelForm):
             "precio_venta": forms.NumberInput(attrs={"step": "0.01", "min": "0", "class": "form-control"}),
         }
 
+    def __init__(self, *args, **kwargs):
+        # Si se pasa un producto fijo desde la vista
+        producto_fijo = kwargs.pop("producto_fijo", None)
+        super().__init__(*args, **kwargs)
+
+        if producto_fijo:
+            self.fields["producto"].queryset = Producto.objects.filter(pk=producto_fijo.pk)
+            self.fields["producto"].initial = producto_fijo
+            self.fields["producto"].disabled = True  # 🔒 Evita que se pueda cambiar
+
     def clean(self):
         cleaned_data = super().clean()
         precio_compra = cleaned_data.get("precio_compra")
         precio_venta = cleaned_data.get("precio_venta")
         fecha_caducidad = cleaned_data.get("fecha_caducidad")
 
-
         if fecha_caducidad and fecha_caducidad < date.today():
             self.add_error("fecha_caducidad", "La fecha de caducidad no puede ser menor al día actual.")
 
         return cleaned_data
-
 
 # -------------------- FORMULARIO PARA AGREGAR STOCK --------------------
 

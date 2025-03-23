@@ -102,7 +102,6 @@
     <h2>🆕 Agregar Nuevo Producto</h2>
     <p>Por favor, completa los datos para registrar un nuevo producto.</p>
 
-    <!-- Mensajes de éxito/error -->
     {% if messages %}
         {% for message in messages %}
             <div class="messages {% if message.tags == 'success' %}success-message{% else %}error-message{% endif %}">
@@ -148,20 +147,18 @@
 
         <div class="button-container">
             <button type="submit" class="button submit-button">✅ Agregar Producto</button>
-            <a href="{% url 'inventario:listar_productos' %}" class="button cancel-button">🔙 Cancelar</a>
+            <a href="javascript:history.back()" class="button cancel-button">🔙 Cancelar</a>
         </div>
     </form>
 </div>
 
-<!-- Script de validación en tiempo real -->
+<!-- Validación de campos -->
 <script>
     document.getElementById("product-form").addEventListener("submit", function(event) {
         let codigoBarras = document.getElementById("id_codigo_barras").value.trim();
         let stockMinimo = document.getElementById("id_stock_minimo").value.trim();
-
         let errorCodigo = document.getElementById("error-codigo");
         let errorStock = document.getElementById("error-stock");
-
         let valid = true;
 
         if (codigoBarras === "" || !/^\d+$/.test(codigoBarras)) {
@@ -183,5 +180,4 @@
         }
     });
 </script>
-
 {% endblock %}

@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalle del Producto | Lotes | Vendedor{% endblock %}
+
+{% block content %}
+<style>
+    .container {
+        max-width: 95%;
+        margin: auto;
+        padding: 30px;
+        background-color: #f8f9fa;
+        border-radius: 12px;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .header-title {
+        font-size: 28px;
+        font-weight: bold;
+        color: #004AAD;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .info-box {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+    }
+
+    .info-box p {
+        margin: 5px 0;
+        font-size: 16px;
+    }
+
+    .lote-table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #fff;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .lote-table th, .lote-table td {
+        padding: 12px;
+        text-align: center;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .lote-table th {
+        background-color: #004AAD;
+        color: white;
+        text-transform: uppercase;
+    }
+
+    .btn-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-weight: bold;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        text-align: center;
+        min-width: 180px;
+    }
+
+    .btn-agregar {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .btn-agregar:hover {
+        background-color: #218838;
+    }
+
+    .btn-regresar {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .btn-regresar:hover {
+        background-color: #5a6268;
+    }
+
+    .no-data {
+        text-align: center;
+        font-size: 18px;
+        color: #28a745;
+        font-weight: bold;
+        padding: 20px;
+    }
+</style>
+
+<div class="container">
+    <h2 class="header-title">🧪 Detalle del Producto y Lotes</h2>
+
+    <div class="info-box">
+        <p><strong>Nombre:</strong> {{ producto.nombre }}</p>
+        <p><strong>Código de Barras:</strong> {{ producto.codigo_barras }}</p>
+        <p><strong>Categoría:</strong> {{ producto.id_categoria.nombre }}</p>
+        <p><strong>Departamento:</strong> {{ producto.id_departamento.nombre }}</p>
+        <p><strong>Stock Mínimo:</strong> {{ producto.stock_minimo }}</p>
+        <p><strong>Estado:</strong>
+            {% if producto.estado == "activo" %}
+                <span style="color: green; font-weight: bold;">Activo</span>
+            {% else %}
+                <span style="color: red; font-weight: bold;">Inactivo</span>
+            {% endif %}
+        </p>
+        <p><strong>Fecha de Creación:</strong> {{ producto.fecha_creacion|date:"d/m/Y H:i" }}</p>
+    </div>
+
+    {% if lotes %}
+    <table class="lote-table">
+        <thead>
+            <tr>
+                <th>Lote</th>
+                <th>Proveedor</th>
+                <th>Fecha Caducidad</th>
+                <th>Precio Compra</th>
+                <th>Precio Venta</th>
+                <th>Cantidad</th>
+                <th>Descuento (%)</th>
+                <th>Últ. Modificación</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lote in lotes %}
+            <tr>
+                <td>{{ lote.lote }}</td>
+                <td>{{ lote.id_proveedor.nombre }}</td>
+                <td>{{ lote.fecha_caducidad|date:"d/m/Y" }}</td>
+                <td>${{ lote.precio_compra }}</td>
+                <td>${{ lote.precio_venta }}</td>
+                <td>{{ lote.cantidad }}</td>
+                <td>{{ lote.descuento_porcentaje|default:"0.00" }}</td>
+                <td>{{ lote.fecha_modificacion|date:"d/m/Y H:i" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="no-data">✅ Este producto no tiene lotes registrados aún.</p>
+    {% endif %}
+
+    <div class="btn-container">
+        <a href="{% url 'inventario:agregar_lote' producto.id %}" class="btn btn-agregar">➕ Agregar Lote</a>
+        <a href="javascript:history.back()" class="btn btn-regresar">🔙 Regresar</a>
+    </div>
+</div>
+{% endblock %}

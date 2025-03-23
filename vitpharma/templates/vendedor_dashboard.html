@@ -1,9 +1,169 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Panel de Vendedor{% endblock %}
+{% block title %}Panel de Vendedor | VIT PHARMA{% endblock %}
 
 {% block content %}
-    <h1>Bienvenido, Vendedor</h1>
-    <p>Aquí puedes gestionar ventas, consultar inventario y generar reportes.</p>
-    <a href="{% url 'authapp:logout' %}">Cerrar sesión</a>
+<style>
+    .dashboard-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 30px;
+        width: 100%;
+        max-width: 1200px;
+        margin: auto;
+    }
+
+    .top-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        max-width: 1000px;
+        background-color: #004AAD;
+        padding: 15px 20px;
+        border-radius: 12px;
+        color: white;
+        font-weight: 600;
+        font-size: 18px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+    }
+
+    .top-bar .title {
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+
+    .top-bar .date-time {
+        display: flex;
+        gap: 15px;
+    }
+
+    .top-bar label {
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .top-bar input {
+        border: none;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: bold;
+        text-align: center;
+        color: #004AAD;
+        background-color: white;
+        box-shadow: 0 0 4px rgba(0,0,0,0.1);
+        width: 110px;
+    }
+
+    .menu-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        width: 100%;
+        max-width: 1000px;
+        margin-top: 20px;
+    }
+
+    .menu-button {
+        flex: 1 1 30%;
+        background-color: #007BFF;
+        color: white;
+        padding: 12px 0;
+        font-size: 16px;
+        font-weight: 600;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 150px;
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .menu-button:hover {
+        background-color: #0056b3;
+        transform: translateY(-2px);
+    }
+
+    .animation-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 250px;
+        margin-top: 40px;
+    }
+
+    @media (max-width: 1024px) {
+        .menu-container {
+            justify-content: center;
+        }
+
+        .menu-button {
+            width: 180px;
+        }
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="top-bar">
+        <div class="title">
+            PANEL DE VENDEDOR - VIT PHARMA
+        </div>
+        <div class="date-time">
+            <label>
+                Hora:
+                <input type="text" id="hora" readonly>
+            </label>
+            <label>
+                Fecha:
+                <input type="text" id="fecha" readonly>
+            </label>
+        </div>
+    </div>
+
+    <!-- Botones del panel de vendedor -->
+    <div class="menu-container">
+        <button class="menu-button" onclick="window.location.href='{% url 'turnos:turno_vendedor' %}'">🕒 Turno</button>
+        <button class="menu-button" onclick="window.location.href='{% url 'inventariovendedor:inventario_vendedor_dashboard' %}'">📦 Inventario</button>
+        <button class="menu-button" onclick="window.location.href='{% url 'ventas:registro_venta' %}'">🧾 Ventas</button>
+        <button class="menu-button" onclick="window.location.href='{% url 'reportesvendedor:reportes_inicio' %}'">📊 Reportes</button>
+        <button class="menu-button" onclick="window.location.href='{% url 'consultas:consultas_vendedor' %}'">🔍 Consultas</button>
+        <button class="menu-button" onclick="window.location.href='{% url 'soportevendedor:soporte_inicio' %}'">❓ Soporte</button>
+    </div>
+
+    <!-- Animación Lottie -->
+    <div class="animation-container">
+        <lottie-player src="https://assets5.lottiefiles.com/packages/lf20_tutvdkg0.json"  
+            background="transparent"  
+            speed="1"  
+            style="width: 300px; height: 300px;"  
+            loop  
+            autoplay>
+        </lottie-player>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
+<script>
+    function actualizarFechaHora() {
+        const fecha = new Date();
+        const opcionesFecha = { day: '2-digit', month: '2-digit', year: 'numeric' };
+        const opcionesHora = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+
+        document.getElementById("hora").value = fecha.toLocaleTimeString('es-ES', opcionesHora);
+        document.getElementById("fecha").value = fecha.toLocaleDateString('es-ES', opcionesFecha);
+    }
+
+    actualizarFechaHora();
+    setInterval(actualizarFechaHora, 1000);
+</script>
 {% endblock %}
