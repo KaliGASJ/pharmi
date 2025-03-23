@@ -1,9 +1,108 @@
 {% extends 'base.html' %}
-{% block title %}Turno Vendedor{% endblock %}
+{% load static %}
+
+{% block title %}Turno Vendedor | VIT PHARMA{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
-    <h2 class="text-primary text-center">🕒 Módulo de Turno del Vendedor</h2>
-    <p class="text-center">Esta vista es temporal. Aquí se desarrollará el sistema de inicio y fin de turno.</p>
+    <h2 class="text-primary text-center mb-4">🕒 Gestión de Turno del Vendedor</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} text-center fw-bold">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if en_turno %}
+        <!-- Tarjeta de turno activo -->
+        <div class="card shadow-lg p-4 border-start border-4 border-success mb-4">
+            <h4 class="text-success mb-3">✅ Turno activo</h4>
+            <ul class="list-unstyled ms-2">
+                <li><strong>Hora de inicio:</strong> {{ turno.hora_inicio }}</li>
+                <li><strong>Hora estimada de fin:</strong> {{ turno.hora_fin }}</li>
+                <li><strong>Monto inicial en caja:</strong> ${{ turno.monto_inicial }}</li>
+                <li><strong>Fecha:</strong> {{ turno.fecha }}</li>
+            </ul>
+            <form method="post" action="{% url 'turnos:finalizar_turno' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger mt-3">
+                    🛑 Finalizar Turno
+                </button>
+            </form>
+        </div>
+    {% else %}
+        <!-- Formulario para iniciar turno -->
+        <div class="card shadow-lg p-4 border-start border-4 border-primary mb-4">
+            <h4 class="text-info mb-3">🕐 Iniciar nuevo turno</h4>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary mt-2">✅ Iniciar Turno</button>
+            </form>
+        </div>
+
+        {% if ultimo_turno_pdf %}
+        <!-- Botón de descarga del último corte generado -->
+        <div class="card shadow-lg p-4 border-start border-4 border-secondary mb-4">
+            <h5 class="text-secondary text-center mb-3">📄 Último Corte de Caja Generado</h5>
+            <div class="text-center">
+                <a href="{{ ultimo_turno_pdf.archivo_corte.url }}" class="btn btn-outline-primary" target="_blank">
+                    📥 Descargar Corte de Caja PDF
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    {% endif %}
+
+    <!-- Historial de cortes SIEMPRE visible -->
+    <div class="card shadow-lg p-4 border-start border-4 border-dark mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <h4 class="text-dark mb-0">📚 Historial de Cortes de Caja</h4>
+            <form method="get" class="d-flex align-items-center">
+                <input type="date" name="fecha" class="form-control me-2"
+                       value="{{ fecha_filtrada|default:'' }}" max="{{ today|default:'' }}">
+                <button type="submit" class="btn btn-outline-secondary">🔎 Buscar</button>
+            </form>
+        </div>
+
+        {% if historial %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-light text-center">
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Hora de Inicio</th>
+                        <th>Hora Fin</th>
+                        <th>Monto Inicial</th>
+                        <th>Monto Final</th>
+                        <th>PDF</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center">
+                    {% for t in historial %}
+                    <tr>
+                        <td>{{ t.fecha }}</td>
+                        <td>{{ t.hora_inicio }}</td>
+                        <td>{{ t.hora_fin }}</td>
+                        <td>${{ t.monto_inicial }}</td>
+                        <td>${{ t.monto_final }}</td>
+                        <td>
+                            <a href="{{ t.archivo_corte.url }}" class="btn btn-sm btn-outline-success" target="_blank">
+                                📥 Ver PDF
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-warning text-center fw-bold">
+            No se han generado cortes de caja para la fecha seleccionada.
+        </div>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}
