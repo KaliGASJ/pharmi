@@ -1,7 +1,69 @@
 {% extends 'base.html' %}
+
 {% block title %}Panel de Proveedores | VIT PHARMA{% endblock %}
 
 {% block content %}
-<h2>Panel de Proveedores</h2>
-<p>Bienvenido al módulo de proveedores. Aquí podrás gestionar los proveedores del sistema.</p>
+<style>
+    .panel-container {
+        max-width: 800px;
+        margin: auto;
+        background: #ffffff;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    .panel-title {
+        font-size: 28px;
+        font-weight: bold;
+        color: #004AAD;
+        margin-bottom: 20px;
+    }
+
+    .panel-description {
+        font-size: 17px;
+        color: #555;
+        margin-bottom: 30px;
+    }
+
+    .btn-panel {
+        display: inline-block;
+        padding: 14px 24px;
+        margin: 10px;
+        font-size: 16px;
+        font-weight: bold;
+        border: none;
+        border-radius: 10px;
+        text-decoration: none;
+        color: white;
+        transition: transform 0.2s, background-color 0.3s;
+    }
+
+    .btn-panel:hover {
+        transform: scale(1.05);
+    }
+
+    .btn-listar {
+        background: linear-gradient(to right, #007BFF, #004AAD);
+    }
+
+    .btn-volver {
+        background: #6c757d;
+    }
+
+    .btn-volver:hover {
+        background: #5a6268;
+    }
+</style>
+
+<div class="panel-container">
+    <h2 class="panel-title">📦 Panel de Proveedores</h2>
+    <p class="panel-description">
+        Bienvenido al módulo de proveedores. Aquí podrás gestionar los proveedores del sistema.
+    </p>
+
+    <a href="{% url 'inventario:listar_proveedores' %}" class="btn-panel btn-listar">📋 Ver Lista de Proveedores</a>
+    <a href="{% url 'authapp:admin_dashboard' %}" class="btn-panel btn-volver">🔙 Volver al Panel Principal</a>
+</div>
 {% endblock %}

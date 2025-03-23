@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block title %}Lista de Proveedores | VIT PHARMA{% endblock %}
+
+{% block content %}
+<style>
+    .container {
+        max-width: 95%;
+        margin: auto;
+        padding: 30px;
+    }
+
+    .header-actions {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        margin-bottom: 25px;
+    }
+
+    .header-actions .btn {
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-weight: bold;
+        text-decoration: none;
+        font-size: 15px;
+        border: none;
+        cursor: pointer;
+        transition: 0.3s ease;
+    }
+
+    .btn-regresar {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-regresar:hover {
+        background: #5a6268;
+    }
+
+    .btn-agregar {
+        background: #004AAD;
+        color: white;
+    }
+
+    .btn-agregar:hover {
+        background: #003B91;
+    }
+
+    .alert {
+        padding: 15px 20px;
+        border-radius: 8px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        position: relative;
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border-left: 6px solid #28a745;
+    }
+
+    .alert-error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border-left: 6px solid #dc3545;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .table-container {
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    th, td {
+        padding: 14px;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #004AAD;
+        color: white;
+        font-weight: bold;
+    }
+
+    tr:hover {
+        background-color: #f5f5f5;
+    }
+
+    .btn-editar {
+        background: #FFC107;
+        color: black;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-weight: bold;
+        margin-right: 5px;
+    }
+
+    .btn-eliminar {
+        background: #DC3545;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-weight: bold;
+    }
+
+    .acciones {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .no-data {
+        text-align: center;
+        font-weight: bold;
+        color: #28a745;
+        padding: 40px;
+    }
+</style>
+
+<div class="container">
+
+    <!-- Mensajes de éxito o error -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-error{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="header-actions">
+        <a href="{% url 'authapp:admin_dashboard' %}" class="btn btn-regresar">🔙 Regresar</a>
+        <a href="{% url 'inventario:agregar_proveedor' %}" class="btn btn-agregar">➕ Agregar Proveedor</a>
+    </div>
+
+    <div class="table-container">
+        {% if proveedores %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Dirección</th>
+                    <th>Teléfono</th>
+                    <th>Correo Electrónico</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for proveedor in proveedores %}
+                <tr>
+                    <td>{{ proveedor.nombre }}</td>
+                    <td>{{ proveedor.direccion|default:"-" }}</td>
+                    <td>{{ proveedor.telefono|default:"-" }}</td>
+                    <td>{{ proveedor.email|default:"-" }}</td>
+                    <td class="acciones">
+                        <a href="{% url 'inventario:editar_proveedor' proveedor.id_proveedor %}" class="btn-editar">✏️ Editar</a>
+                        <a href="{% url 'inventario:eliminar_proveedor' proveedor.id_proveedor %}" class="btn-eliminar">🗑 Eliminar</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="no-data">✅ No hay proveedores registrados.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

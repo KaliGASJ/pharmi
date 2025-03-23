@@ -2,9 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from .models import Producto, InventarioProducto, Proveedor
-from .forms import ProductoForm, AgregarLoteForm, AgregarStockForm, EditarLoteForm, EliminarLoteForm
+from .forms import ProductoForm, AgregarLoteForm, AgregarStockForm, EditarLoteForm, EliminarLoteForm, AgregarProveedorForm, EditarProveedorForm, EliminarProveedorForm 
 from datetime import date, timedelta
 from django.db.models import Q  # 👈 Importación adicional necesaria
+
 # -------------------- PERMISOS --------------------
 
 def es_administrador(user):
@@ -245,3 +246,57 @@ def lotes_proximos_caducar(request):
         "hoy": hoy,
         "query": query
     })
+
+# -------------------- GESTIÓN DE PROVEEDORES --------------------
+
+@login_required
+@user_passes_test(es_administrador)
+def listar_proveedores(request):
+    proveedores = Proveedor.objects.all()
+    return render(request, "listar_proveedores.html", {"proveedores": proveedores})
+
+
+@login_required
+@user_passes_test(es_administrador)
+def agregar_proveedor(request):
+    if request.method == "POST":
+        form = AgregarProveedorForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Proveedor registrado correctamente.")
+            return redirect("inventario:listar_proveedores")
+        messages.error(request, "Error al registrar el proveedor.")
+    else:
+        form = AgregarProveedorForm()
+    return render(request, "agregar_proveedor.html", {"form": form})
+
+
+@login_required
+@user_passes_test(es_administrador)
+def editar_proveedor(request, proveedor_id):
+    proveedor = get_object_or_404(Proveedor, id_proveedor=proveedor_id)
+    if request.method == "POST":
+        form = EditarProveedorForm(request.POST, instance=proveedor)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Proveedor actualizado correctamente.")
+            return redirect("inventario:listar_proveedores")
+        messages.error(request, "Error al actualizar el proveedor.")
+    else:
+        form = EditarProveedorForm(instance=proveedor)
+    return render(request, "editar_proveedor.html", {"form": form, "proveedor": proveedor})
+
+
+@login_required
+@user_passes_test(es_administrador)
+def eliminar_proveedor(request, proveedor_id):
+    proveedor = get_object_or_404(Proveedor, id_proveedor=proveedor_id)
+    if request.method == "POST":
+        form = EliminarProveedorForm(request.POST)
+        if form.is_valid() and form.cleaned_data["confirmacion"]:
+            proveedor.delete()
+            messages.success(request, "Proveedor eliminado correctamente.")
+            return redirect("inventario:listar_proveedores")
+    else:
+        form = EliminarProveedorForm()
+    return render(request, "eliminar_proveedor.html", {"form": form, "proveedor": proveedor})

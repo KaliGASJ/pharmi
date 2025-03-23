@@ -28,4 +28,10 @@ urlpatterns = [
     # NUEVAS FUNCIONALIDADES - ADMIN
     path("alerta/bajo-stock/", views.productos_bajo_stock, name="productos_bajo_stock"),
     path("alerta/proximos-caducar/", views.lotes_proximos_caducar, name="lotes_proximos_caducar"),
+
+    # Administrador: Gestión de proveedores
+    path("proveedores/", views.listar_proveedores, name="listar_proveedores"),
+    path("proveedores/agregar/", views.agregar_proveedor, name="agregar_proveedor"),
+    path("proveedores/editar/<int:proveedor_id>/", views.editar_proveedor, name="editar_proveedor"),
+    path("proveedores/eliminar/<int:proveedor_id>/", views.eliminar_proveedor, name="eliminar_proveedor"),
 ]
