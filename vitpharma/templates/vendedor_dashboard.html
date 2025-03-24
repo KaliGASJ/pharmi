@@ -85,6 +85,8 @@
         min-width: 150px;
         text-align: center;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        text-decoration: none;
+        display: inline-block;
     }
 
     .menu-button:hover {
@@ -130,12 +132,12 @@
 
     <!-- Botones del panel de vendedor -->
     <div class="menu-container">
-        <button class="menu-button" onclick="window.location.href='{% url 'turnos:turno_vendedor' %}'">🕒 Turno</button>
-        <button class="menu-button" onclick="window.location.href='{% url 'inventariovendedor:inventario_vendedor_dashboard' %}'">📦 Inventario</button>
-        <button class="menu-button" onclick="window.location.href='{% url 'ventas:registro_venta' %}'">🧾 Ventas</button>
-        <button class="menu-button" onclick="window.location.href='{% url 'reportesvendedor:reportes_inicio' %}'">📊 Reportes</button>
-        <button class="menu-button" onclick="window.location.href='{% url 'consultas:consultas_vendedor' %}'">🔍 Consultas</button>
-        <button class="menu-button" onclick="window.location.href='{% url 'soportevendedor:soporte_inicio' %}'">❓ Soporte</button>
+        <a href="{% url 'turnos:turno_vendedor' %}" class="menu-button">🕒 Turno</a>
+        <a href="{% url 'inventariovendedor:inventario_vendedor_dashboard' %}" class="menu-button">📦 Inventario</a>
+        <a href="{% url 'ventas:registro_venta' %}" class="menu-button">🧾 Ventas</a>
+        <a href="{% url 'reportesvendedor:reportes_inicio' %}" class="menu-button">📊 Reportes</a>
+        <a href="{% url 'consultas:consultas_vendedor' %}" class="menu-button">🔍 Consultas</a>
+        <a href="{% url 'soportevendedor:soporte_inicio' %}" class="menu-button">❓ Soporte</a>
     </div>
 
     <!-- Animación Lottie -->

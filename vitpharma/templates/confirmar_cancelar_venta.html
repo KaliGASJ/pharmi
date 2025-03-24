@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block title %}Cancelar Venta #{{ venta.id }} | VIT PHARMA{% endblock %}
+
+{% block content %}
+<style>
+    .confirmar-container {
+        max-width: 700px;
+        margin: auto;
+        padding: 20px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .header-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #dc3545;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .warning-box {
+        background-color: #fff3cd;
+        border-left: 5px solid #ffc107;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+    }
+
+    .warning-title {
+        font-weight: bold;
+        color: #856404;
+        margin-bottom: 10px;
+        font-size: 18px;
+    }
+
+    .warning-text {
+        color: #856404;
+    }
+
+    .venta-info {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .info-item {
+        margin-bottom: 8px;
+    }
+
+    .info-label {
+        font-weight: bold;
+        display: inline-block;
+        min-width: 130px;
+    }
+
+    .info-value {
+        display: inline-block;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 25px;
+    }
+
+    .action-button {
+        padding: 10px 20px;
+        border-radius: 8px;
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .cancel-button {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .back-button {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .detalles-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .detalles-table th, .detalles-table td {
+        padding: 10px;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .detalles-table th {
+        background-color: #dc3545;
+        color: white;
+        font-weight: bold;
+    }
+
+    .detalles-table tr:hover {
+        background-color: #f5f5f5;
+    }
+</style>
+
+<div class="confirmar-container">
+    <h2 class="header-title">⚠️ Cancelar Venta #{{ venta.id }}</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} text-center mb-3">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="warning-box">
+        <h3 class="warning-title">¡Importante! Esta acción no se puede deshacer</h3>
+        <p class="warning-text">Al cancelar esta venta, se revertirán los siguientes efectos:</p>
+        <ul class="warning-text">
+            <li>Se devolverá el stock de los productos al inventario</li>
+            <li>Se eliminará el registro de la venta de las estadísticas</li>
+            <li>Se anulará el ticket generado</li>
+        </ul>
+        <p class="warning-text">Solo se pueden cancelar ventas con menos de una hora de antigüedad.</p>
+    </div>
+
+    <div class="venta-info">
+        <div class="info-item">
+            <span class="info-label">Fecha y Hora:</span>
+            <span class="info-value">{{ venta.fecha_hora }}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Método de Pago:</span>
+            <span class="info-value">{{ venta.metodo_pago.nombre|default:"No especificado" }}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Total:</span>
+            <span class="info-value">${{ venta.total }}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Tiempo transcurrido:</span>
+            <span class="info-value">
+                {% with time_diff=venta.fecha_hora|timeuntil %}
+                    {{ time_diff }}
+                {% endwith %}
+            </span>
+        </div>
+    </div>
+
+    <!-- Tabla de productos a devolver -->
+    <h3>Productos que se devolverán al inventario:</h3>
+    <table class="detalles-table">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Lote</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for detalle in venta.detalles.all %}
+            <tr>
+                <td>{{ detalle.lote_vendido.producto.nombre }}</td>
+                <td>{{ detalle.lote_vendido.lote }}</td>
+                <td>{{ detalle.cantidad }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Botones de acción -->
+    <form method="post" class="action-buttons">
+        {% csrf_token %}
+        <a href="{% url 'ventas:detalle_venta' venta.id %}" class="action-button back-button">← Volver</a>
+        <button type="submit" class="action-button cancel-button">Confirmar Cancelación</button>
+    </form>
+</div>
+{% endblock %}
