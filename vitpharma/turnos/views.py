@@ -8,6 +8,6 @@ def es_vendedor(user):
 
 @login_required
 @user_passes_test(es_vendedor)
-def turno_vendedor(request):
-    return render(request, 'turno_vendedor.html')
+def turno_dashboard(request):
+    return render(request, 'turno_dashboard.html')
     

@@ -13,5 +13,5 @@ def es_vendedor(user):
 
 @login_required
 @user_passes_test(es_vendedor)
-def registro_venta(request):
-    return render(request, 'registro_venta.html')
+def venta_dashboard(request):
+    return render(request, 'venta_dashboard.html')

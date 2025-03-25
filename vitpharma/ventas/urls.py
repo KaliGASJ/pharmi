@@ -5,5 +5,5 @@ app_name = 'ventas'
 
 urlpatterns = [
     # Registro y procesamiento de ventas
-    path('registrar/', views.registro_venta, name='registro_venta'),
+    path('registrar/', views.venta_dashboard, name='venta_dashboard'),
 ]
