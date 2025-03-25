@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Registrar Venta | VIT PHARMA{% endblock %}
+
+{% block content %}
+<h2 style="text-align: center; margin-bottom: 30px;">Registrar nueva venta</h2>
+
+<form method="post" style="margin-bottom: 40px;">
+    {% csrf_token %}
+
+    <!-- SECCIÓN: MÉTODO DE PAGO -->
+    <div style="background-color: #eef5ff; padding: 25px; border-radius: 10px; max-width: 600px; margin: 0 auto 40px;">
+        <h4 style="margin-bottom: 20px;">Método de pago</h4>
+
+        <div style="margin-bottom: 20px;">
+            <label style="font-weight: 600;">{{ form_venta.metodo_pago.label }}</label>
+            {{ form_venta.metodo_pago }}
+            {% if form_venta.metodo_pago.errors %}
+                <div style="color: red; font-size: 13px;">{{ form_venta.metodo_pago.errors|striptags }}</div>
+            {% endif %}
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="font-weight: 600;">{{ form_venta.con_cuanto_paga.label }}</label>
+            {{ form_venta.con_cuanto_paga }}
+            {% if form_venta.con_cuanto_paga.errors %}
+                <div style="color: red; font-size: 13px;">{{ form_venta.con_cuanto_paga.errors|striptags }}</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- SECCIÓN: DETALLES DE PRODUCTOS -->
+    <h4 style="margin-bottom: 15px;">Productos</h4>
+    <table style="width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 20px;">
+        <thead>
+            <tr style="background-color: #f2f2f2;">
+                <th style="padding: 10px; border: 1px solid #ccc;">Producto</th>
+                <th style="padding: 10px; border: 1px solid #ccc;">Lote</th>
+                <th style="padding: 10px; border: 1px solid #ccc;">Cantidad</th>
+                <th style="padding: 10px; border: 1px solid #ccc;">Precio U.</th>
+                <th style="padding: 10px; border: 1px solid #ccc;">Descuento</th>
+                <th style="padding: 10px; border: 1px solid #ccc;">Eliminar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ formset_detalles.management_form }}
+            {% for form in formset_detalles %}
+                <tr>
+                    <td style="padding: 8px;">{{ form.producto }}</td>
+                    <td style="padding: 8px;">{{ form.lote }}</td>
+                    <td style="padding: 8px;">{{ form.cantidad }}</td>
+                    <td style="padding: 8px;">{{ form.precio_unitario }}</td>
+                    <td style="padding: 8px;">{{ form.descuento_aplicado }}</td>
+                    <td style="text-align: center;">{% if form.DELETE %}{{ form.DELETE }}{% endif %}</td>
+                </tr>
+                {% if form.non_field_errors %}
+                    <tr><td colspan="6" style="color: red; font-size: 13px;">{{ form.non_field_errors }}</td></tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- BOTONES DE ACCIÓN -->
+    <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center;">
+        <a href="{% url 'authapp:vendedor_dashboard' %}" class="btn btn-secondary"
+           style="background-color: #6c757d; color: white; padding: 10px 25px; border-radius: 6px; text-decoration: none;">
+           ← Regresar al panel
+        </a>
+
+        <div>
+            <a href="{% url 'ventas:cancelar_venta' %}" class="btn btn-danger"
+               style="margin-right: 10px; padding: 10px 25px; border-radius: 6px; text-decoration: none; color: white;">
+               Cancelar
+            </a>
+            <button type="submit" class="btn btn-success"
+                    style="padding: 10px 25px; border-radius: 6px; background-color: #28a745; color: white; font-weight: 600; border: none;">
+                Registrar venta
+            </button>
+        </div>
+    </div>
+</form>
+{% endblock %}

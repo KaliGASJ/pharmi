@@ -87,6 +87,12 @@ class InventarioProducto(models.Model):
     id_inventario = models.AutoField(primary_key=True)
     producto = models.ForeignKey(Producto, related_name="lotes", on_delete=models.CASCADE, null=False)
     lote = models.CharField(max_length=50, default="SIN-LOTE", null=False)
+    codigo_lote = models.CharField(
+        max_length=30,
+        unique=True,
+        null=False,
+        blank=False
+    )
     id_proveedor = models.ForeignKey(Proveedor, related_name="productos_proveedor", on_delete=models.SET_NULL, null=True)
     fecha_caducidad = models.DateField(blank=True, null=True)
     precio_compra = models.DecimalField(max_digits=10, decimal_places=2, null=False)
@@ -110,7 +116,7 @@ class InventarioProducto(models.Model):
             raise ValidationError("La fecha de caducidad no puede ser anterior a hoy.")
 
     def save(self, *args, **kwargs):
-        self.full_clean()  # Valida antes de guardar
+        self.full_clean()
         super().save(*args, **kwargs)
         self.producto.actualizar_stock_total()
 
@@ -125,3 +131,11 @@ class InventarioProducto(models.Model):
         if self.fecha_caducidad:
             return (self.fecha_caducidad - date.today()).days
         return None
+
+    def consumir_stock(self, cantidad):
+        if self.cantidad >= cantidad:
+            self.cantidad -= cantidad
+            self.save(update_fields=["cantidad"])
+            self.producto.actualizar_stock_total()
+        else:
+            raise ValidationError(f"Stock insuficiente en lote {self.codigo_lote}")

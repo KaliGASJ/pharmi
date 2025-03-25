@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+            margin: 0 auto;
+            width: 90%;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .datos {
+            margin-bottom: 10px;
+        }
+
+        .datos p {
+            margin: 2px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 10px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 4px;
+            text-align: center;
+        }
+
+        .total {
+            text-align: right;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+        .cambio {
+            text-align: right;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .agradecimiento {
+            text-align: center;
+            font-style: italic;
+            margin-top: 15px;
+            font-size: 11px;
+        }
+
+        .separador {
+            margin: 10px 0;
+            border-top: 1px dashed #999;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>{{ farmacia_nombre }}</h2>
+
+    <div class="datos">
+        <p><strong>Fecha:</strong> {{ fecha }}</p>
+        <p><strong>Vendedor:</strong> {{ usuario.get_full_name|default:usuario.username }}</p>
+        <p><strong>Método de pago:</strong> {{ metodo_pago }}</p>
+        <p><strong>Número de venta:</strong> {{ venta.id }}</p>
+    </div>
+
+    <div class="separador"></div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Lote</th>
+                <th>Cant.</th>
+                <th>P/U</th>
+                <th>Desc.</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in detalles %}
+            <tr>
+                <td>{{ item.producto.nombre }}</td>
+                <td>{{ item.lote.codigo_lote }}</td>
+                <td>{{ item.cantidad }}</td>
+                <td>${{ item.precio_unitario|floatformat:2 }}</td>
+                <td>${{ item.descuento_aplicado|floatformat:2 }}</td>
+                <td>${{ item.subtotal|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p class="total"><strong>Total a pagar: ${{ total|floatformat:2 }}</strong></p>
+
+    {% if con_cuanto_paga %}
+        <p class="cambio"><strong>Pagó con:</strong> ${{ con_cuanto_paga|floatformat:2 }}</p>
+        <p class="cambio"><strong>Cambio entregado:</strong> ${{ cambio|floatformat:2 }}</p>
+    {% endif %}
+
+    <div class="separador"></div>
+
+    <p class="agradecimiento">{{ mensaje_gracias }}</p>
+
+</body>
+</html>

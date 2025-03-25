@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Mi Turno | VIT PHARMA{% endblock %}
+
+{% block content %}
+<h2 style="text-align: center; margin-bottom: 30px;">Gestión de Turno</h2>
+
+{% if turno_activo %}
+    <div style="background-color: #e8f0fe; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+        <h3>Turno activo</h3>
+        <p><strong>Inicio:</strong> {{ turno_activo.hora_inicio|date:"d/m/Y H:i" }}</p>
+        <p><strong>Fin estimado:</strong> {{ turno_activo.hora_fin_estimada|date:"d/m/Y H:i" }}</p>
+        <p><strong>Monto inicial:</strong> ${{ turno_activo.monto_inicial|floatformat:2 }}</p>
+        <p><strong>Total efectivo:</strong> ${{ turno_activo.monto_total_efectivo|floatformat:2 }}</p>
+        <p><strong>Total tarjeta:</strong> ${{ turno_activo.monto_total_tarjeta|floatformat:2 }}</p>
+        <p><strong>Total transferencia:</strong> ${{ turno_activo.monto_total_transferencia|floatformat:2 }}</p>
+        <p><strong>Total cheque:</strong> ${{ turno_activo.monto_total_cheque|floatformat:2 }}</p>
+        <p><strong>Total acumulado:</strong> ${{ turno_activo.total_ventas_turno|floatformat:2 }}</p>
+        <p><strong>Total cambios dados:</strong> ${{ turno_activo.total_cambios_dados|floatformat:2 }}</p>
+        <p style="font-size: 16px; color: #004AAD;"><strong>Efectivo final en caja:</strong> ${{ turno_activo.efectivo_final_en_caja|floatformat:2 }}</p>
+
+        <a href="{% url 'turnos:finalizar_turno' turno_activo.id %}" class="btn" style="background-color: #dc3545; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; margin-top: 10px; display: inline-block;">Finalizar turno</a>
+    </div>
+
+    {% if ventas_turno %}
+        <h4 style="margin-top: 30px;">Ventas durante este turno</h4>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+            <thead>
+                <tr style="background-color: #f5f5f5;">
+                    <th style="padding: 10px; border: 1px solid #ccc;">Fecha</th>
+                    <th style="padding: 10px; border: 1px solid #ccc;">Total</th>
+                    <th style="padding: 10px; border: 1px solid #ccc;">Método de pago</th>
+                    <th style="padding: 10px; border: 1px solid #ccc;">Cambio</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for venta in ventas_turno %}
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">{{ venta.fecha_hora|date:"d/m/Y H:i" }}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${{ venta.total|floatformat:2 }}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">{{ venta.metodo_pago.nombre }}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${{ venta.cambio|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+{% else %}
+    <div style="text-align: center; margin-bottom: 30px;">
+        <p style="font-size: 18px;">No tienes un turno activo.</p>
+        <a href="{% url 'turnos:iniciar_turno' %}" class="btn" style="background-color: #28a745; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600;">Iniciar nuevo turno</a>
+    </div>
+{% endif %}
+
+<hr>
+
+<h3 style="margin-top: 40px;">Historial de turnos finalizados</h3>
+
+{% if turnos_finalizados %}
+    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+        <thead>
+            <tr style="background-color: #f5f5f5;">
+                <th style="padding: 10px; border: 1px solid #ccc;">Fecha inicio</th>
+                <th style="padding: 10px; border: 1px solid #ccc;">Fecha fin</th>
+                <th style="padding: 10px; border: 1px solid #ccc;">Total ventas</th>
+                <th style="padding: 10px; border: 1px solid #ccc;">Corte</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for turno in turnos_finalizados %}
+            <tr>
+                <td style="padding: 8px; border: 1px solid #ccc;">{{ turno.hora_inicio|date:"d/m/Y H:i" }}</td>
+                <td style="padding: 8px; border: 1px solid #ccc;">{{ turno.hora_fin_real|date:"d/m/Y H:i" }}</td>
+                <td style="padding: 8px; border: 1px solid #ccc;">${{ turno.total_ventas_turno|floatformat:2 }}</td>
+                <td style="padding: 8px; border: 1px solid #ccc;">
+                    {% if turno.pdf_reporte %}
+                        <a href="{% url 'turnos:descargar_corte_pdf' turno.id %}" target="_blank" style="color: #004AAD; font-weight: 600;">Ver PDF</a>
+                    {% else %}
+                        <span style="color: #999;">No disponible</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p style="margin-top: 20px;">Aún no has finalizado ningún turno.</p>
+{% endif %}
+
+<div style="text-align: center; margin-top: 40px;">
+    <a href="{% url 'authapp:vendedor_dashboard' %}" class="btn btn-secondary" style="background-color: #6c757d; color: white; padding: 10px 25px; border-radius: 6px; text-decoration: none;">← Regresar al panel</a>
+</div>
+{% endblock %}

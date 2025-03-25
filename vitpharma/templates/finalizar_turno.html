@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Finalizar Turno | VIT PHARMA{% endblock %}
+
+{% block content %}
+<h2 style="text-align: center; margin-bottom: 30px;">Finalizar turno</h2>
+
+<div style="max-width: 600px; margin: 0 auto; background-color: #fff3cd; border: 1px solid #ffeeba; padding: 25px; border-radius: 10px; box-shadow: 0 0 8px rgba(0,0,0,0.05);">
+
+    <p><strong>Fecha y hora de inicio:</strong> {{ turno.hora_inicio|date:"d/m/Y H:i" }}</p>
+    <p><strong>Hora estimada de fin:</strong> {{ turno.hora_fin_estimada|date:"d/m/Y H:i" }}</p>
+    <p><strong>Monto inicial en caja:</strong> ${{ turno.monto_inicial|floatformat:2 }}</p>
+
+    <hr style="margin: 20px 0;">
+
+    <p><strong>Ventas en efectivo:</strong> ${{ turno.monto_total_efectivo|floatformat:2 }}</p>
+    <p><strong>Ventas con tarjeta:</strong> ${{ turno.monto_total_tarjeta|floatformat:2 }}</p>
+    <p><strong>Ventas por transferencia:</strong> ${{ turno.monto_total_transferencia|floatformat:2 }}</p>
+    <p><strong>Ventas por cheque:</strong> ${{ turno.monto_total_cheque|floatformat:2 }}</p>
+    <p><strong>Total acumulado:</strong> <span style="font-weight: bold;">${{ turno.total_ventas_turno|floatformat:2 }}</span></p>
+    <p><strong>Total cambios dados:</strong> ${{ turno.total_cambios_dados|floatformat:2 }}</p>
+
+    <hr style="margin: 20px 0;">
+
+    <p style="font-size: 16px;"><strong style="color: #004AAD;">Efectivo final en caja:</strong> ${{ turno.efectivo_final_en_caja|floatformat:2 }}</p>
+</div>
+
+<form method="post" style="text-align: center; margin-top: 30px;">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <button type="submit" style="background-color: #dc3545; color: white; padding: 12px 28px; border: none; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer;">
+        Finalizar turno y generar corte
+    </button>
+</form>
+
+<div style="text-align: center; margin-top: 20px;">
+    <a href="{% url 'turnos:turno_dashboard' %}" style="color: #004AAD; text-decoration: underline;">← Cancelar y regresar</a>
+</div>
+{% endblock %}

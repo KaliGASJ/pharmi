@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalle de Venta | VIT PHARMA{% endblock %}
+
+{% block content %}
+<h2 style="text-align: center; margin-bottom: 30px;">Detalle de la Venta</h2>
+
+<div style="max-width: 800px; margin: 0 auto; background-color: #f9f9f9; padding: 25px; border-radius: 10px; box-shadow: 0 0 12px rgba(0,0,0,0.05);">
+
+    <p><strong>Fecha y hora:</strong> {{ venta.fecha_hora|date:"d/m/Y H:i" }}</p>
+    <p><strong>Vendedor:</strong> {{ venta.usuario.get_full_name|default:venta.usuario.username }}</p>
+    <p><strong>Método de pago:</strong> {{ venta.metodo_pago.nombre }}</p>
+    <p><strong>Estado:</strong> 
+        {% if venta.estado == 'activa' %}
+            <span style="color: green; font-weight: bold;">Activa</span>
+        {% else %}
+            <span style="color: red; font-weight: bold;">Cancelada</span>
+        {% endif %}
+    </p>
+
+    {% if venta.con_cuanto_paga %}
+        <p><strong>Pagó con:</strong> ${{ venta.con_cuanto_paga|floatformat:2 }}</p>
+        <p><strong>Cambio entregado:</strong> ${{ venta.cambio|floatformat:2 }}</p>
+    {% endif %}
+
+    <hr style="margin: 20px 0;">
+
+    <h4>Productos vendidos</h4>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+        <thead>
+            <tr style="background-color: #f0f0f0;">
+                <th style="padding: 10px; border: 1px solid #ccc;">Producto</th>
+                <th style="padding: 10px; border: 1px solid #ccc;">Lote</th>
+                <th style="padding: 10px; border: 1px solid #ccc;">Cantidad</th>
+                <th style="padding: 10px; border: 1px solid #ccc;">Precio unitario</th>
+                <th style="padding: 10px; border: 1px solid #ccc;">Descuento</th>
+                <th style="padding: 10px; border: 1px solid #ccc;">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in detalles %}
+            <tr>
+                <td style="padding: 8px; border: 1px solid #eee;">{{ item.producto.nombre }}</td>
+                <td style="padding: 8px; border: 1px solid #eee;">{{ item.lote.codigo_lote }}</td>
+                <td style="padding: 8px; border: 1px solid #eee;">{{ item.cantidad }}</td>
+                <td style="padding: 8px; border: 1px solid #eee;">${{ item.precio_unitario|floatformat:2 }}</td>
+                <td style="padding: 8px; border: 1px solid #eee;">${{ item.descuento_aplicado|floatformat:2 }}</td>
+                <td style="padding: 8px; border: 1px solid #eee;">${{ item.subtotal|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p style="text-align: right; margin-top: 20px; font-size: 16px;"><strong>Total de la venta:</strong> ${{ venta.total|floatformat:2 }}</p>
+
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="{% url 'ventas:historial_ventas' %}" class="btn btn-secondary" style="background-color: #6c757d; color: white; padding: 10px 25px; border-radius: 6px; text-decoration: none;">← Regresar al historial</a>
+    </div>
+</div>
+{% endblock %}

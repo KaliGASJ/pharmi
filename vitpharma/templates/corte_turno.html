@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+            color: #333;
+            width: 95%;
+            margin: auto;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 5px;
+            color: #004AAD;
+        }
+
+        .datos, .resumen {
+            margin-top: 20px;
+        }
+
+        .datos p, .resumen p {
+            margin: 4px 0;
+            font-size: 12px;
+        }
+
+        .total {
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+
+        hr {
+            margin: 20px 0;
+            border: 0;
+            border-top: 1px dashed #aaa;
+        }
+
+        .footer {
+            text-align: center;
+            font-style: italic;
+            margin-top: 25px;
+            font-size: 11px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Corte de Caja - {{ farmacia }}</h2>
+
+    <div class="datos">
+        <p><strong>Turno ID:</strong> {{ turno.id }}</p>
+        <p><strong>Vendedor:</strong> {{ usuario.get_full_name|default:usuario.username }}</p>
+        <p><strong>Fecha de inicio:</strong> {{ fecha_inicio|date:"d/m/Y H:i" }}</p>
+        <p><strong>Fecha de cierre:</strong> {{ fecha_fin|date:"d/m/Y H:i" }}</p>
+    </div>
+
+    <hr>
+
+    <div class="resumen">
+        <p><strong>Monto inicial:</strong> ${{ monto_inicial|floatformat:2 }}</p>
+        <p><strong>Ventas en efectivo:</strong> ${{ monto_efectivo|floatformat:2 }}</p>
+        <p><strong>Ventas con tarjeta:</strong> ${{ monto_tarjeta|floatformat:2 }}</p>
+        <p><strong>Ventas por transferencia:</strong> ${{ monto_transferencia|floatformat:2 }}</p>
+        <p><strong>Ventas por cheque:</strong> ${{ monto_cheque|floatformat:2 }}</p>
+        <p class="total">Total del turno: ${{ total_turno|floatformat:2 }}</p>
+    </div>
+
+    <div class="footer">
+        Este corte fue generado automáticamente por el sistema VIT PHARMA.<br>
+        Gracias por tu trabajo y compromiso.
+    </div>
+
+</body>
+</html>

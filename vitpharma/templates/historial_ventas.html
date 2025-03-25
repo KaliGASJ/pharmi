@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Historial de Ventas | VIT PHARMA{% endblock %}
+
+{% block content %}
+<h2 style="text-align: center; margin-bottom: 30px;">Historial de ventas realizadas</h2>
+
+{% if ventas %}
+<table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+    <thead>
+        <tr style="background-color: #f0f0f0;">
+            <th style="padding: 12px; border: 1px solid #ddd;">Fecha</th>
+            <th style="padding: 12px; border: 1px solid #ddd;">Método de pago</th>
+            <th style="padding: 12px; border: 1px solid #ddd;">Total</th>
+            <th style="padding: 12px; border: 1px solid #ddd;">Estado</th>
+            <th style="padding: 12px; border: 1px solid #ddd;">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for venta in ventas %}
+        <tr>
+            <td style="padding: 10px; border: 1px solid #eee;">{{ venta.fecha_hora|date:"d/m/Y H:i" }}</td>
+            <td style="padding: 10px; border: 1px solid #eee;">{{ venta.metodo_pago.nombre }}</td>
+            <td style="padding: 10px; border: 1px solid #eee;">${{ venta.total|floatformat:2 }}</td>
+            <td style="padding: 10px; border: 1px solid #eee;">
+                {% if venta.estado == 'activa' %}
+                    <span style="color: green; font-weight: bold;">Activa</span>
+                {% else %}
+                    <span style="color: red; font-weight: bold;">Cancelada</span>
+                {% endif %}
+            </td>
+            <td style="padding: 10px; border: 1px solid #eee;">
+                <a href="{% url 'ventas:detalle_venta' venta.id %}" class="btn btn-sm" style="padding: 6px 12px; background-color: #004AAD; color: white; border-radius: 6px; text-decoration: none;">Ver</a>
+
+                {% if venta.ticket_pdf %}
+                    <a href="{% url 'ventas:generar_ticket_pdf' venta.id %}" target="_blank" class="btn btn-sm" style="padding: 6px 12px; background-color: #28a745; color: white; border-radius: 6px; text-decoration: none;">Ticket</a>
+                {% else %}
+                    <span style="color: #999; font-size: 12px;">Sin ticket</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+    <p style="text-align: center; margin-top: 40px;">No se han registrado ventas todavía.</p>
+{% endif %}
+
+<div style="text-align: center; margin-top: 30px;">
+    <a href="{% url 'authapp:vendedor_dashboard' %}" class="btn btn-secondary" style="background-color: #6c757d; color: white; padding: 10px 25px; border-radius: 6px; text-decoration: none;">← Regresar al panel</a>
+</div>
+{% endblock %}
