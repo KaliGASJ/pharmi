@@ -177,6 +177,31 @@
             </div>
         {% endif %}
 
+        <!-- Modal de Finalizar Turno - Solo se muestra si hay turno activo -->
+        <div class="modal fade" id="finalizarTurnoModal" tabindex="-1" aria-labelledby="finalizarTurnoModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title" id="finalizarTurnoModalLabel">Finalizar Turno</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>¿Estás seguro de que deseas finalizar este turno?</p>
+                        <p><strong>Efectivo en caja:</strong> $<span id="modal-efectivo-final">{{ turno_activo.efectivo_final_en_caja|floatformat:2 }}</span></p>
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i> Esta acción no se puede deshacer. Se generará un reporte de cierre.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <a href="{% url 'turnos:finalizar_turno' turno_activo.id %}" class="btn btn-danger">
+                            <i class="fas fa-check-circle"></i> Confirmar Finalización
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     {% else %}
         <!-- Sin Turno Activo -->
         <div class="card text-center shadow-sm mb-4">
@@ -238,103 +263,11 @@
                     </table>
                 </div>
             {% else %}
-                <div class="text-center p-4">
-                    {% if fecha_filtro %}
-                        <p class="lead text-muted">No hay turnos finalizados para la fecha {{ fecha_filtro|date:"d/m/Y" }}</p>
-                    {% else %}
-                        <p class="lead text-muted">Aún no has finalizado ningún turno</p>
-                    {% endif %}
+                <div class="alert alert-info m-3">
+                    <i class="fas fa-info-circle"></i> No hay turnos finalizados para mostrar.
                 </div>
             {% endif %}
         </div>
-    </div>
-
-    <!-- Botón de Regreso -->
-    <div class="text-center mb-4">
-        <a href="{% url 'authapp:vendedor_dashboard' %}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Regresar al Panel
-        </a>
-    </div>
-</div>
-
-<!-- Modal de Finalizar Turno -->
-<!-- Modal de Finalizar Turno -->
-<div class="modal fade" id="finalizarTurnoModal" tabindex="-1" aria-labelledby="finalizarTurnoModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title" id="finalizarTurnoModalLabel">Finalizar Turno</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>¿Estás seguro de que deseas finalizar este turno?</p>
-                <p><strong>Efectivo en caja:</strong> $<span id="modal-efectivo-final">{{ turno_activo.efectivo_final_en_caja|floatformat:2 }}</span></p>
-                <div class="alert alert-warning">
-                    <i class="fas fa-exclamation-triangle"></i> Esta acción no se puede deshacer. Se generará un reporte de cierre.
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <a href="{% url 'turnos:finalizar_turno' turno_activo.id %}" class="btn btn-danger">
-                    <i class="fas fa-check-circle"></i> Confirmar Finalización
-                </a>
-            </div>
         </div>
-    </div>
-</div>
-
-<!-- Script para actualizar datos de caja en tiempo real via AJAX -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Actualizar datos desde el backend cada 30 segundos
-        let actualizadorCaja = setInterval(actualizarDatosCaja, 30000);
-        
-        // Botón de actualización manual
-        const btnActualizar = document.getElementById('btnActualizarCaja');
-        if (btnActualizar) {
-            btnActualizar.addEventListener('click', actualizarDatosCaja);
-        }
-        
-        // Función para actualizar datos de caja mediante AJAX
-        function actualizarDatosCaja() {
-            fetch('{% url "turnos:obtener_efectivo_caja" %}')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Actualizar montos
-                        document.getElementById('efectivo-final').textContent = '$' + data.efectivo_final.toFixed(2);
-                        document.getElementById('monto-efectivo').textContent = '$' + data.monto_efectivo.toFixed(2);
-                        document.getElementById('total-turno').textContent = '$' + (data.monto_efectivo + 
-                            parseFloat(document.getElementById('monto-tarjeta').textContent.replace('$', '')) + 
-                            parseFloat(document.getElementById('monto-transferencia').textContent.replace('$', '')) + 
-                            parseFloat(document.getElementById('monto-cheque').textContent.replace('$', ''))).toFixed(2);
-                        
-                        // Actualizar el modal si está presente
-                        const modalEfectivoFinal = document.getElementById('modal-efectivo-final');
-                        if (modalEfectivoFinal) {
-                            modalEfectivoFinal.textContent = data.efectivo_final.toFixed(2);
-                        }
-                        
-                        // Mostrar notificación de actualización
-                        const ahora = new Date().toLocaleTimeString();
-                        const notificacion = document.createElement('div');
-                        notificacion.className = 'alert alert-info alert-dismissible fade show position-fixed bottom-0 end-0 m-3';
-                        notificacion.innerHTML = `
-                            <i class="fas fa-sync-alt"></i> Datos actualizados a las ${ahora}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        `;
-                        document.body.appendChild(notificacion);
-                        
-                        // Remover notificación después de 3 segundos
-                        setTimeout(() => {
-                            notificacion.remove();
-                        }, 3000);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error al actualizar datos:', error);
-                });
-        }
-    });
-</script>
-{% endblock %}
+        </div>
+        {% endblock %}

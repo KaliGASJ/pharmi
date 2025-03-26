@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'consultas',
     'reportesvendedor',
     'soportevendedor',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
