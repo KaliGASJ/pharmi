@@ -23,5 +23,5 @@ urlpatterns = [
     path('filtrar/', views.filtrar_turnos, name='filtrar_turnos'),
     
     # Ruta opcional para verificar turnos expirados (puede llamarse desde un cron job)
-    path('verificar-turnos-expirados/', views.verificar_turnos_expirados, name='verificar_turnos_expirados'),
+    #path('verificar-turnos-expirados/', views.verificar_turnos_expirados, name='verificar_turnos_expirados'),
 ]
