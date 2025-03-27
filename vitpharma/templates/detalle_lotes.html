@@ -145,6 +145,7 @@
         <thead>
             <tr>
                 <th>Lote</th>
+                <th>Código de Lote</th>
                 <th>Proveedor</th>
                 <th>Fecha de Caducidad</th>
                 <th>Precio Compra</th>
@@ -161,6 +162,7 @@
             {% for lote in lotes %}
             <tr class="{% if lote.cantidad <= producto.stock_minimo %}low-stock{% elif lote.fecha_caducidad and lote.fecha_caducidad <= today %}expiring{% endif %}">
                 <td>{{ lote.lote }}</td>
+                <td><strong>{{ lote.codigo_lote }}</strong></td>
                 <td>{{ lote.id_proveedor.nombre|default:"No asignado" }}</td>
                 <td>{{ lote.fecha_caducidad|default:"-" }}</td>
                 <td>${{ lote.precio_compra }}</td>
@@ -182,7 +184,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="9"><strong>No hay lotes registrados para este producto.</strong></td>
+                <td colspan="10"><strong>No hay lotes registrados para este producto.</strong></td>
             </tr>
             {% endfor %}
         </tbody>

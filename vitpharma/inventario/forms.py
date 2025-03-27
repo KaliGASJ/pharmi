@@ -2,12 +2,9 @@ from django import forms
 from .models import Producto, InventarioProducto, Proveedor
 from datetime import date
 
-
 # -------------------- FORMULARIO DE REGISTRO Y EDICIÓN DE PRODUCTOS --------------------
 
 class ProductoForm(forms.ModelForm):
-    """Formulario para registrar y editar productos"""
-
     class Meta:
         model = Producto
         fields = [
@@ -29,7 +26,6 @@ class ProductoForm(forms.ModelForm):
         }
 
     def clean_codigo_barras(self):
-        """Verifica que el código de barras sea único y solo contenga números."""
         codigo_barras = self.cleaned_data.get("codigo_barras")
         if codigo_barras and not codigo_barras.isdigit():
             raise forms.ValidationError("El código de barras solo puede contener números.")
@@ -41,8 +37,6 @@ class ProductoForm(forms.ModelForm):
 # -------------------- FORMULARIO PARA AGREGAR LOTES --------------------
 
 class AgregarLoteForm(forms.ModelForm):
-    """Formulario para agregar nuevos lotes de productos en el inventario"""
-
     id_proveedor = forms.ModelChoiceField(
         queryset=Proveedor.objects.all(),
         required=True,
@@ -52,10 +46,7 @@ class AgregarLoteForm(forms.ModelForm):
 
     class Meta:
         model = InventarioProducto
-        fields = [
-            "producto", "lote", "id_proveedor", "fecha_caducidad",
-            "precio_compra", "precio_venta", "cantidad", "descuento_porcentaje"
-        ]
+        exclude = ["codigo_lote"]  # No se muestra, se asigna automáticamente
         labels = {
             "producto": "Producto",
             "lote": "Número de Lote",
@@ -77,31 +68,24 @@ class AgregarLoteForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        # Si se pasa un producto fijo desde la vista
         producto_fijo = kwargs.pop("producto_fijo", None)
         super().__init__(*args, **kwargs)
-
         if producto_fijo:
             self.fields["producto"].queryset = Producto.objects.filter(pk=producto_fijo.pk)
             self.fields["producto"].initial = producto_fijo
-            self.fields["producto"].disabled = True  # 🔒 Evita que se pueda cambiar
+            self.fields["producto"].disabled = True
 
     def clean(self):
         cleaned_data = super().clean()
-        precio_compra = cleaned_data.get("precio_compra")
-        precio_venta = cleaned_data.get("precio_venta")
         fecha_caducidad = cleaned_data.get("fecha_caducidad")
-
         if fecha_caducidad and fecha_caducidad < date.today():
             self.add_error("fecha_caducidad", "La fecha de caducidad no puede ser menor al día actual.")
-
         return cleaned_data
+
 
 # -------------------- FORMULARIO PARA AGREGAR STOCK --------------------
 
 class AgregarStockForm(forms.ModelForm):
-    """Formulario para agregar stock a un lote existente"""
-
     id_proveedor = forms.ModelChoiceField(
         queryset=Proveedor.objects.all(),
         required=True,
@@ -111,18 +95,18 @@ class AgregarStockForm(forms.ModelForm):
 
     class Meta:
         model = InventarioProducto
-        fields = [
-            "producto", "lote", "id_proveedor", "cantidad"
-        ]
+        fields = ["producto", "lote", "codigo_lote", "id_proveedor", "cantidad"]
         labels = {
             "producto": "Producto",
             "lote": "Número de Lote",
+            "codigo_lote": "Código de Lote",
             "id_proveedor": "Proveedor",
             "cantidad": "Cantidad a Agregar"
         }
         widgets = {
-            "producto": forms.Select(attrs={"class": "form-control"}),
+            "producto": forms.Select(attrs={"class": "form-control", "readonly": True}),
             "lote": forms.TextInput(attrs={"class": "form-control", "readonly": "readonly"}),
+            "codigo_lote": forms.TextInput(attrs={"class": "form-control", "readonly": "readonly"}),
             "cantidad": forms.NumberInput(attrs={"min": 1, "class": "form-control"}),
         }
 
@@ -136,8 +120,6 @@ class AgregarStockForm(forms.ModelForm):
 # -------------------- FORMULARIO PARA EDITAR UN LOTE --------------------
 
 class EditarLoteForm(forms.ModelForm):
-    """Formulario para editar un lote existente"""
-
     id_proveedor = forms.ModelChoiceField(
         queryset=Proveedor.objects.all(),
         required=True,
@@ -147,12 +129,10 @@ class EditarLoteForm(forms.ModelForm):
 
     class Meta:
         model = InventarioProducto
-        fields = [
-            "lote", "id_proveedor", "fecha_caducidad",
-            "precio_compra", "precio_venta", "cantidad", "descuento_porcentaje"
-        ]
+        fields = ["lote", "codigo_lote", "id_proveedor", "fecha_caducidad", "precio_compra", "precio_venta", "cantidad", "descuento_porcentaje"]
         labels = {
             "lote": "Número de Lote",
+            "codigo_lote": "Código de Lote",
             "id_proveedor": "Proveedor",
             "fecha_caducidad": "Fecha de Caducidad",
             "precio_compra": "Precio de Compra",
@@ -162,15 +142,23 @@ class EditarLoteForm(forms.ModelForm):
         }
         widgets = {
             "lote": forms.TextInput(attrs={"class": "form-control"}),
-            "fecha_caducidad": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+            "codigo_lote": forms.TextInput(attrs={"class": "form-control", "readonly": "readonly"}),
+            "fecha_caducidad": forms.DateInput(
+                attrs={"type": "date", "class": "form-control"},
+                format="%Y-%m-%d"
+            ),
             "precio_compra": forms.NumberInput(attrs={"class": "form-control", "step": "0.01", "min": "0"}),
             "precio_venta": forms.NumberInput(attrs={"class": "form-control", "step": "0.01", "min": "0"}),
             "cantidad": forms.NumberInput(attrs={"class": "form-control", "min": "0"}),
             "descuento_porcentaje": forms.NumberInput(attrs={"class": "form-control", "step": "0.01", "min": "0", "max": "100"}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.fecha_caducidad:
+            self.fields["fecha_caducidad"].initial = self.instance.fecha_caducidad.strftime("%Y-%m-%d")
+
     def clean(self):
-        """Validaciones antes de actualizar el lote"""
         cleaned_data = super().clean()
         cantidad = cleaned_data.get("cantidad")
         precio_compra = cleaned_data.get("precio_compra")
@@ -188,14 +176,13 @@ class EditarLoteForm(forms.ModelForm):
 # -------------------- FORMULARIO PARA ELIMINAR UN LOTE --------------------
 
 class EliminarLoteForm(forms.Form):
-    """Formulario para confirmar la eliminación de un lote"""
     confirmacion = forms.BooleanField(
         required=True,
         label="Confirmo que deseo eliminar este lote"
     )
 
-from django import forms
-from .models import Proveedor
+
+# -------------------- FORMULARIOS PARA PROVEEDORES --------------------
 
 class AgregarProveedorForm(forms.ModelForm):
     class Meta:
@@ -224,6 +211,3 @@ class EliminarProveedorForm(forms.Form):
         required=True,
         label="Confirmo que deseo eliminar este proveedor"
     )
-
-
-

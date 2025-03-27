@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalle de Turno | VIT PHARMA{% endblock %}
+
+{% block content %}
+<div class="container col-lg-8 mt-4">
+
+    <!-- Encabezado y regreso -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Detalle del Turno #{{ turno.id }}</h2>
+        <a href="{% url 'historial_turnos' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Regresar
+        </a>
+    </div>
+
+    <!-- Card con información detallada -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <p><strong>Fecha de inicio:</strong><br> {{ turno.hora_inicio|date:"d/m/Y H:i" }}</p>
+                    <p><strong>Hora de cierre estimada:</strong><br> {{ turno.hora_fin_estimada|date:"d/m/Y H:i" }}</p>
+                    <p><strong>Hora de cierre real:</strong><br> {{ turno.hora_fin_real|date:"d/m/Y H:i" }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <p><strong>Duración del turno:</strong><br> {{ turno.duracion_turno }}</p>
+                    <p><strong>Estado:</strong><br>
+                        {% if turno.cerrado_automaticamente %}
+                            <span class="badge bg-warning text-dark">Cierre automático</span>
+                        {% else %}
+                            <span class="badge bg-success">Cierre manual</span>
+                        {% endif %}
+                    </p>
+                    <p><strong>Monto inicial:</strong><br>
+                        <span class="text-success fw-bold">${{ turno.monto_inicial|floatformat:2 }}</span>
+                    </p>
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Ventas en efectivo:</strong><br> ${{ turno.monto_total_efectivo|floatformat:2 }}</p>
+                    <p><strong>Ventas con tarjeta:</strong><br> ${{ turno.monto_total_tarjeta|floatformat:2 }}</p>
+                    <p><strong>Ventas por transferencia:</strong><br> ${{ turno.monto_total_transferencia|floatformat:2 }}</p>
+                    <p><strong>Ventas con cheque:</strong><br> ${{ turno.monto_total_cheque|floatformat:2 }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Total ventas:</strong><br> <span class="fw-bold text-primary">${{ turno.total_ventas_turno|floatformat:2 }}</span></p>
+                    <p><strong>Total cambios dados:</strong><br> <span class="text-warning fw-bold">${{ turno.total_cambios_dados|floatformat:2 }}</span></p>
+                    <p><strong>Efectivo final en caja:</strong><br> <span class="fw-bold text-dark">${{ turno.efectivo_final_en_caja|floatformat:2 }}</span></p>
+                </div>
+            </div>
+
+            {% if turno.observaciones %}
+                <hr>
+                <p><strong>📝 Observaciones:</strong></p>
+                <div class="alert alert-secondary">{{ turno.observaciones }}</div>
+            {% endif %}
+
+        </div>
+
+        <!-- PDF si existe -->
+        <div class="card-footer d-flex justify-content-between align-items-center">
+            <small class="text-muted">Fecha de registro: {{ turno.fecha_creacion|date:"d/m/Y H:i" }}</small>
+            {% if turno.pdf_reporte %}
+                <a href="{% url 'turnos:descargar_pdf_turno' turno.id %}" target="_blank" class="btn btn-danger">
+                    <i class="fas fa-file-pdf"></i> Descargar PDF
+                </a>
+            {% else %}
+                <span class="badge bg-secondary">Sin reporte PDF</span>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

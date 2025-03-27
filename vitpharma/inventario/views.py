@@ -2,10 +2,14 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from .models import Producto, InventarioProducto, Proveedor
-from .forms import ProductoForm, AgregarLoteForm, AgregarStockForm, EditarLoteForm, EliminarLoteForm, AgregarProveedorForm, EditarProveedorForm, EliminarProveedorForm 
-from datetime import date, timedelta
-from django.db.models import Q  # 👈 Importación adicional necesaria
+from .forms import (
+    ProductoForm, AgregarLoteForm, AgregarStockForm, EditarLoteForm,
+    EliminarLoteForm, AgregarProveedorForm, EditarProveedorForm, EliminarProveedorForm
+)
+from datetime import date
+from django.db.models import Q
 from django.http import HttpResponse
+
 
 # -------------------- PERMISOS --------------------
 
@@ -16,9 +20,14 @@ def es_vendedor(user):
     return user.is_authenticated and user.groups.filter(name="vendedor").exists()
 
 
-# -------------------- LISTAR PRODUCTOS --------------------
+# -------------------- UTILIDAD --------------------
+
 def volver_atras():
     return HttpResponse("<script>history.back();</script>")
+
+
+# -------------------- LISTAR PRODUCTOS --------------------
+
 @login_required
 def listar_productos(request):
     productos = Producto.objects.all()
@@ -29,7 +38,6 @@ def listar_productos(request):
 
 @login_required
 def detalle_producto(request, producto_id):
-    """Muestra todos los detalles del producto."""
     producto = get_object_or_404(Producto, id_producto=producto_id)
     return render(request, "detalle_producto.html", {"producto": producto})
 
@@ -38,7 +46,6 @@ def detalle_producto(request, producto_id):
 
 @login_required
 def detalle_lotes(request, producto_id):
-    """Muestra todos los lotes de un producto específico."""
     producto = get_object_or_404(Producto, id_producto=producto_id)
     lotes = InventarioProducto.objects.filter(producto=producto)
     return render(request, "detalle_lotes.html", {"producto": producto, "lotes": lotes})
@@ -55,20 +62,15 @@ def agregar_producto(request):
             producto.usuario_registro = request.user
             producto.save()
             messages.success(request, f"Producto '{producto.nombre}' agregado correctamente.")
-
-            # Redirigir según el grupo del usuario
             grupo = request.user.groups.first().name.lower() if request.user.groups.exists() else None
             if grupo == "administrador":
                 return redirect("inventario:listar_productos")
             elif grupo == "vendedor":
                 return redirect("inventariovendedor:inventario_vendedor_dashboard")
-            else:
-                return redirect("home")  # O cualquier ruta de respaldo
-        else:
-            messages.error(request, "Error al agregar el producto. Verifique los datos.")
+            return redirect("home")
+        messages.error(request, "Error al agregar el producto. Verifique los datos.")
     else:
         form = ProductoForm()
-
     return render(request, "agregar_producto.html", {"form": form})
 
 
@@ -76,7 +78,6 @@ def agregar_producto(request):
 @user_passes_test(es_administrador)
 def editar_producto(request, producto_id):
     producto = get_object_or_404(Producto, id_producto=producto_id)
-
     if request.method == "POST":
         form = ProductoForm(request.POST, instance=producto)
         if form.is_valid():
@@ -88,7 +89,6 @@ def editar_producto(request, producto_id):
         messages.error(request, "Error al actualizar el producto. Verifique los datos.")
     else:
         form = ProductoForm(instance=producto)
-
     return render(request, "editar_producto.html", {"form": form, "producto": producto})
 
 
@@ -96,16 +96,13 @@ def editar_producto(request, producto_id):
 @user_passes_test(es_administrador)
 def eliminar_producto(request, producto_id):
     producto = get_object_or_404(Producto, id_producto=producto_id)
-
     if InventarioProducto.objects.filter(producto=producto).exists():
         messages.error(request, "No se puede eliminar un producto con stock disponible.")
         return redirect("inventario:listar_productos")
-
     if request.method == "POST":
         producto.delete()
         messages.success(request, f"Producto '{producto.nombre}' eliminado correctamente.")
         return redirect("inventario:listar_productos")
-
     return render(request, "eliminar_producto.html", {"producto": producto})
 
 
@@ -114,20 +111,18 @@ def eliminar_producto(request, producto_id):
 @login_required
 def agregar_lote(request, producto_id):
     producto = get_object_or_404(Producto, id_producto=producto_id)
-
     if request.method == "POST":
         form = AgregarLoteForm(request.POST, producto_fijo=producto)
         if form.is_valid():
             lote = form.save(commit=False)
-            lote.producto = producto  # Ya no es necesario si se usó producto_fijo, pero lo dejamos por seguridad
+            lote.producto = producto
             lote.usuario_registro = request.user
             lote.save()
-            messages.success(request, f"Lote '{lote.lote}' agregado correctamente al producto '{producto.nombre}'.")
+            messages.success(request, f"Lote '{lote.codigo_lote}' agregado a '{producto.nombre}'.")
             return redirect("inventario:detalle_lotes", producto_id=producto.id_producto)
         messages.error(request, "❌ Error al agregar el lote. Verifique los datos.")
     else:
         form = AgregarLoteForm(producto_fijo=producto)
-
     return render(request, "agregar_lote.html", {"form": form, "producto": producto})
 
 
@@ -141,25 +136,21 @@ def agregar_stock(request):
         if form.is_valid():
             stock = form.save(commit=False)
             stock.usuario_registro = request.user
-
             lote_existente = InventarioProducto.objects.filter(
                 producto=stock.producto,
                 lote=stock.lote,
                 id_proveedor=stock.id_proveedor
             ).first()
-
             if lote_existente:
                 lote_existente.cantidad += stock.cantidad
                 lote_existente.save()
-                messages.success(request, f"Stock del lote '{stock.lote}' actualizado correctamente.")
+                messages.success(request, f"Stock actualizado para '{lote_existente.codigo_lote}'.")
             else:
                 messages.error(request, "Solo se permite agregar stock a lotes existentes.")
-
             return redirect("inventario:detalle_lotes", producto_id=stock.producto.id_producto)
         messages.error(request, "Error al agregar stock. Verifique los datos.")
     else:
         form = AgregarStockForm()
-
     return render(request, "agregar_stock.html", {"form": form})
 
 
@@ -173,16 +164,21 @@ def editar_lote(request, lote_id):
     if request.method == "POST":
         form = EditarLoteForm(request.POST, instance=lote)
         if form.is_valid():
-            lote = form.save(commit=False)
-            lote.usuario_modificacion = request.user
-            lote.save()
-            messages.success(request, f"Lote '{lote.lote}' actualizado correctamente.")
-            return redirect("inventario:detalle_lotes", producto_id=lote.producto.id_producto)
-        messages.error(request, "Error al editar el lote. Verifique los datos.")
+            lote_actualizado = form.save(commit=False)
+            lote_actualizado.usuario_modificacion = request.user
+            lote_actualizado.save()
+            messages.success(request, f"Lote '{lote_actualizado.codigo_lote}' actualizado correctamente.")
+            return redirect("inventario:detalle_lotes", producto_id=lote_actualizado.producto.id_producto)
+        else:
+            messages.error(request, "❌ Error al editar el lote. Verifique los datos.")
     else:
         form = EditarLoteForm(instance=lote)
 
-    return render(request, "editar_lote.html", {"form": form, "lote": lote})
+    return render(request, "editar_lote.html", {
+        "form": form,
+        "lote": lote
+    })
+
 
 
 # -------------------- ADMINISTRADOR: ELIMINAR LOTE --------------------
@@ -192,18 +188,17 @@ def editar_lote(request, lote_id):
 def eliminar_lote(request, lote_id):
     lote = get_object_or_404(InventarioProducto, id_inventario=lote_id)
     producto = lote.producto
-
     if request.method == "POST":
         lote.delete()
-        messages.success(request, f"Lote '{lote.lote}' eliminado correctamente.")
+        messages.success(request, f"Lote '{lote.codigo_lote}' eliminado.")
         return redirect("inventario:detalle_lotes", producto_id=producto.id_producto)
-
     return render(request, "eliminar_lote.html", {"lote": lote, "producto": producto})
 
-# -------------------- NUEVAS VISTAS: BAJO STOCK Y PRÓXIMOS A CADUCAR --------------------
+
+# -------------------- NUEVAS VISTAS --------------------
+
 @login_required
 def productos_bajo_stock(request):
-    """Muestra los productos cuyo stock total es menor o igual al mínimo."""
     productos = Producto.objects.all()
     productos_bajo_stock = sorted(
         [p for p in productos if p.en_bajo_stock()],
@@ -214,26 +209,17 @@ def productos_bajo_stock(request):
 
 @login_required
 def lotes_proximos_caducar(request):
-    """
-    Muestra todos los lotes con fecha de caducidad futura,
-    resaltando los colores según días restantes, y permitiendo búsqueda por nombre, código o lote.
-    Ordenados de menor a mayor según días restantes.
-    """
     hoy = date.today()
     query = request.GET.get("q", "").strip()
-
-    # Filtra lotes con fecha de caducidad válida
     lotes = InventarioProducto.objects.exclude(fecha_caducidad=None).filter(fecha_caducidad__gte=hoy)
-
-    # Si hay búsqueda, filtra por nombre, código o número de lote
     if query:
         lotes = lotes.filter(
             Q(producto__nombre__icontains=query) |
             Q(producto__codigo_barras__icontains=query) |
-            Q(lote__icontains=query)
+            Q(lote__icontains=query) |
+            Q(codigo_lote__icontains=query)
         )
 
-    # Clasifica los lotes y calcula días restantes
     lotes_coloreados = []
     for lote in lotes:
         dias = (lote.fecha_caducidad - hoy).days
@@ -246,7 +232,6 @@ def lotes_proximos_caducar(request):
             lote.alerta = "verde"
         lotes_coloreados.append(lote)
 
-    # 🔥 Aquí está el cambio: ordenamos directamente por días restantes
     lotes_ordenados = sorted(lotes_coloreados, key=lambda x: x.dias_restantes)
 
     return render(request, "lotes_proximos_caducar.html", {
@@ -254,6 +239,7 @@ def lotes_proximos_caducar(request):
         "hoy": hoy,
         "query": query
     })
+
 
 # -------------------- GESTIÓN DE PROVEEDORES --------------------
 

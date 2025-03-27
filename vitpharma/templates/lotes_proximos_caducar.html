@@ -96,7 +96,6 @@
         border-bottom: 1px solid #e0e0e0;
     }
 
-    /* Colores sólidos para filas */
     .rojo {
         background-color: #FF3333 !important;
         color: white !important;
@@ -112,7 +111,6 @@
         color: white !important;
     }
 
-    /* Hover sólido para todas */
     .rojo:hover {
         background-color: #FF6666 !important;
         color: white !important;
@@ -155,7 +153,6 @@
         margin-bottom: 20px;
     }
 
-    /* Animación solo para rojo */
     .rojo td {
         animation: pulseAlert 2s infinite;
     }
@@ -191,7 +188,8 @@
             <tr>
                 <th>Producto</th>
                 <th>Código de Barras</th>
-                <th>Lote</th>
+                <th>Número de Lote</th>
+                <th>Código Único</th>
                 <th>Cantidad</th>
                 <th>Fecha de Caducidad</th>
                 <th>Días Restantes</th>
@@ -203,6 +201,7 @@
                 <td>{{ lote.producto.nombre }}</td>
                 <td>{{ lote.producto.codigo_barras }}</td>
                 <td>{{ lote.lote }}</td>
+                <td><strong>{{ lote.codigo_lote }}</strong></td>
                 <td>{{ lote.cantidad }}</td>
                 <td>{{ lote.fecha_caducidad|date:"d/m/Y" }}</td>
                 <td class="dias-restantes">

@@ -4,6 +4,7 @@ from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
 from datetime import date
 from decimal import Decimal
+from uuid import uuid4  # 👈 Para generar el código automáticamente
 
 
 # -------------------- CATEGORÍAS Y DEPARTAMENTOS --------------------
@@ -69,31 +70,19 @@ class Producto(models.Model):
         return f"{self.nombre} (CB: {self.codigo_barras})"
 
     def total_stock(self):
-        """
-        Calcula el stock total sumando las cantidades de todos los lotes asociados
-        """
         return sum(lote.cantidad for lote in self.lotes.all())
 
     def en_bajo_stock(self):
-        """
-        Verifica si el stock total está en o por debajo del mínimo configurado
-        """
         return self.total_stock() <= self.stock_minimo
 
     def actualizar_stock_total(self):
-        """
-        Actualiza el estado del producto basado en el stock total actual
-        """
         stock_actual = self.total_stock()
         nuevo_estado = "activo" if stock_actual > 0 else "inactivo"
         if self.estado != nuevo_estado:
             self.estado = nuevo_estado
             self.save(update_fields=["estado"])
-            
+
     def get_lotes_disponibles(self):
-        """
-        Retorna todos los lotes activos (con stock mayor a 0)
-        """
         return self.lotes.filter(cantidad__gt=0).order_by('fecha_caducidad')
 
 
@@ -103,12 +92,7 @@ class InventarioProducto(models.Model):
     id_inventario = models.AutoField(primary_key=True)
     producto = models.ForeignKey(Producto, related_name="lotes", on_delete=models.CASCADE, null=False)
     lote = models.CharField(max_length=50, default="SIN-LOTE", null=False)
-    codigo_lote = models.CharField(
-        max_length=30,
-        unique=True,
-        null=False,
-        blank=False
-    )
+    codigo_lote = models.CharField(max_length=30, unique=True, null=False, blank=True)
     id_proveedor = models.ForeignKey(Proveedor, related_name="productos_proveedor", on_delete=models.SET_NULL, null=True)
     fecha_caducidad = models.DateField(blank=True, null=True)
     precio_compra = models.DecimalField(max_digits=10, decimal_places=2, null=False)
@@ -121,12 +105,9 @@ class InventarioProducto(models.Model):
     fecha_modificacion = models.DateTimeField(auto_now=True, null=False)
 
     def __str__(self):
-        return f"{self.producto.nombre} - Lote: {self.lote} - Cantidad: {self.cantidad}"
+        return f"{self.producto.nombre} - Lote: {self.lote} - Código: {self.codigo_lote} - Cantidad: {self.cantidad}"
 
     def clean(self):
-        """
-        Validaciones adicionales antes de guardar un lote
-        """
         if self.precio_compra < 0 or self.precio_venta < 0:
             raise ValidationError("El precio de compra y venta no pueden ser negativos.")
         if self.precio_venta < self.precio_compra:
@@ -135,14 +116,14 @@ class InventarioProducto(models.Model):
             raise ValidationError("La fecha de caducidad no puede ser anterior a hoy.")
 
     def save(self, *args, **kwargs):
+        if not self.codigo_lote:
+            # Generar un código único de lote automáticamente
+            self.codigo_lote = f"L{uuid4().hex[:8].upper()}"
         self.full_clean()
         super().save(*args, **kwargs)
         self.producto.actualizar_stock_total()
 
     def eliminar_lote(self):
-        """
-        Método conveniente para eliminar un lote
-        """
         self.delete()
 
     def delete(self, *args, **kwargs):
@@ -150,28 +131,19 @@ class InventarioProducto(models.Model):
         self.producto.actualizar_stock_total()
 
     def dias_para_caducar(self):
-        """
-        Calcula los días que faltan para que el producto caduque
-        """
         if self.fecha_caducidad:
             return (self.fecha_caducidad - date.today()).days
         return None
 
     def consumir_stock(self, cantidad):
-        """
-        Reduce la cantidad de stock disponible si es suficiente
-        """
         if self.cantidad >= cantidad:
             self.cantidad -= cantidad
             self.save(update_fields=["cantidad"])
             self.producto.actualizar_stock_total()
         else:
             raise ValidationError(f"Stock insuficiente en lote {self.codigo_lote}")
-            
+
     def calcular_precio_con_descuento(self):
-        """
-        Calcula el precio final considerando el descuento aplicado
-        """
         if self.descuento_porcentaje:
             descuento = (self.precio_venta * Decimal(self.descuento_porcentaje)) / Decimal('100.0')
             return self.precio_venta - descuento

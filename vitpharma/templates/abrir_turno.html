@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Iniciar Turno | VIT PHARMA{% endblock %}
+
+{% block content %}
+<div class="container col-lg-6 mt-5">
+
+    <!-- Encabezado -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0"><i class="fas fa-play-circle me-2"></i>Iniciar Nuevo Turno</h2>
+        <a href="{% url 'authapp:vendedor_dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Regresar
+        </a>
+    </div>
+
+    <!-- Mensajes -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Formulario -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="{{ form.hora_fin_estimada.id_for_label }}" class="form-label">Hora de fin estimada:</label>
+                    {{ form.hora_fin_estimada }}
+                    {% if form.hora_fin_estimada.errors %}
+                        <div class="text-danger small">{{ form.hora_fin_estimada.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.monto_inicial.id_for_label }}" class="form-label">Monto inicial en caja:</label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        {{ form.monto_inicial }}
+                    </div>
+                    {% if form.monto_inicial.errors %}
+                        <div class="text-danger small">{{ form.monto_inicial.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check-circle"></i> Iniciar Turno
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Historial de Turnos | VIT PHARMA{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+
+    <!-- Encabezado -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Historial de Turnos Finalizados</h2>
+        <a href="{% url 'authapp:vendedor_dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Regresar
+        </a>
+    </div>
+
+    <!-- Mensajes -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Tabla de turnos -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            {% if turnos %}
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Fecha de Inicio</th>
+                                <th>Hora de Cierre</th>
+                                <th>Monto Inicial</th>
+                                <th>Total Ventas</th>
+                                <th>Efectivo Final</th>
+                                <th>PDF</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for turno in turnos %}
+                            <tr>
+                                <td>#{{ turno.id }}</td>
+                                <td>{{ turno.hora_inicio|date:"d/m/Y H:i" }}</td>
+                                <td>{{ turno.hora_fin_real|date:"d/m/Y H:i" }}</td>
+                                <td>${{ turno.monto_inicial|floatformat:2 }}</td>
+                                <td>${{ turno.total_ventas_turno|floatformat:2 }}</td>
+                                <td>${{ turno.efectivo_final_en_caja|floatformat:2 }}</td>
+                                <td>
+                                    {% if turno.pdf_reporte %}
+                                        <a href="{% url 'turnos:descargar_pdf_turno' turno.id %}" target="_blank" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-file-pdf"></i> Ver PDF
+                                        </a>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Sin PDF</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info m-3">
+                    <i class="fas fa-info-circle"></i> No hay turnos finalizados registrados.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

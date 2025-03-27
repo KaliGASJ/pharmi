@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}Buscar Productos | VIT PHARMA{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2><i class="fas fa-search me-2"></i>Buscar Productos</h2>
+        <a href="{% url 'ventas:venta_dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Regresar
+        </a>
+    </div>
+
+    <form method="GET" action="{% url 'ventas:buscar_productos' %}" class="row g-2 mb-4">
+        <div class="col-md-9">
+            <input type="text" name="q" class="form-control" value="{{ query }}" placeholder="Escribe el nombre del producto..." required>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-search"></i> Buscar
+            </button>
+        </div>
+    </form>
+
+    {% if query %}
+        <h5>Resultados para: <strong>"{{ query }}"</strong></h5>
+        {% if resultados %}
+            {% for resultado in resultados %}
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <strong>{{ resultado.producto.nombre }}</strong> — {{ resultado.producto.categoria.nombre }}
+                    </div>
+                    <div class="card-body">
+                        {% if resultado.lotes %}
+                            <table class="table table-sm table-bordered align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Lote</th>
+                                        <th>Precio</th>
+                                        <th>Descuento</th>
+                                        <th>Precio Final</th>
+                                        <th>Stock</th>
+                                        <th>Caducidad</th>
+                                        <th>Cantidad</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for lote in resultado.lotes|dictsort:"fecha_caducidad" %}
+                                        {% if lote.cantidad > 0 %}
+                                            <tr>
+                                                <td>{{ lote.codigo_lote }}</td>
+                                                <td>${{ lote.precio_unitario }}</td>
+                                                <td>{{ lote.descuento }}%</td>
+                                                <td>
+                                                    ${{ lote.precio_con_descuento }}
+                                                </td>
+                                                <td>{{ lote.cantidad }}</td>
+                                                <td>{{ lote.fecha_caducidad|date:"d/m/Y" }}</td>
+                                                <td>
+                                                    <input type="number" min="1" max="{{ lote.cantidad }}" class="form-control form-control-sm" id="cantidad_{{ lote.id }}" placeholder="0" style="width: 80px;">
+                                                </td>
+                                                <td>
+                                                    <button 
+                                                        class="btn btn-success btn-sm"
+                                                        onclick="agregarDesdeBuscador('{{ resultado.producto.id }}', '{{ resultado.producto.nombre }}', '{{ lote.id }}', '{{ lote.codigo_lote }}', '{{ lote.precio_unitario }}', '{{ lote.descuento }}', '{{ lote.cantidad }}')"
+                                                    >
+                                                        <i class="fas fa-cart-plus"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <div class="text-muted">Este producto no tiene lotes disponibles.</div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-warning">No se encontraron productos con ese nombre.</div>
+        {% endif %}
+    {% endif %}
+</div>
+
+<!-- JS para enviar datos al carrito en la ventana principal -->
+<script>
+    function agregarDesdeBuscador(producto_id, nombre, lote_id, codigo_lote, precio_unitario, descuento, stock) {
+        const cantidad = parseInt(document.getElementById("cantidad_" + lote_id).value);
+
+        if (!cantidad || cantidad <= 0) {
+            alert("Debes ingresar una cantidad válida.");
+            return;
+        }
+
+        if (cantidad > parseInt(stock)) {
+            alert("La cantidad supera el stock disponible.");
+            return;
+        }
+
+        if (window.opener && window.opener.agregarAlCarrito) {
+            window.opener.agregarAlCarrito(
+                parseInt(producto_id),
+                nombre,
+                parseInt(lote_id),
+                codigo_lote,
+                parseFloat(precio_unitario),
+                parseFloat(descuento),
+                parseInt(stock),
+                cantidad
+            );
+            window.close();
+        } else {
+            alert("No se pudo comunicar con el carrito.");
+        }
+    }
+</script>
+{% endblock %}

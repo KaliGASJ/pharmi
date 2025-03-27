@@ -44,6 +44,8 @@
         display: flex;
         justify-content: space-between;
         margin-top: 25px;
+        flex-wrap: wrap;
+        gap: 10px;
     }
 
     .button {
@@ -99,7 +101,6 @@
     <h2 class="form-title">✏ Editar Lote</h2>
     <p>Modifica los datos del lote y guarda los cambios.</p>
 
-    <!-- Mensajes de éxito/error -->
     {% if messages %}
         {% for message in messages %}
             <div class="messages {% if message.tags == 'success' %}success-message{% else %}error-message{% endif %}">
@@ -112,14 +113,14 @@
         {% csrf_token %}
 
         <div class="form-group">
-            {{ form.producto.label_tag }}
-            {{ form.producto }}
-        </div>
-
-        <div class="form-group">
             {{ form.lote.label_tag }}
             {{ form.lote }}
             <small class="error-text" id="error-lote"></small>
+        </div>
+
+        <div class="form-group">
+            {{ form.codigo_lote.label_tag }}
+            {{ form.codigo_lote }}
         </div>
 
         <div class="form-group">
@@ -164,7 +165,6 @@
     </form>
 </div>
 
-<!-- Validaciones en tiempo real -->
 <script>
     document.getElementById("lote-form").addEventListener("submit", function(event) {
         let cantidad = document.getElementById("id_cantidad").value.trim();
@@ -174,65 +174,41 @@
         let precioVenta = document.getElementById("id_precio_venta").value.trim();
         let descuento = document.getElementById("id_descuento_porcentaje").value.trim();
 
-        let errorCantidad = document.getElementById("error-cantidad");
-        let errorFecha = document.getElementById("error-fecha");
-        let errorLote = document.getElementById("error-lote");
-        let errorPrecioCompra = document.getElementById("error-precio-compra");
-        let errorPrecioVenta = document.getElementById("error-precio-venta");
-        let errorDescuento = document.getElementById("error-descuento");
-
         let valid = true;
 
-        if (cantidad === "" || parseInt(cantidad) <= 0) {
-            errorCantidad.innerText = "⚠ La cantidad debe ser mayor a cero.";
+        const setError = (id, msg) => {
+            document.getElementById(id).innerText = msg;
             valid = false;
-        } else {
-            errorCantidad.innerText = "";
-        }
+        };
 
-        if (lote === "") {
-            errorLote.innerText = "⚠ El número de lote es obligatorio.";
-            valid = false;
-        } else {
-            errorLote.innerText = "";
-        }
+        const clearError = id => document.getElementById(id).innerText = "";
 
-        if (fechaCaducidad !== "" && new Date(fechaCaducidad) <= new Date()) {
-            errorFecha.innerText = "⚠ La fecha de caducidad debe ser futura.";
-            valid = false;
-        } else {
-            errorFecha.innerText = "";
-        }
+        if (cantidad === "" || parseInt(cantidad) < 0) setError("error-cantidad", "⚠ La cantidad debe ser mayor o igual a 0.");
+        else clearError("error-cantidad");
 
-        if (precioCompra !== "" && parseFloat(precioCompra) <= 0) {
-            errorPrecioCompra.innerText = "⚠ El precio de compra debe ser mayor a 0.";
-            valid = false;
-        } else {
-            errorPrecioCompra.innerText = "";
-        }
+        if (lote === "") setError("error-lote", "⚠ El número de lote es obligatorio.");
+        else clearError("error-lote");
 
-        if (precioVenta !== "" && parseFloat(precioVenta) <= 0) {
-            errorPrecioVenta.innerText = "⚠ El precio de venta debe ser mayor a 0.";
-            valid = false;
-        } else {
-            errorPrecioVenta.innerText = "";
-        }
+        if (fechaCaducidad !== "" && new Date(fechaCaducidad) <= new Date()) setError("error-fecha", "⚠ La fecha debe ser futura.");
+        else clearError("error-fecha");
 
-        if (precioCompra !== "" && precioVenta !== "" && parseFloat(precioVenta) < parseFloat(precioCompra)) {
-            errorPrecioVenta.innerText = "⚠ El precio de venta no puede ser menor al de compra.";
-            valid = false;
+        if (precioCompra !== "" && parseFloat(precioCompra) <= 0) setError("error-precio-compra", "⚠ El precio de compra debe ser > 0.");
+        else clearError("error-precio-compra");
+
+        if (precioVenta !== "" && parseFloat(precioVenta) <= 0) setError("error-precio-venta", "⚠ El precio de venta debe ser > 0.");
+        else clearError("error-precio-venta");
+
+        if (precioCompra && precioVenta && parseFloat(precioVenta) < parseFloat(precioCompra)) {
+            setError("error-precio-venta", "⚠ El precio de venta no puede ser menor al de compra.");
         }
 
         if (descuento !== "" && (parseFloat(descuento) < 0 || parseFloat(descuento) > 100)) {
-            errorDescuento.innerText = "⚠ El descuento debe estar entre 0% y 100%.";
-            valid = false;
+            setError("error-descuento", "⚠ El descuento debe estar entre 0% y 100%.");
         } else {
-            errorDescuento.innerText = "";
+            clearError("error-descuento");
         }
 
-        if (!valid) {
-            event.preventDefault();
-        }
+        if (!valid) event.preventDefault();
     });
 </script>
 

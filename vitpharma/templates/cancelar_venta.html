@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Cancelar Venta | VIT PHARMA{% endblock %}
+
+{% block content %}
+<div class="container col-lg-6 mt-5">
+
+    <!-- Encabezado y botón de regreso -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0 text-danger">
+            <i class="fas fa-times-circle me-2"></i>Cancelar Venta
+        </h2>
+        <a href="{% url 'ventas:detalle_venta' venta.id %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Regresar
+        </a>
+    </div>
+
+    <!-- Datos generales de la venta -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <p><strong>ID de Venta:</strong> #{{ venta.id }}</p>
+            <p><strong>Fecha:</strong> {{ venta.fecha_hora|date:"d/m/Y H:i" }}</p>
+            <p><strong>Total:</strong> ${{ venta.total|floatformat:2 }}</p>
+            <p><strong>Método de Pago:</strong> {{ venta.metodo_pago.nombre }}</p>
+            <p><strong>Estado Actual:</strong>
+                {% if venta.estado == 'activa' %}
+                    <span class="badge bg-success">Activa</span>
+                {% else %}
+                    <span class="badge bg-danger">Cancelada</span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <!-- Formulario de confirmación -->
+    <div class="card border-danger shadow-sm">
+        <div class="card-header bg-danger text-white">
+            <strong><i class="fas fa-exclamation-triangle me-2"></i>Confirmar Cancelación</strong>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="alert alert-warning">
+                    Esta acción <strong>no se puede deshacer</strong>. ¿Estás seguro que deseas cancelar esta venta?
+                </div>
+
+                <div class="form-check mb-3">
+                    {{ form.confirmacion }}
+                    <label class="form-check-label" for="{{ form.confirmacion.id_for_label }}">
+                        {{ form.confirmacion.label }}
+                    </label>
+                    {% if form.confirmacion.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.confirmacion.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-check-circle me-1"></i> Confirmar Cancelación
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
