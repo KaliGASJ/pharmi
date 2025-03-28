@@ -7,21 +7,22 @@ from django.template.loader import render_to_string
 from weasyprint import HTML
 from decimal import Decimal
 from django.core.files.base import ContentFile
+from django.conf import settings
 import json
+
 from .models import Venta, DetalleVenta
 from .forms import VentaForm, CancelarVentaForm
 from turnos.models import Turno
 from inventario.models import Producto, InventarioProducto
-from django.conf import settings
 
 
-# -------------------- VERIFICAR SI ES VENDEDOR --------------------
+# -------------------- VERIFICADOR DE ROL --------------------
 
 def es_vendedor(user):
     return user.is_authenticated and user.groups.filter(name='vendedor').exists()
 
 
-# -------------------- DASHBOARD DE VENTAS --------------------
+# -------------------- DASHBOARD DE REGISTRO DE VENTA --------------------
 
 @login_required
 @user_passes_test(es_vendedor)
@@ -110,7 +111,8 @@ def procesar_venta(request):
                         lote_id = item.get("lote_id")
                         cantidad = int(item.get("cantidad"))
                         precio_unitario = Decimal(str(item.get("precio_unitario")))
-                        subtotal = Decimal(str(item.get("subtotal")))
+                        descuento = Decimal(str(item.get("descuento_aplicado") or 0))
+                        subtotal = (precio_unitario - descuento) * cantidad
 
                         DetalleVenta.objects.create(
                             venta=venta,
@@ -118,6 +120,7 @@ def procesar_venta(request):
                             lote_id=lote_id,
                             cantidad=cantidad,
                             precio_unitario=precio_unitario,
+                            descuento_aplicado=descuento,
                             subtotal=subtotal
                         )
 
@@ -126,15 +129,14 @@ def procesar_venta(request):
                         lote.save(update_fields=["cantidad"])
 
                     venta.actualizar_totales()
+                    venta.registrar_en_turno()
 
-                    # ---------------- PDF Ticket ----------------
+                    # ---------------- GENERAR TICKET PDF ----------------
                     html_string = render_to_string('ticket_venta.html', {'venta': venta})
                     html = HTML(string=html_string, base_url=settings.BASE_DIR)
                     pdf_bytes = html.write_pdf()
                     filename = f"ticket_venta_{venta.id}_{venta.usuario.username}.pdf"
-                    pdf_content = ContentFile(pdf_bytes, name=filename)
-                    venta.ticket_pdf.save(filename, pdf_content)
-                    venta.save(update_fields=['ticket_pdf'])
+                    venta.ticket_pdf.save(filename, ContentFile(pdf_bytes), save=True)
 
                 except Exception as e:
                     venta.delete()
@@ -144,7 +146,7 @@ def procesar_venta(request):
             messages.success(request, f"✅ Venta #{venta.id} registrada correctamente.")
             return redirect('ventas:detalle_venta', venta.id)
 
-        messages.error(request, "Error en los datos de la venta.")
+        messages.error(request, "Error en los datos del formulario de venta.")
 
     return redirect("ventas:venta_dashboard")
 
@@ -155,11 +157,7 @@ def procesar_venta(request):
 @user_passes_test(es_vendedor)
 def detalle_venta(request, venta_id):
     venta = get_object_or_404(Venta, id=venta_id, usuario=request.user)
-    detalles = venta.detalles.all()
-    return render(request, 'detalle_venta.html', {
-        'venta': venta,
-        'detalles': detalles
-    })
+    return render(request, 'detalle_venta.html', {'venta': venta})
 
 
 # -------------------- HISTORIAL DE VENTAS --------------------
@@ -197,7 +195,7 @@ def cancelar_venta(request, venta_id):
     })
 
 
-# -------------------- GENERAR TICKET PDF --------------------
+# -------------------- GENERAR PDF DEL TICKET --------------------
 
 @login_required
 @user_passes_test(es_vendedor)
@@ -209,9 +207,7 @@ def generar_ticket_pdf(request, venta_id):
         html = HTML(string=html_string, base_url=settings.BASE_DIR)
         pdf_bytes = html.write_pdf()
         filename = f"ticket_venta_{venta.id}_{venta.usuario.username}.pdf"
-        pdf_content = ContentFile(pdf_bytes, name=filename)
-        venta.ticket_pdf.save(filename, pdf_content)
-        venta.save(update_fields=['ticket_pdf'])
+        venta.ticket_pdf.save(filename, ContentFile(pdf_bytes), save=True)
 
     if venta.ticket_pdf:
         with open(venta.ticket_pdf.path, 'rb') as pdf:
@@ -219,10 +215,10 @@ def generar_ticket_pdf(request, venta_id):
             response['Content-Disposition'] = f'inline; filename="ticket_{venta.id}.pdf"'
             return response
 
-    raise Http404("El ticket no se pudo generar.")
+    raise Http404("No se pudo generar el ticket PDF.")
 
 
-# -------------------- API JSON: ÚLTIMAS VENTAS --------------------
+# -------------------- API: ÚLTIMAS VENTAS --------------------
 
 @login_required
 @user_passes_test(es_vendedor)

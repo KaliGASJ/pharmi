@@ -8,14 +8,14 @@
     .page-header {
         margin-bottom: 25px;
     }
-    
+
     .header-title {
         color: #004AAD;
         font-size: 24px;
         font-weight: 600;
         margin-bottom: 10px;
     }
-    
+
     .back-link {
         display: inline-flex;
         align-items: center;
@@ -28,16 +28,16 @@
         transition: all 0.2s;
         border: 1px solid #ddd;
     }
-    
+
     .back-link:hover {
         background-color: #e6e9f0;
         color: #004AAD;
     }
-    
+
     .back-link i {
         margin-right: 8px;
     }
-    
+
     .filter-card {
         background-color: #fff;
         border: 1px solid #e0e0e0;
@@ -46,26 +46,26 @@
         margin-bottom: 20px;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     }
-    
+
     .filter-title {
         color: #004AAD;
         font-size: 16px;
         font-weight: 600;
         margin-bottom: 15px;
     }
-    
+
     .filter-form {
         display: flex;
         flex-wrap: wrap;
         gap: 15px;
         align-items: flex-end;
     }
-    
+
     .form-group {
         flex: 1;
         min-width: 200px;
     }
-    
+
     .form-label {
         display: block;
         font-size: 14px;
@@ -73,7 +73,7 @@
         color: #555;
         margin-bottom: 6px;
     }
-    
+
     .form-control {
         width: 100%;
         padding: 10px;
@@ -81,13 +81,13 @@
         border-radius: 5px;
         font-size: 14px;
     }
-    
+
     .form-control:focus {
         border-color: #004AAD;
         outline: none;
         box-shadow: 0 0 0 3px rgba(0, 74, 173, 0.1);
     }
-    
+
     .btn-filter {
         background-color: #004AAD;
         color: white;
@@ -99,27 +99,27 @@
         transition: background-color 0.2s;
         display: flex;
         align-items: center;
-        justify-content: center; /* Centrar contenido del botón */
-        height: 41px; /* Altura igual a los campos de fecha */
-        min-width: 100px; /* Ancho mínimo para mejor apariencia */
+        justify-content: center;
+        height: 41px;
+        min-width: 100px;
     }
-    
+
     .btn-filter:hover {
         background-color: #0056b3;
     }
-    
+
     .data-table-container {
         background-color: #fff;
         border-radius: 8px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
         overflow: hidden;
     }
-    
+
     .data-table {
         width: 100%;
         border-collapse: collapse;
     }
-    
+
     .data-table th {
         background-color: #004AAD;
         color: white;
@@ -128,31 +128,31 @@
         font-weight: 600;
         font-size: 14px;
     }
-    
+
     .data-table td {
         padding: 12px 15px;
         border-bottom: 1px solid #eee;
         font-size: 14px;
     }
-    
+
     .data-table tr:last-child td {
         border-bottom: none;
     }
-    
+
     .data-table tr:hover {
         background-color: #f9f9f9;
     }
-    
+
     .data-table .turno-id {
         font-weight: 600;
         color: #004AAD;
     }
-    
+
     .data-table .money-value {
         font-weight: 500;
         text-align: right;
     }
-    
+
     .btn-pdf {
         display: inline-flex;
         align-items: center;
@@ -166,16 +166,16 @@
         text-decoration: none;
         transition: all 0.2s;
     }
-    
+
     .btn-pdf:hover {
         background-color: #dc3545;
         color: #fff;
     }
-    
+
     .btn-pdf i {
         margin-right: 5px;
     }
-    
+
     .badge-no-pdf {
         display: inline-block;
         background-color: #e9ecef;
@@ -185,29 +185,28 @@
         font-size: 12px;
         font-weight: 500;
     }
-    
+
     .empty-state {
         padding: 30px;
         text-align: center;
         color: #666;
     }
-    
+
     .empty-state i {
         font-size: 20px;
         margin-right: 8px;
         color: #17a2b8;
     }
-    
-    /* Responsive adjustments */
+
     @media (max-width: 768px) {
         .filter-form {
             flex-direction: column;
         }
-        
+
         .form-group {
             width: 100%;
         }
-        
+
         .btn-filter {
             width: 100%;
         }
@@ -221,7 +220,6 @@
     </a>
 </div>
 
-<!-- Mensajes del sistema -->
 {% if messages %}
     <div class="alert-messages mb-4">
         {% for message in messages %}
@@ -233,7 +231,6 @@
     </div>
 {% endif %}
 
-<!-- Filtro de fechas -->
 <div class="filter-card">
     <h2 class="filter-title">Filtrar por fechas</h2>
     <form method="get" class="filter-form">
@@ -253,7 +250,6 @@
     </form>
 </div>
 
-<!-- Tabla de turnos -->
 <div class="data-table-container">
     {% if turnos %}
         <div class="table-responsive">

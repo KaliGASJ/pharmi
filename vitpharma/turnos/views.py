@@ -46,14 +46,14 @@ def abrir_turno(request):
         if form.is_valid():
             nuevo_turno = form.save(commit=False)
 
-            # Seguridad adicional: validar también en la vista (doble capa)
+            # Validación adicional por seguridad
             if nuevo_turno.hora_fin_estimada <= timezone.now():
                 messages.error(request, "La hora estimada de cierre debe ser posterior al momento actual.")
                 return render(request, 'abrir_turno.html', {'form': form})
 
             nuevo_turno.usuario = request.user
             nuevo_turno.save()
-            messages.success(request, "Turno iniciado correctamente.")
+            messages.success(request, f"Turno #{nuevo_turno.id} iniciado correctamente.")
             return redirect('turnos:turno_dashboard')
     else:
         form = AperturaTurnoForm()
@@ -76,12 +76,15 @@ def cerrar_turno(request):
         if form.is_valid():
             turno = form.save(commit=False)
             turno.finalizar(hora_fin_real=turno.hora_fin_real)
-            messages.success(request, "Turno cerrado correctamente.")
+            messages.success(request, f"Turno #{turno.id} finalizado correctamente.")
             return redirect('turnos:historial_turnos')
     else:
         form = FinalizarTurnoForm(instance=turno)
 
-    return render(request, 'cerrar_turno.html', {'form': form, 'turno': turno})
+    return render(request, 'cerrar_turno.html', {
+        'form': form,
+        'turno': turno
+    })
 
 
 # -------------------- HISTORIAL DE TURNOS --------------------
@@ -94,13 +97,18 @@ def historial_turnos(request):
     # Filtro por fechas (opcional)
     fecha_inicio = request.GET.get('fecha_inicio')
     fecha_fin = request.GET.get('fecha_fin')
-    if fecha_inicio and fecha_fin:
+    if fecha_inicio:
         try:
             fecha_inicio_dt = timezone.datetime.fromisoformat(fecha_inicio)
-            fecha_fin_dt = timezone.datetime.fromisoformat(fecha_fin)
-            turnos = turnos.filter(hora_inicio__range=(fecha_inicio_dt, fecha_fin_dt))
+            turnos = turnos.filter(hora_inicio__date__gte=fecha_inicio_dt.date())
         except:
-            messages.error(request, "Formato de fecha inválido.")
+            messages.error(request, "Fecha de inicio inválida.")
+    if fecha_fin:
+        try:
+            fecha_fin_dt = timezone.datetime.fromisoformat(fecha_fin)
+            turnos = turnos.filter(hora_inicio__date__lte=fecha_fin_dt.date())
+        except:
+            messages.error(request, "Fecha de fin inválida.")
 
     sin_resultados = not turnos.exists()
 
@@ -132,7 +140,7 @@ def descargar_pdf_turno(request, turno_id):
     try:
         with open(turno.pdf_reporte.path, 'rb') as pdf:
             response = HttpResponse(pdf.read(), content_type='application/pdf')
-            response['Content-Disposition'] = f'attachment; filename="corte_turno_{turno.id}.pdf"'
+            response['Content-Disposition'] = f'inline; filename="corte_turno_{turno.id}.pdf"'
             return response
     except FileNotFoundError:
         raise Http404("El archivo PDF no fue encontrado.")

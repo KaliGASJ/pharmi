@@ -21,7 +21,13 @@
             <p><strong>ID de Venta:</strong> #{{ venta.id }}</p>
             <p><strong>Fecha:</strong> {{ venta.fecha_hora|date:"d/m/Y H:i" }}</p>
             <p><strong>Total:</strong> ${{ venta.total|floatformat:2 }}</p>
-            <p><strong>Método de Pago:</strong> {{ venta.metodo_pago.nombre }}</p>
+            <p><strong>Método de Pago:</strong>
+                {% if venta.metodo_pago %}
+                    {{ venta.metodo_pago.nombre }}
+                {% else %}
+                    N/D
+                {% endif %}
+            </p>
             <p><strong>Estado Actual:</strong>
                 {% if venta.estado == 'activa' %}
                     <span class="badge bg-success">Activa</span>
@@ -40,13 +46,14 @@
         <div class="card-body">
             <form method="post">
                 {% csrf_token %}
+
                 <div class="alert alert-warning">
                     Esta acción <strong>no se puede deshacer</strong>. ¿Estás seguro que deseas cancelar esta venta?
                 </div>
 
                 <div class="form-check mb-3">
                     {{ form.confirmacion }}
-                    <label class="form-check-label" for="{{ form.confirmacion.id_for_label }}">
+                    <label class="form-check-label ms-2" for="{{ form.confirmacion.id_for_label }}">
                         {{ form.confirmacion.label }}
                     </label>
                     {% if form.confirmacion.errors %}

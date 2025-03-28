@@ -62,7 +62,13 @@
         <p><strong>N° Venta:</strong> #{{ venta.id }}</p>
         <p><strong>Fecha:</strong> {{ venta.fecha_hora|date:"d/m/Y H:i" }}</p>
         <p><strong>Vendedor:</strong> {{ venta.usuario.username }}</p>
-        <p><strong>Pago:</strong> {{ venta.metodo_pago.nombre }}</p>
+        <p><strong>Pago:</strong>
+            {% if venta.metodo_pago %}
+                {{ venta.metodo_pago.nombre }}
+            {% else %}
+                N/D
+            {% endif %}
+        </p>
     </div>
 
     <table>
@@ -89,7 +95,7 @@
                 <td colspan="3">TOTAL:</td>
                 <td>${{ venta.total|floatformat:2 }}</td>
             </tr>
-            {% if venta.metodo_pago.es_efectivo %}
+            {% if venta.metodo_pago and venta.metodo_pago.es_efectivo %}
             <tr>
                 <td colspan="3">Pagó:</td>
                 <td>${{ venta.con_cuanto_paga|floatformat:2 }}</td>

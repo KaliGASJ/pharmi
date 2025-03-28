@@ -8,7 +8,7 @@
     .page-header {
         margin-bottom: 25px;
     }
-    
+
     .header-title {
         color: #003d8a;
         font-size: 24px;
@@ -17,13 +17,13 @@
         display: flex;
         align-items: center;
     }
-    
+
     .header-title i {
         margin-right: 12px;
         font-size: 24px;
         color: #dc3545;
     }
-    
+
     .back-button {
         display: inline-flex;
         align-items: center;
@@ -37,17 +37,17 @@
         text-decoration: none;
         transition: all 0.2s;
     }
-    
+
     .back-button:hover {
         background-color: #e9ecef;
         border-color: #cbd3da;
         color: #003d8a;
     }
-    
+
     .back-button i {
         margin-right: 8px;
     }
-    
+
     .summary-card {
         background-color: #fff;
         border-radius: 10px;
@@ -56,7 +56,7 @@
         margin-bottom: 25px;
         border: 1px solid #eaedf2;
     }
-    
+
     .card-header-custom {
         background: linear-gradient(135deg, #004AAD 0%, #0063E5 100%);
         color: white;
@@ -66,16 +66,16 @@
         display: flex;
         align-items: center;
     }
-    
+
     .card-header-custom i {
         margin-right: 10px;
         font-size: 18px;
     }
-    
+
     .card-body-custom {
         padding: 20px;
     }
-    
+
     .info-row {
         display: flex;
         flex-wrap: wrap;
@@ -83,45 +83,45 @@
         padding-bottom: 16px;
         border-bottom: 1px solid #f0f0f0;
     }
-    
+
     .info-row:last-child {
         margin-bottom: 0;
         padding-bottom: 0;
         border-bottom: none;
     }
-    
+
     .info-label {
         flex: 0 0 180px;
         font-weight: 600;
         color: #495057;
         font-size: 15px;
     }
-    
+
     .info-value {
         flex: 1;
         font-size: 15px;
     }
-    
+
     .value-success {
         color: #28a745;
         font-weight: 600;
     }
-    
+
     .value-primary {
         color: #004AAD;
         font-weight: 600;
     }
-    
+
     .value-warning {
         color: #ffc107;
         font-weight: 600;
     }
-    
+
     .value-dark {
         color: #343a40;
         font-weight: 600;
     }
-    
+
     .form-card {
         background-color: #fff;
         border-radius: 10px;
@@ -129,11 +129,11 @@
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
         border: 1px solid #eaedf2;
     }
-    
+
     .form-group {
         margin-bottom: 25px;
     }
-    
+
     .form-label {
         display: block;
         font-weight: 600;
@@ -141,7 +141,7 @@
         margin-bottom: 8px;
         font-size: 15px;
     }
-    
+
     .form-control {
         width: 100%;
         padding: 12px 15px;
@@ -150,18 +150,18 @@
         font-size: 15px;
         transition: all 0.2s;
     }
-    
+
     .form-control:focus {
         border-color: #004AAD;
         box-shadow: 0 0 0 3px rgba(0, 74, 173, 0.15);
         outline: none;
     }
-    
+
     textarea.form-control {
         min-height: 100px;
         resize: vertical;
     }
-    
+
     .alert-custom {
         background-color: #fff3cd;
         color: #856404;
@@ -172,13 +172,13 @@
         display: flex;
         align-items: flex-start;
     }
-    
+
     .alert-custom i {
         margin-right: 10px;
         font-size: 18px;
         color: #ffc107;
     }
-    
+
     .close-button {
         width: 100%;
         background-color: #dc3545;
@@ -194,34 +194,33 @@
         justify-content: center;
         align-items: center;
     }
-    
+
     .close-button:hover {
         background-color: #c82333;
         transform: translateY(-1px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
-    
+
     .close-button:active {
         transform: translateY(0);
     }
-    
+
     .close-button i {
         margin-right: 8px;
     }
-    
+
     .error-message {
         color: #dc3545;
         font-size: 13px;
         margin-top: 5px;
         display: block;
     }
-    
-    /* Responsive adjustments */
+
     @media (max-width: 768px) {
         .info-row {
             flex-direction: column;
         }
-        
+
         .info-label {
             margin-bottom: 5px;
         }
@@ -229,7 +228,6 @@
 </style>
 
 <div class="container col-lg-7 mt-5">
-    <!-- Encabezado mejorado -->
     <div class="page-header d-flex justify-content-between align-items-center">
         <h1 class="header-title">
             <i class="fas fa-stop-circle"></i>Finalizar Turno
@@ -239,7 +237,6 @@
         </a>
     </div>
 
-    <!-- Mensajes del sistema -->
     {% if messages %}
         {% for message in messages %}
             <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
@@ -250,7 +247,6 @@
         {% endfor %}
     {% endif %}
 
-    <!-- Información del Turno - Diseño mejorado -->
     <div class="summary-card">
         <div class="card-header-custom">
             <i class="fas fa-info-circle"></i>
@@ -280,13 +276,11 @@
         </div>
     </div>
 
-    <!-- Formulario para finalizar - Diseño mejorado -->
     <div class="form-card">
         <div class="card-body-custom">
             <form method="post" novalidate>
                 {% csrf_token %}
-                
-                <!-- Hora fin real -->
+
                 <div class="form-group">
                     <label for="{{ form.hora_fin_real.id_for_label }}" class="form-label">
                         Hora real de cierre:
@@ -298,8 +292,7 @@
                         </span>
                     {% endif %}
                 </div>
-                
-                <!-- Observaciones -->
+
                 <div class="form-group">
                     <label for="{{ form.observaciones.id_for_label }}" class="form-label">
                         Observaciones (opcional):
@@ -311,16 +304,14 @@
                         </span>
                     {% endif %}
                 </div>
-                
-                <!-- Advertencia - Estilo mejorado -->
+
                 <div class="alert-custom">
                     <i class="fas fa-exclamation-triangle"></i>
                     <div>
                         Una vez finalices el turno, no podrás modificarlo. Se generará un reporte PDF automáticamente.
                     </div>
                 </div>
-                
-                <!-- Botón con mejor estilo -->
+
                 <button type="submit" class="close-button">
                     <i class="fas fa-check-circle"></i> Confirmar Cierre del Turno
                 </button>

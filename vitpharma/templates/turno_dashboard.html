@@ -4,24 +4,9 @@
 
 {% block content %}
 <style>
-    /* Estilos específicos para esta página */
-    .page-header {
-        margin-bottom: 20px;
-    }
-    
-    .header-title {
-        color: #004AAD;
-        font-size: 24px;
-        font-weight: 600;
-        margin-bottom: 10px;
-    }
-    
-    .header-subtitle {
-        color: #666;
-        font-size: 14px;
-        margin-bottom: 15px;
-    }
-    
+    .page-header { margin-bottom: 20px; }
+    .header-title { color: #004AAD; font-size: 24px; font-weight: 600; margin-bottom: 10px; }
+    .header-subtitle { color: #666; font-size: 14px; margin-bottom: 15px; }
     .turno-badge {
         display: inline-block;
         background-color: #e0f0ff;
@@ -32,18 +17,8 @@
         font-size: 14px;
         margin-bottom: 15px;
     }
-    
-    .back-link {
-        color: #004AAD;
-        text-decoration: none;
-        font-weight: 500;
-        transition: color 0.2s;
-    }
-    
-    .back-link:hover {
-        color: #0063E5;
-    }
-    
+    .back-link { color: #004AAD; text-decoration: none; font-weight: 500; transition: color 0.2s; }
+    .back-link:hover { color: #0063E5; }
     .info-card {
         border: 1px solid #e0e0e0;
         border-radius: 8px;
@@ -52,79 +27,20 @@
         background-color: #fff;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     }
-    
-    .info-label {
-        color: #666;
-        font-size: 14px;
-        margin-bottom: 5px;
-    }
-    
-    .info-value {
-        color: #333;
-        font-weight: 600;
-        font-size: 15px;
-    }
-
-    .time-info {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 20px;
-    }
-    
-    .time-item {
-        flex: 1;
-    }
-    
-    .money-info {
-        border-top: 1px solid #eee;
-        padding-top: 15px;
-        margin-top: 5px;
-    }
-    
-    .money-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 10px;
-    }
-    
-    .money-label {
-        color: #555;
-        font-weight: 500;
-    }
-    
-    .money-value {
-        font-weight: 600;
-    }
-    
-    .money-value.success {
-        color: #28a745;
-    }
-    
-    .money-value.primary {
-        color: #004AAD;
-    }
-    
-    .money-value.warning {
-        color: #ffc107;
-    }
-    
-    .money-value.dark {
-        color: #343a40;
-    }
-    
-    .section-title {
-        color: #004AAD;
-        font-size: 18px;
-        font-weight: 600;
-        margin: 20px 0 15px;
-    }
-    
-    .payment-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-    }
-    
+    .info-label { color: #666; font-size: 14px; margin-bottom: 5px; }
+    .info-value { color: #333; font-weight: 600; font-size: 15px; }
+    .time-info { display: flex; justify-content: space-between; margin-bottom: 20px; }
+    .time-item { flex: 1; }
+    .money-info { border-top: 1px solid #eee; padding-top: 15px; margin-top: 5px; }
+    .money-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
+    .money-label { color: #555; font-weight: 500; }
+    .money-value { font-weight: 600; }
+    .money-value.success { color: #28a745; }
+    .money-value.primary { color: #004AAD; }
+    .money-value.warning { color: #ffc107; }
+    .money-value.dark { color: #343a40; }
+    .section-title { color: #004AAD; font-size: 18px; font-weight: 600; margin: 20px 0 15px; }
+    .payment-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     .payment-table th {
         background-color: #f5f5f5;
         color: #333;
@@ -133,21 +49,15 @@
         padding: 10px;
         border-bottom: 1px solid #ddd;
     }
-    
     .payment-table td {
         padding: 10px;
         border-bottom: 1px solid #eee;
     }
-    
-    .payment-table tr:last-child td {
-        border-bottom: none;
-    }
-    
+    .payment-table tr:last-child td { border-bottom: none; }
     .payment-table .total-row {
         font-weight: 600;
         background-color: #f0f5ff;
     }
-    
     .btn-action {
         display: inline-block;
         background-color: #dc3545;
@@ -159,68 +69,29 @@
         transition: background-color 0.2s;
         margin-top: 10px;
     }
-    
-    .btn-action:hover {
-        background-color: #c82333;
-    }
-    
-    /* Estado sin turno activo */
-    .no-turno {
-        text-align: center;
-        padding: 40px 20px;
-    }
-    
-    .no-turno-icon {
-        font-size: 48px;
-        color: #004AAD;
-        opacity: 0.7;
-        margin-bottom: 20px;
-    }
-    
-    .no-turno-title {
-        color: #333;
-        font-size: 22px;
-        font-weight: 600;
-        margin-bottom: 15px;
-    }
-    
+    .btn-action:hover { background-color: #c82333; }
+    .no-turno { text-align: center; padding: 40px 20px; }
+    .no-turno-icon { font-size: 48px; color: #004AAD; opacity: 0.7; margin-bottom: 20px; }
+    .no-turno-title { color: #333; font-size: 22px; font-weight: 600; margin-bottom: 15px; }
     .no-turno-desc {
-        color: #666;
-        max-width: 450px;
-        margin: 0 auto 25px;
-        line-height: 1.5;
+        color: #666; max-width: 450px;
+        margin: 0 auto 25px; line-height: 1.5;
     }
-    
     .btn-primary {
-        background-color: #004AAD;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 5px;
-        text-decoration: none;
-        font-weight: 500;
-        margin-right: 10px;
-        display: inline-block;
+        background-color: #004AAD; color: white;
+        padding: 10px 20px; border-radius: 5px;
+        text-decoration: none; font-weight: 500;
+        margin-right: 10px; display: inline-block;
         transition: background-color 0.2s;
     }
-    
-    .btn-primary:hover {
-        background-color: #0056b3;
-    }
-    
+    .btn-primary:hover { background-color: #0056b3; }
     .btn-secondary {
-        background-color: #f5f5f5;
-        color: #333;
-        padding: 10px 20px;
-        border-radius: 5px;
-        text-decoration: none;
-        font-weight: 500;
-        display: inline-block;
-        transition: background-color 0.2s;
+        background-color: #f5f5f5; color: #333;
+        padding: 10px 20px; border-radius: 5px;
+        text-decoration: none; font-weight: 500;
+        display: inline-block; transition: background-color 0.2s;
     }
-    
-    .btn-secondary:hover {
-        background-color: #e0e0e0;
-    }
+    .btn-secondary:hover { background-color: #e0e0e0; }
 </style>
 
 <div class="page-header">
@@ -233,7 +104,6 @@
     </a>
 </div>
 
-<!-- Mensajes del sistema -->
 {% if messages %}
     <div class="alert-messages">
         {% for message in messages %}
@@ -246,10 +116,8 @@
 {% endif %}
 
 {% if turno_activo %}
-    <!-- TURNO ACTIVO -->
     <div class="info-card">
         <p class="header-subtitle">Gestionando operaciones actuales</p>
-        
         <div class="time-info">
             <div class="time-item">
                 <p class="info-label">Inicio</p>
@@ -260,7 +128,6 @@
                 <p class="info-value">{{ turno_activo.hora_fin_estimada|date:"d/m/Y H:i" }}</p>
             </div>
         </div>
-        
         <div class="money-info">
             <div class="money-row">
                 <span class="money-label">Monto inicial</span>
@@ -280,7 +147,7 @@
             </div>
         </div>
     </div>
-    
+
     <h2 class="section-title">Ingresos por Método de Pago</h2>
     <div class="info-card">
         <table class="payment-table">
@@ -314,15 +181,13 @@
             </tbody>
         </table>
     </div>
-    
+
     <div style="text-align: right;">
         <a href="{% url 'turnos:cerrar_turno' %}" class="btn-action">
             <i class="fas fa-stop-circle me-2"></i> Finalizar Turno
         </a>
     </div>
-
 {% else %}
-    <!-- SIN TURNO ACTIVO -->
     <div class="info-card no-turno">
         <div class="no-turno-icon">
             <i class="fas fa-clock"></i>
@@ -332,7 +197,6 @@
             Para comenzar a registrar ventas y gestionar operaciones, debes iniciar un nuevo turno.
             Todos los movimientos serán asociados a tu sesión actual.
         </p>
-        
         <div>
             <a href="{% url 'turnos:abrir_turno' %}" class="btn-primary">
                 <i class="fas fa-play-circle me-2"></i> Iniciar Nuevo Turno

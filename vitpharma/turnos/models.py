@@ -8,6 +8,7 @@ from weasyprint import HTML
 from decimal import Decimal
 import os
 
+
 # -------------------- Ruta personalizada para guardar cortes PDF --------------------
 
 def ruta_pdf_corte(instance, filename):
@@ -124,18 +125,30 @@ class Turno(models.Model):
     # -------------------- Registro y reverso de ventas --------------------
 
     def registrar_venta(self, monto, tipo_pago, cambio=0):
-        tipo_pago = tipo_pago.lower()
+        monto = Decimal(str(monto))
+        tipo_pago = (tipo_pago or "").lower().strip()
+
         if 'efectivo' in tipo_pago:
             self.actualizar_monto_efectivo(monto)
             if cambio > 0:
                 self.actualizar_cambios_dados(cambio)
+        elif 'tarjeta' in tipo_pago:
+            self.monto_total_tarjeta += monto
+            self.save(update_fields=['monto_total_tarjeta'])
+        elif 'transferencia' in tipo_pago:
+            self.monto_total_transferencia += monto
+            self.save(update_fields=['monto_total_transferencia'])
+        elif 'cheque' in tipo_pago:
+            self.monto_total_cheque += monto
+            self.save(update_fields=['monto_total_cheque'])
         else:
-            self.actualizar_montos_otros_medios(monto, tipo_pago)
+            return False
         return True
 
     def revertir_venta(self, monto, tipo_pago, cambio=0):
-        tipo_pago = tipo_pago.lower()
         monto = Decimal(str(monto))
+        tipo_pago = (tipo_pago or "").lower().strip()
+
         if 'efectivo' in tipo_pago:
             self.actualizar_monto_efectivo(monto, es_ingreso=False)
             if cambio > 0:
@@ -164,8 +177,7 @@ class Turno(models.Model):
         fecha_fin = timezone.datetime.combine(fecha, timezone.datetime.max.time())
         return cls.objects.filter(
             usuario=usuario,
-            hora_inicio__gte=fecha_inicio,
-            hora_inicio__lte=fecha_fin
+            hora_inicio__range=(fecha_inicio, fecha_fin)
         ).order_by('-hora_inicio')
 
     # -------------------- Finalización del turno --------------------

@@ -46,6 +46,7 @@
 
         .total {
             font-weight: bold;
+            background-color: #f9f9f9;
         }
 
         .footer {
@@ -78,11 +79,7 @@
         <p><strong>Fecha de Inicio:</strong> {{ turno.hora_inicio|date:"d/m/Y H:i" }}</p>
         <p><strong>Fecha de Cierre:</strong> {{ turno.hora_fin_real|date:"d/m/Y H:i" }}</p>
         <p><strong>Duración del Turno:</strong> {{ turno.duracion_turno }}</p>
-        {% if turno.cerrado_automaticamente %}
-            <p><strong>Tipo de cierre:</strong> Automático</p>
-        {% else %}
-            <p><strong>Tipo de cierre:</strong> Manual</p>
-        {% endif %}
+        <p><strong>Tipo de cierre:</strong> {{ "Automático" if turno.cerrado_automaticamente else "Manual" }}</p>
     </div>
 
     <table>
@@ -129,10 +126,10 @@
     </table>
 
     {% if turno.observaciones %}
-        <div class="info">
-            <p><strong>Observaciones:</strong></p>
-            <p>{{ turno.observaciones }}</p>
-        </div>
+    <div class="info">
+        <p><strong>Observaciones:</strong></p>
+        <p>{{ turno.observaciones }}</p>
+    </div>
     {% endif %}
 
     <div class="firma">
