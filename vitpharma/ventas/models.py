@@ -48,33 +48,20 @@ class Venta(models.Model):
     turno = models.ForeignKey(Turno, on_delete=models.CASCADE, related_name='ventas')
     fecha_hora = models.DateTimeField(default=timezone.now)
     metodo_pago = models.ForeignKey(MetodoPago, on_delete=models.SET_NULL, null=True)
-
     referencia_externa = models.CharField(max_length=50, blank=True, null=True, unique=True)
-
-    total = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        validators=[MinValueValidator(0)]
-    )
-    
+    total = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
     con_cuanto_paga = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        null=True,
-        blank=True,
+        max_digits=10, decimal_places=2,
+        null=True, blank=True,
         help_text="Solo se usa si el método de pago es en efectivo"
     )
-    
     cambio = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
+        max_digits=10, decimal_places=2,
         default=0.00,
         help_text="Cambio devuelto al cliente (solo efectivo)"
     )
-    
     estado = models.CharField(max_length=10, choices=ESTADO_CHOICES, default='activa')
     ticket_pdf = models.FileField(upload_to=ruta_ticket_pdf, blank=True, null=True)
-
     usuario_registro = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='registro_ventas')
     usuario_modificacion = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='modificacion_ventas')
     fecha_creacion = models.DateTimeField(auto_now_add=True)
@@ -108,8 +95,7 @@ class Venta(models.Model):
     
     def cancelar(self):
         if self.estado == 'activa':
-            detalles = self.detalles.all()
-            for detalle in detalles:
+            for detalle in self.detalles.all():
                 try:
                     lote = detalle.lote
                     lote.cantidad += detalle.cantidad
@@ -119,19 +105,11 @@ class Venta(models.Model):
                     continue
             
             if self.turno.esta_activo():
-                if self.es_efectivo:
-                    self.turno.monto_total_efectivo -= self.total
-                    self.turno.total_cambios_dados -= self.cambio
-                    self.turno.save(update_fields=['monto_total_efectivo', 'total_cambios_dados'])
-                elif self.metodo_pago:
-                    metodo = self.metodo_pago.nombre.lower()
-                    if 'tarjeta' in metodo:
-                        self.turno.monto_total_tarjeta -= self.total
-                    elif 'transferencia' in metodo:
-                        self.turno.monto_total_transferencia -= self.total
-                    elif 'cheque' in metodo:
-                        self.turno.monto_total_cheque -= self.total
-                    self.turno.save()
+                self.turno.revertir_venta(
+                    monto=self.total,
+                    tipo_pago=self.metodo_pago.nombre if self.metodo_pago else '',
+                    cambio=self.cambio
+                )
             
             self.estado = 'cancelada'
             self.save(update_fields=['estado'])
@@ -139,29 +117,17 @@ class Venta(models.Model):
         return False
     
     def actualizar_totales(self):
-        detalles = self.detalles.all()
-        self.total = sum(detalle.subtotal for detalle in detalles)
+        self.total = sum(detalle.subtotal for detalle in self.detalles.all())
         self.save(update_fields=['total'])
     
     def registrar_en_turno(self):
         if not self.turno.esta_activo():
             return False
-        
-        if self.es_efectivo:
-            self.turno.monto_total_efectivo += self.total
-            self.turno.total_cambios_dados += self.cambio
-            self.turno.save(update_fields=['monto_total_efectivo', 'total_cambios_dados'])
-        elif self.metodo_pago:
-            metodo = self.metodo_pago.nombre.lower()
-            if 'tarjeta' in metodo:
-                self.turno.monto_total_tarjeta += self.total
-                self.turno.save(update_fields=['monto_total_tarjeta'])
-            elif 'transferencia' in metodo:
-                self.turno.monto_total_transferencia += self.total
-                self.turno.save(update_fields=['monto_total_transferencia'])
-            elif 'cheque' in metodo:
-                self.turno.monto_total_cheque += self.total
-                self.turno.save(update_fields=['monto_total_cheque'])
+        self.turno.registrar_venta(
+            monto=self.total,
+            tipo_pago=self.metodo_pago.nombre if self.metodo_pago else '',
+            cambio=self.cambio
+        )
         return True
     
     @classmethod
