@@ -34,7 +34,7 @@
                         <div class="text-danger small">{{ venta_form.metodo_pago.errors }}</div>
                     {% endif %}
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-6" id="campo-efectivo" style="display:none;">
                     <label for="{{ venta_form.con_cuanto_paga.id_for_label }}" class="form-label">Con cuánto paga (solo efectivo):</label>
                     {{ venta_form.con_cuanto_paga }}
                     {% if venta_form.con_cuanto_paga.errors %}
@@ -43,17 +43,16 @@
                 </div>
             </div>
 
-            <!-- Buscador de productos -->
+            <!-- Buscador -->
             <div class="mb-4">
                 <input type="text" class="form-control" placeholder="🔍 Buscar producto por nombre o código" oninput="buscarProducto(this.value)">
             </div>
 
-            <!-- Resultados del buscador -->
             <div id="resultados-busqueda" class="mb-4"></div>
 
             <input type="hidden" name="carrito_json" id="carrito_json">
 
-            <!-- Carrito dinámico -->
+            <!-- Carrito -->
             <div class="table-responsive mb-4">
                 <table class="table table-striped table-hover align-middle">
                     <thead class="table-dark">
@@ -67,9 +66,7 @@
                         </tr>
                     </thead>
                     <tbody id="carrito-body">
-                        <tr>
-                            <td colspan="6" class="text-center text-muted">No hay productos en el carrito</td>
-                        </tr>
+                        <tr><td colspan="6" class="text-center text-muted">No hay productos en el carrito</td></tr>
                     </tbody>
                     <tfoot>
                         <tr>
@@ -81,7 +78,7 @@
                 </table>
             </div>
 
-            <!-- Botón de confirmar -->
+            <!-- Botón confirmar -->
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                 <button type="submit" class="btn btn-success">
                     <i class="fas fa-check-circle"></i> Confirmar Venta
@@ -232,5 +229,25 @@ function enviarVenta() {
     document.getElementById("carrito_json").value = JSON.stringify(carrito);
     return true;
 }
+
+// Mostrar campo de efectivo dinámicamente
+document.addEventListener("DOMContentLoaded", () => {
+    const metodoPago = document.getElementById("id_metodo_pago");
+    const campoEfectivo = document.getElementById("campo-efectivo");
+
+    function toggleCampoEfectivo() {
+        const selectedText = metodoPago.options[metodoPago.selectedIndex]?.text?.toLowerCase() || '';
+        if (selectedText.includes("efectivo")) {
+            campoEfectivo.style.display = "block";
+        } else {
+            campoEfectivo.style.display = "none";
+        }
+    }
+
+    if (metodoPago) {
+        toggleCampoEfectivo();
+        metodoPago.addEventListener("change", toggleCampoEfectivo);
+    }
+});
 </script>
 {% endblock %}

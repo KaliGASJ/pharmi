@@ -6,7 +6,7 @@ from django.core.validators import MinValueValidator
 from django.utils import timezone
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 import os
 
 
@@ -91,7 +91,10 @@ class Venta(models.Model):
 
     def calcular_cambio(self):
         if self.es_efectivo and self.con_cuanto_paga:
-            return max(Decimal(self.con_cuanto_paga) - Decimal(self.total), Decimal('0.00'))
+            pago = Decimal(self.con_cuanto_paga)
+            total = Decimal(self.total)
+            cambio = pago - total
+            return cambio.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
         return Decimal('0.00')
 
     def cancelar(self):

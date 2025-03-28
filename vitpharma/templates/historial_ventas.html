@@ -67,6 +67,8 @@
                                     <a href="{% url 'ventas:generar_ticket_pdf' venta.id %}" class="btn btn-sm btn-primary" target="_blank" title="Ver Ticket PDF">
                                         <i class="fas fa-file-pdf"></i>
                                     </a>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Sin PDF</span>
                                     {% endif %}
                                 </td>
                             </tr>

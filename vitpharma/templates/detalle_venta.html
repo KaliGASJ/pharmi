@@ -31,7 +31,7 @@
                 </div>
             </div>
 
-            {% if venta.es_efectivo %}
+            {% if venta.metodo_pago and venta.metodo_pago.nombre|lower == 'efectivo' %}
             <div class="row mb-2">
                 <div class="col-md-4"><strong>💰 Con cuánto pagó:</strong> ${{ venta.con_cuanto_paga|floatformat:2 }}</div>
                 <div class="col-md-4"><strong>💵 Cambio:</strong> ${{ venta.cambio|floatformat:2 }}</div>
@@ -65,6 +65,7 @@
                             <th>Lote</th>
                             <th>Cantidad</th>
                             <th>Precio Unitario</th>
+                            <th>Descuento</th>
                             <th>Subtotal</th>
                         </tr>
                     </thead>
@@ -75,13 +76,14 @@
                             <td>{{ item.lote.codigo_lote }}</td>
                             <td>{{ item.cantidad }}</td>
                             <td>${{ item.precio_unitario|floatformat:2 }}</td>
+                            <td>${{ item.descuento_aplicado|floatformat:2 }}</td>
                             <td>${{ item.subtotal|floatformat:2 }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                     <tfoot class="table-light">
                         <tr>
-                            <td colspan="4" class="text-end fw-bold">TOTAL:</td>
+                            <td colspan="5" class="text-end fw-bold">TOTAL:</td>
                             <td class="fw-bold text-success">${{ venta.total|floatformat:2 }}</td>
                         </tr>
                     </tfoot>

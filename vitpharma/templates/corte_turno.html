@@ -79,7 +79,13 @@
         <p><strong>Fecha de Inicio:</strong> {{ turno.hora_inicio|date:"d/m/Y H:i" }}</p>
         <p><strong>Fecha de Cierre:</strong> {{ turno.hora_fin_real|date:"d/m/Y H:i" }}</p>
         <p><strong>Duración del Turno:</strong> {{ turno.duracion_turno }}</p>
-        <p><strong>Tipo de cierre:</strong> {{ "Automático" if turno.cerrado_automaticamente else "Manual" }}</p>
+        <p><strong>Tipo de cierre:</strong>
+            {% if turno.cerrado_automaticamente %}
+                Automático
+            {% else %}
+                Manual
+            {% endif %}
+        </p>
     </div>
 
     <table>

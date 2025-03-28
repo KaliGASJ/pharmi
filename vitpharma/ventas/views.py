@@ -99,49 +99,61 @@ def procesar_venta(request):
             venta.usuario = request.user
             venta.turno = turno
             venta.usuario_registro = request.user
-            venta.total = Decimal('0.00')
-            venta.save()
+            venta.total = Decimal('0.00')  # Se calculará luego
 
             carrito_json = request.POST.get("carrito_json")
-            if carrito_json:
-                try:
-                    carrito = json.loads(carrito_json)
-                    for item in carrito:
-                        producto_id = item.get("producto_id")
-                        lote_id = item.get("lote_id")
-                        cantidad = int(item.get("cantidad"))
-                        precio_unitario = Decimal(str(item.get("precio_unitario")))
-                        descuento = Decimal(str(item.get("descuento_aplicado") or 0))
-                        subtotal = (precio_unitario - descuento) * cantidad
+            if not carrito_json:
+                messages.error(request, "El carrito está vacío.")
+                return redirect('ventas:venta_dashboard')
 
-                        DetalleVenta.objects.create(
-                            venta=venta,
-                            producto_id=producto_id,
-                            lote_id=lote_id,
-                            cantidad=cantidad,
-                            precio_unitario=precio_unitario,
-                            descuento_aplicado=descuento,
-                            subtotal=subtotal
-                        )
+            try:
+                venta.save()  # Necesario para obtener el ID
 
-                        lote = InventarioProducto.objects.get(id_inventario=lote_id)
-                        lote.cantidad -= cantidad
-                        lote.save(update_fields=["cantidad"])
+                carrito = json.loads(carrito_json)
+                for item in carrito:
+                    producto_id = item.get("producto_id")
+                    lote_id = item.get("lote_id")
+                    cantidad = int(item.get("cantidad"))
+                    precio_unitario = Decimal(str(item.get("precio_unitario")))
+                    descuento = Decimal(str(item.get("descuento_aplicado") or 0))
+                    subtotal = (precio_unitario - descuento) * cantidad
 
-                    venta.actualizar_totales()
-                    venta.registrar_en_turno()
+                    DetalleVenta.objects.create(
+                        venta=venta,
+                        producto_id=producto_id,
+                        lote_id=lote_id,
+                        cantidad=cantidad,
+                        precio_unitario=precio_unitario,
+                        descuento_aplicado=descuento,
+                        subtotal=subtotal
+                    )
 
-                    # ---------------- GENERAR TICKET PDF ----------------
-                    html_string = render_to_string('ticket_venta.html', {'venta': venta})
-                    html = HTML(string=html_string, base_url=settings.BASE_DIR)
-                    pdf_bytes = html.write_pdf()
-                    filename = f"ticket_venta_{venta.id}_{venta.usuario.username}.pdf"
-                    venta.ticket_pdf.save(filename, ContentFile(pdf_bytes), save=True)
+                    lote = InventarioProducto.objects.get(id_inventario=lote_id)
+                    lote.cantidad -= cantidad
+                    lote.save(update_fields=["cantidad"])
 
-                except Exception as e:
-                    venta.delete()
-                    messages.error(request, f"Error al procesar el carrito: {str(e)}")
-                    return redirect('ventas:venta_dashboard')
+                venta.actualizar_totales()  # Calculamos y actualizamos el total de la venta
+
+                # Calcular cambio (solo efectivo)
+                if venta.es_efectivo:
+                    # Calculamos el cambio correctamente
+                    if venta.con_cuanto_paga and venta.con_cuanto_paga >= venta.total:
+                        venta.cambio = venta.calcular_cambio()
+                        venta.save(update_fields=['cambio'])
+
+                venta.registrar_en_turno()
+
+                # ---------------- GENERAR TICKET PDF ----------------
+                html_string = render_to_string('ticket_venta.html', {'venta': venta})
+                html = HTML(string=html_string, base_url=settings.BASE_DIR)
+                pdf_bytes = html.write_pdf()
+                filename = f"ticket_venta_{venta.id}_{venta.usuario.username}.pdf"
+                venta.ticket_pdf.save(filename, ContentFile(pdf_bytes), save=True)
+
+            except Exception as e:
+                venta.delete()
+                messages.error(request, f"Error al procesar la venta: {str(e)}")
+                return redirect('ventas:venta_dashboard')
 
             messages.success(request, f"✅ Venta #{venta.id} registrada correctamente.")
             return redirect('ventas:detalle_venta', venta.id)
