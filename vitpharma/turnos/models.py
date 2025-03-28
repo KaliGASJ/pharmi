@@ -65,18 +65,73 @@ class Turno(models.Model):
     # -------------------- Lógica del turno --------------------
 
     def total_ventas_turno(self):
+        # Calcular directamente desde las ventas existentes, no usar los campos acumulados
+        from ventas.models import Venta
+        
+        # Filtramos ventas activas de este turno
+        ventas = Venta.objects.filter(
+            turno=self,
+            estado='activa'
+        )
+        
+        total_efectivo = Decimal('0.00')
+        total_tarjeta = Decimal('0.00')
+        total_transferencia = Decimal('0.00')
+        total_cheque = Decimal('0.00')
+
+        for venta in ventas:
+            tipo_pago = venta.metodo_pago.nombre.lower() if venta.metodo_pago else ""
+            
+            if 'efectivo' in tipo_pago:
+                total_efectivo += venta.total
+            elif 'tarjeta' in tipo_pago:
+                total_tarjeta += venta.total
+            elif 'transferencia' in tipo_pago:
+                total_transferencia += venta.total
+            elif 'cheque' in tipo_pago:
+                total_cheque += venta.total
+        
+        # Actualizamos los valores en el modelo (solo en memoria)
+        self.monto_total_efectivo = total_efectivo
+        self.monto_total_tarjeta = total_tarjeta
+        self.monto_total_transferencia = total_transferencia
+        self.monto_total_cheque = total_cheque
+        
         return (
-            self.monto_total_efectivo +
-            self.monto_total_tarjeta +
-            self.monto_total_transferencia +
-            self.monto_total_cheque
+            total_efectivo +
+            total_tarjeta +
+            total_transferencia +
+            total_cheque
         )
 
+    def calcular_cambios_dados(self):
+        # Calcular directamente desde las ventas existentes
+        from ventas.models import Venta
+        
+        # Filtramos ventas activas en efectivo de este turno
+        ventas_efectivo = Venta.objects.filter(
+            turno=self,
+            estado='activa'
+        ).filter(metodo_pago__nombre__icontains='efectivo')
+        
+        total_cambios = Decimal('0.00')
+        
+        for venta in ventas_efectivo:
+            if venta.cambio:
+                total_cambios += venta.cambio
+        
+        # Actualizamos el valor en el modelo (solo en memoria)
+        self.total_cambios_dados = total_cambios
+        
+        return total_cambios
+
     def efectivo_en_caja(self):
+        self.total_ventas_turno()  # Actualiza monto_total_efectivo
         return self.monto_inicial + self.monto_total_efectivo
 
     def efectivo_final_en_caja(self):
-        return self.efectivo_en_caja() - self.total_cambios_dados
+        cambios = self.calcular_cambios_dados()
+        return self.efectivo_en_caja() - cambios
 
     def esta_activo(self):
         return self.estado == 'activo'
@@ -102,7 +157,8 @@ class Turno(models.Model):
         return True
 
     def actualizar_cambios_dados(self, cambio):
-        self.total_cambios_dados += Decimal(str(cambio))
+        cambio_decimal = Decimal(str(cambio))
+        self.total_cambios_dados += cambio_decimal
         self.save(update_fields=['total_cambios_dados'])
         return True
 
@@ -125,44 +181,13 @@ class Turno(models.Model):
     # -------------------- Registro y reverso de ventas --------------------
 
     def registrar_venta(self, monto, tipo_pago, cambio=0):
-        monto = Decimal(str(monto))
-        tipo_pago = (tipo_pago or "").lower().strip()
-
-        if 'efectivo' in tipo_pago:
-            self.actualizar_monto_efectivo(monto)
-            if cambio > 0:
-                self.actualizar_cambios_dados(cambio)
-        elif 'tarjeta' in tipo_pago:
-            self.monto_total_tarjeta += monto
-            self.save(update_fields=['monto_total_tarjeta'])
-        elif 'transferencia' in tipo_pago:
-            self.monto_total_transferencia += monto
-            self.save(update_fields=['monto_total_transferencia'])
-        elif 'cheque' in tipo_pago:
-            self.monto_total_cheque += monto
-            self.save(update_fields=['monto_total_cheque'])
-        else:
-            return False
+        # Este método ya no se utiliza para actualizar campos de acumulación
+        # Se utiliza solo para mantener compatibilidad con el código existente
         return True
 
     def revertir_venta(self, monto, tipo_pago, cambio=0):
-        monto = Decimal(str(monto))
-        tipo_pago = (tipo_pago or "").lower().strip()
-
-        if 'efectivo' in tipo_pago:
-            self.actualizar_monto_efectivo(monto, es_ingreso=False)
-            if cambio > 0:
-                self.total_cambios_dados -= Decimal(str(cambio))
-                self.save(update_fields=['total_cambios_dados'])
-        elif 'tarjeta' in tipo_pago:
-            self.monto_total_tarjeta -= monto
-            self.save(update_fields=['monto_total_tarjeta'])
-        elif 'transferencia' in tipo_pago:
-            self.monto_total_transferencia -= monto
-            self.save(update_fields=['monto_total_transferencia'])
-        elif 'cheque' in tipo_pago:
-            self.monto_total_cheque -= monto
-            self.save(update_fields=['monto_total_cheque'])
+        # Este método ya no se utiliza para actualizar campos de acumulación
+        # Se utiliza solo para mantener compatibilidad con el código existente
         return True
 
     # -------------------- Consultas por usuario y fechas --------------------
@@ -186,6 +211,14 @@ class Turno(models.Model):
         if not hora_fin_real:
             hora_fin_real = timezone.now()
 
+        # Actualizar los valores finales antes de cerrar
+        self.monto_total_efectivo = Decimal(str(self.total_ventas_turno() - (
+            self.monto_total_tarjeta + 
+            self.monto_total_transferencia + 
+            self.monto_total_cheque
+        )))
+        self.total_cambios_dados = self.calcular_cambios_dados()
+        
         self.hora_fin_real = hora_fin_real
         self.estado = 'finalizado'
         self.cerrado_automaticamente = cerrado_automaticamente
@@ -196,7 +229,7 @@ class Turno(models.Model):
         nombre_archivo = f"corte_turno_{self.id}_{self.usuario.username}.pdf"
         self.pdf_reporte.save(nombre_archivo, ContentFile(pdf_file), save=False)
 
-        self.save(update_fields=['hora_fin_real', 'estado', 'cerrado_automaticamente', 'pdf_reporte'])
+        self.save()
         return True
 
     # -------------------- Propiedad útil --------------------
