@@ -6,12 +6,13 @@ from django.http import HttpResponse, Http404, JsonResponse
 from django.template.loader import render_to_string
 from weasyprint import HTML
 from decimal import Decimal
-import json
 from django.core.files.base import ContentFile
+import json
 from .models import Venta, DetalleVenta
 from .forms import VentaForm, CancelarVentaForm
 from turnos.models import Turno
 from inventario.models import Producto, InventarioProducto
+from django.conf import settings
 
 
 # -------------------- VERIFICAR SI ES VENDEDOR --------------------
@@ -126,11 +127,13 @@ def procesar_venta(request):
 
                     venta.actualizar_totales()
 
-                    # Generar PDF automáticamente al registrar la venta
+                    # ---------------- PDF Ticket ----------------
                     html_string = render_to_string('ticket_venta.html', {'venta': venta})
-                    pdf_file = HTML(string=html_string).write_pdf()
+                    html = HTML(string=html_string, base_url=settings.BASE_DIR)
+                    pdf_bytes = html.write_pdf()
                     filename = f"ticket_venta_{venta.id}_{venta.usuario.username}.pdf"
-                    venta.ticket_pdf.save(filename, pdf_file)
+                    pdf_content = ContentFile(pdf_bytes, name=filename)
+                    venta.ticket_pdf.save(filename, pdf_content)
                     venta.save(update_fields=['ticket_pdf'])
 
                 except Exception as e:
@@ -194,21 +197,20 @@ def cancelar_venta(request, venta_id):
     })
 
 
-# -------------------- GENERAR TICKET PDF (descarga directa) --------------------
+# -------------------- GENERAR TICKET PDF --------------------
 
 @login_required
 @user_passes_test(es_vendedor)
 def generar_ticket_pdf(request, venta_id):
     venta = get_object_or_404(Venta, id=venta_id, usuario=request.user)
+
     if not venta.ticket_pdf:
         html_string = render_to_string('ticket_venta.html', {'venta': venta})
-        pdf_bytes = HTML(string=html_string).write_pdf()
+        html = HTML(string=html_string, base_url=settings.BASE_DIR)
+        pdf_bytes = html.write_pdf()
         filename = f"ticket_venta_{venta.id}_{venta.usuario.username}.pdf"
-
-        # ESTA LÍNEA CORRIGE EL ERROR:
         pdf_content = ContentFile(pdf_bytes, name=filename)
         venta.ticket_pdf.save(filename, pdf_content)
-
         venta.save(update_fields=['ticket_pdf'])
 
     if venta.ticket_pdf:
