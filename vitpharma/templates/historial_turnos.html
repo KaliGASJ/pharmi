@@ -3,73 +3,299 @@
 {% block title %}Historial de Turnos | VIT PHARMA{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-4">
+<style>
+    /* Estilos específicos para esta página */
+    .page-header {
+        margin-bottom: 25px;
+    }
+    
+    .header-title {
+        color: #004AAD;
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+    
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        background-color: #f2f4f8;
+        color: #555;
+        padding: 8px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s;
+        border: 1px solid #ddd;
+    }
+    
+    .back-link:hover {
+        background-color: #e6e9f0;
+        color: #004AAD;
+    }
+    
+    .back-link i {
+        margin-right: 8px;
+    }
+    
+    .filter-card {
+        background-color: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+    
+    .filter-title {
+        color: #004AAD;
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+    
+    .filter-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: flex-end;
+    }
+    
+    .form-group {
+        flex: 1;
+        min-width: 200px;
+    }
+    
+    .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: #555;
+        margin-bottom: 6px;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+    
+    .form-control:focus {
+        border-color: #004AAD;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(0, 74, 173, 0.1);
+    }
+    
+    .btn-filter {
+        background-color: #004AAD;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center; /* Centrar contenido del botón */
+        height: 41px; /* Altura igual a los campos de fecha */
+        min-width: 100px; /* Ancho mínimo para mejor apariencia */
+    }
+    
+    .btn-filter:hover {
+        background-color: #0056b3;
+    }
+    
+    .data-table-container {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+    
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .data-table th {
+        background-color: #004AAD;
+        color: white;
+        padding: 12px 15px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .data-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee;
+        font-size: 14px;
+    }
+    
+    .data-table tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .data-table tr:hover {
+        background-color: #f9f9f9;
+    }
+    
+    .data-table .turno-id {
+        font-weight: 600;
+        color: #004AAD;
+    }
+    
+    .data-table .money-value {
+        font-weight: 500;
+        text-align: right;
+    }
+    
+    .btn-pdf {
+        display: inline-flex;
+        align-items: center;
+        background-color: #fff;
+        color: #dc3545;
+        border: 1px solid #dc3545;
+        border-radius: 4px;
+        padding: 5px 10px;
+        font-size: 13px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    
+    .btn-pdf:hover {
+        background-color: #dc3545;
+        color: #fff;
+    }
+    
+    .btn-pdf i {
+        margin-right: 5px;
+    }
+    
+    .badge-no-pdf {
+        display: inline-block;
+        background-color: #e9ecef;
+        color: #6c757d;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+    
+    .empty-state {
+        padding: 30px;
+        text-align: center;
+        color: #666;
+    }
+    
+    .empty-state i {
+        font-size: 20px;
+        margin-right: 8px;
+        color: #17a2b8;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .filter-form {
+            flex-direction: column;
+        }
+        
+        .form-group {
+            width: 100%;
+        }
+        
+        .btn-filter {
+            width: 100%;
+        }
+    }
+</style>
 
-    <!-- Encabezado -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Historial de Turnos Finalizados</h2>
-        <a href="{% url 'authapp:vendedor_dashboard' %}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left"></i> Regresar
-        </a>
-    </div>
+<div class="page-header">
+    <h1 class="header-title">Historial de Turnos Finalizados</h1>
+    <a href="{% url 'authapp:vendedor_dashboard' %}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Regresar al Dashboard
+    </a>
+</div>
 
-    <!-- Mensajes -->
-    {% if messages %}
+<!-- Mensajes del sistema -->
+{% if messages %}
+    <div class="alert-messages mb-4">
         {% for message in messages %}
             <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
                 {{ message }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
             </div>
         {% endfor %}
-    {% endif %}
-
-    <!-- Tabla de turnos -->
-    <div class="card shadow-sm">
-        <div class="card-body p-0">
-            {% if turnos %}
-                <div class="table-responsive">
-                    <table class="table table-hover table-striped mb-0">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>ID</th>
-                                <th>Fecha de Inicio</th>
-                                <th>Hora de Cierre</th>
-                                <th>Monto Inicial</th>
-                                <th>Total Ventas</th>
-                                <th>Efectivo Final</th>
-                                <th>PDF</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for turno in turnos %}
-                            <tr>
-                                <td>#{{ turno.id }}</td>
-                                <td>{{ turno.hora_inicio|date:"d/m/Y H:i" }}</td>
-                                <td>{{ turno.hora_fin_real|date:"d/m/Y H:i" }}</td>
-                                <td>${{ turno.monto_inicial|floatformat:2 }}</td>
-                                <td>${{ turno.total_ventas_turno|floatformat:2 }}</td>
-                                <td>${{ turno.efectivo_final_en_caja|floatformat:2 }}</td>
-                                <td>
-                                    {% if turno.pdf_reporte %}
-                                        <a href="{% url 'turnos:descargar_pdf_turno' turno.id %}" target="_blank" class="btn btn-sm btn-outline-danger">
-                                            <i class="fas fa-file-pdf"></i> Ver PDF
-                                        </a>
-                                    {% else %}
-                                        <span class="badge bg-secondary">Sin PDF</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            {% else %}
-                <div class="alert alert-info m-3">
-                    <i class="fas fa-info-circle"></i> No hay turnos finalizados registrados.
-                </div>
-            {% endif %}
-        </div>
     </div>
+{% endif %}
 
+<!-- Filtro de fechas -->
+<div class="filter-card">
+    <h2 class="filter-title">Filtrar por fechas</h2>
+    <form method="get" class="filter-form">
+        <div class="form-group">
+            <label for="fecha_inicio" class="form-label">Desde:</label>
+            <input type="date" name="fecha_inicio" id="fecha_inicio" class="form-control" value="{{ request.GET.fecha_inicio }}">
+        </div>
+        <div class="form-group">
+            <label for="fecha_fin" class="form-label">Hasta:</label>
+            <input type="date" name="fecha_fin" id="fecha_fin" class="form-control" value="{{ request.GET.fecha_fin }}">
+        </div>
+        <div style="align-self: flex-end;">
+            <button type="submit" class="btn-filter">
+                <i class="fas fa-search me-2"></i> Filtrar
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Tabla de turnos -->
+<div class="data-table-container">
+    {% if turnos %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Inicio</th>
+                        <th>Cierre</th>
+                        <th style="text-align:right">Monto Inicial</th>
+                        <th style="text-align:right">Total Ventas</th>
+                        <th style="text-align:right">Efectivo Final</th>
+                        <th>PDF</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for turno in turnos %}
+                    <tr>
+                        <td class="turno-id">#{{ turno.id }}</td>
+                        <td>{{ turno.hora_inicio|date:"d/m/Y H:i" }}</td>
+                        <td>{{ turno.hora_fin_real|date:"d/m/Y H:i" }}</td>
+                        <td class="money-value">${{ turno.monto_inicial|floatformat:2 }}</td>
+                        <td class="money-value">${{ turno.total_ventas_turno|floatformat:2 }}</td>
+                        <td class="money-value">${{ turno.efectivo_final_en_caja|floatformat:2 }}</td>
+                        <td>
+                            {% if turno.pdf_reporte %}
+                                <a href="{% url 'turnos:descargar_pdf_turno' turno.id %}" target="_blank" class="btn-pdf">
+                                    <i class="fas fa-file-pdf"></i> Ver PDF
+                                </a>
+                            {% else %}
+                                <span class="badge-no-pdf">Sin PDF</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-info-circle"></i> No se encontraron turnos finalizados para el criterio actual.
+        </div>
+    {% endif %}
 </div>
 {% endblock %}

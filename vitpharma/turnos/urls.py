@@ -13,7 +13,7 @@ urlpatterns = [
     # Cierre de turno activo
     path('cerrar/', views.cerrar_turno, name='cerrar_turno'),
 
-    # Historial de turnos finalizados
+    # Historial de turnos finalizados (con posible filtro de fechas)
     path('historial/', views.historial_turnos, name='historial_turnos'),
 
     # Detalle de un turno específico

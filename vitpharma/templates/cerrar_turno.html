@@ -3,83 +3,329 @@
 {% block title %}Finalizar Turno | VIT PHARMA{% endblock %}
 
 {% block content %}
-<div class="container col-lg-7 mt-5">
+<style>
+    /* Estilos específicos para esta página */
+    .page-header {
+        margin-bottom: 25px;
+    }
+    
+    .header-title {
+        color: #003d8a;
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .header-title i {
+        margin-right: 12px;
+        font-size: 24px;
+        color: #dc3545;
+    }
+    
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        background-color: #f8f9fa;
+        color: #495057;
+        border: 1px solid #dee2e6;
+        padding: 8px 15px;
+        border-radius: 5px;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    
+    .back-button:hover {
+        background-color: #e9ecef;
+        border-color: #cbd3da;
+        color: #003d8a;
+    }
+    
+    .back-button i {
+        margin-right: 8px;
+    }
+    
+    .summary-card {
+        background-color: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+        margin-bottom: 25px;
+        border: 1px solid #eaedf2;
+    }
+    
+    .card-header-custom {
+        background: linear-gradient(135deg, #004AAD 0%, #0063E5 100%);
+        color: white;
+        padding: 15px 20px;
+        font-weight: 600;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .card-header-custom i {
+        margin-right: 10px;
+        font-size: 18px;
+    }
+    
+    .card-body-custom {
+        padding: 20px;
+    }
+    
+    .info-row {
+        display: flex;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .info-row:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+    
+    .info-label {
+        flex: 0 0 180px;
+        font-weight: 600;
+        color: #495057;
+        font-size: 15px;
+    }
+    
+    .info-value {
+        flex: 1;
+        font-size: 15px;
+    }
+    
+    .value-success {
+        color: #28a745;
+        font-weight: 600;
+    }
+    
+    .value-primary {
+        color: #004AAD;
+        font-weight: 600;
+    }
+    
+    .value-warning {
+        color: #ffc107;
+        font-weight: 600;
+    }
+    
+    .value-dark {
+        color: #343a40;
+        font-weight: 600;
+    }
+    
+    .form-card {
+        background-color: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+        border: 1px solid #eaedf2;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 8px;
+        font-size: 15px;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 7px;
+        font-size: 15px;
+        transition: all 0.2s;
+    }
+    
+    .form-control:focus {
+        border-color: #004AAD;
+        box-shadow: 0 0 0 3px rgba(0, 74, 173, 0.15);
+        outline: none;
+    }
+    
+    textarea.form-control {
+        min-height: 100px;
+        resize: vertical;
+    }
+    
+    .alert-custom {
+        background-color: #fff3cd;
+        color: #856404;
+        border-left: 4px solid #ffc107;
+        padding: 15px;
+        border-radius: 7px;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: flex-start;
+    }
+    
+    .alert-custom i {
+        margin-right: 10px;
+        font-size: 18px;
+        color: #ffc107;
+    }
+    
+    .close-button {
+        width: 100%;
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 7px;
+        padding: 14px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .close-button:hover {
+        background-color: #c82333;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .close-button:active {
+        transform: translateY(0);
+    }
+    
+    .close-button i {
+        margin-right: 8px;
+    }
+    
+    .error-message {
+        color: #dc3545;
+        font-size: 13px;
+        margin-top: 5px;
+        display: block;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .info-row {
+            flex-direction: column;
+        }
+        
+        .info-label {
+            margin-bottom: 5px;
+        }
+    }
+</style>
 
-    <!-- Encabezado y botón de regreso -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0"><i class="fas fa-stop-circle me-2"></i>Finalizar Turno</h2>
-        <a href="{% url 'authapp:vendedor_dashboard' %}" class="btn btn-outline-secondary">
+<div class="container col-lg-7 mt-5">
+    <!-- Encabezado mejorado -->
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <h1 class="header-title">
+            <i class="fas fa-stop-circle"></i>Finalizar Turno
+        </h1>
+        <a href="{% url 'authapp:vendedor_dashboard' %}" class="back-button">
             <i class="fas fa-arrow-left"></i> Regresar
         </a>
     </div>
 
-    <!-- Mensajes -->
+    <!-- Mensajes del sistema -->
     {% if messages %}
         {% for message in messages %}
             <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% elif message.tags == 'danger' %}fa-times-circle{% else %}fa-info-circle{% endif %} me-2"></i>
                 {{ message }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
             </div>
         {% endfor %}
     {% endif %}
 
-    <!-- Información del Turno -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-info text-white">
-            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Resumen del Turno</h5>
+    <!-- Información del Turno - Diseño mejorado -->
+    <div class="summary-card">
+        <div class="card-header-custom">
+            <i class="fas fa-info-circle"></i>
+            <span>Resumen del Turno</span>
         </div>
-        <div class="card-body">
-            <p><strong>Inicio:</strong> {{ turno.hora_inicio|date:"d/m/Y H:i" }}</p>
-            <p><strong>Monto inicial:</strong> <span class="text-success fw-bold">${{ turno.monto_inicial|floatformat:2 }}</span></p>
-            <p><strong>Total ventas:</strong> <span class="text-primary fw-bold">${{ turno.total_ventas_turno|floatformat:2 }}</span></p>
-            <p><strong>Cambios dados:</strong> <span class="text-warning fw-bold">${{ turno.total_cambios_dados|floatformat:2 }}</span></p>
-            <p><strong>Efectivo final en caja:</strong> <span class="text-dark fw-bold">${{ turno.efectivo_final_en_caja|floatformat:2 }}</span></p>
+        <div class="card-body-custom">
+            <div class="info-row">
+                <div class="info-label">Inicio:</div>
+                <div class="info-value">{{ turno.hora_inicio|date:"d/m/Y H:i" }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Monto inicial:</div>
+                <div class="info-value value-success">${{ turno.monto_inicial|floatformat:2 }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Total ventas:</div>
+                <div class="info-value value-primary">${{ turno.total_ventas_turno|floatformat:2 }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Cambios dados:</div>
+                <div class="info-value value-warning">${{ turno.total_cambios_dados|floatformat:2 }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Efectivo final en caja:</div>
+                <div class="info-value value-dark">${{ turno.efectivo_final_en_caja|floatformat:2 }}</div>
+            </div>
         </div>
     </div>
 
-    <!-- Formulario para finalizar -->
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <form method="post" enctype="multipart/form-data">
+    <!-- Formulario para finalizar - Diseño mejorado -->
+    <div class="form-card">
+        <div class="card-body-custom">
+            <form method="post" novalidate>
                 {% csrf_token %}
-
-                <div class="mb-3">
-                    <label for="{{ form.hora_fin_real.id_for_label }}" class="form-label">Hora real de cierre:</label>
+                
+                <!-- Hora fin real -->
+                <div class="form-group">
+                    <label for="{{ form.hora_fin_real.id_for_label }}" class="form-label">
+                        Hora real de cierre:
+                    </label>
                     {{ form.hora_fin_real }}
                     {% if form.hora_fin_real.errors %}
-                        <div class="text-danger small">{{ form.hora_fin_real.errors }}</div>
+                        <span class="error-message">
+                            {{ form.hora_fin_real.errors|join:", " }}
+                        </span>
                     {% endif %}
                 </div>
-
-                <div class="mb-3">
-                    <label for="{{ form.pdf_reporte.id_for_label }}" class="form-label">Archivo PDF del reporte (opcional):</label>
-                    {{ form.pdf_reporte }}
-                    {% if form.pdf_reporte.errors %}
-                        <div class="text-danger small">{{ form.pdf_reporte.errors }}</div>
-                    {% endif %}
-                </div>
-
-                <div class="mb-3">
-                    <label for="{{ form.observaciones.id_for_label }}" class="form-label">Observaciones (opcional):</label>
+                
+                <!-- Observaciones -->
+                <div class="form-group">
+                    <label for="{{ form.observaciones.id_for_label }}" class="form-label">
+                        Observaciones (opcional):
+                    </label>
                     {{ form.observaciones }}
                     {% if form.observaciones.errors %}
-                        <div class="text-danger small">{{ form.observaciones.errors }}</div>
+                        <span class="error-message">
+                            {{ form.observaciones.errors|join:", " }}
+                        </span>
                     {% endif %}
                 </div>
-
-                <div class="alert alert-warning">
+                
+                <!-- Advertencia - Estilo mejorado -->
+                <div class="alert-custom">
                     <i class="fas fa-exclamation-triangle"></i>
-                    Una vez finalices el turno, no podrás modificarlo. Se generará un corte de caja.
+                    <div>
+                        Una vez finalices el turno, no podrás modificarlo. Se generará un reporte PDF automáticamente.
+                    </div>
                 </div>
-
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-danger btn-lg">
-                        <i class="fas fa-check-circle"></i> Confirmar Cierre del Turno
-                    </button>
-                </div>
+                
+                <!-- Botón con mejor estilo -->
+                <button type="submit" class="close-button">
+                    <i class="fas fa-check-circle"></i> Confirmar Cierre del Turno
+                </button>
             </form>
         </div>
     </div>
-
 </div>
 {% endblock %}

@@ -1,60 +1,261 @@
 {% extends 'base.html' %}
-
 {% block title %}Iniciar Turno | VIT PHARMA{% endblock %}
-
 {% block content %}
-<div class="container col-lg-6 mt-5">
+<style>
+    /* Estilos específicos para esta página */
+    .page-header {
+        margin-bottom: 25px;
+    }
+    
+    .header-title {
+        color: #004AAD;
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .header-title i {
+        margin-right: 12px;
+        font-size: 26px;
+        color: #004AAD;
+    }
+    
+    .back-button {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        color: #495057;
+        padding: 8px 15px;
+        border-radius: 5px;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    .back-button:hover {
+        background-color: #e9ecef;
+        color: #004AAD;
+        border-color: #cbd3da;
+    }
+    
+    .back-button i {
+        margin-right: 6px;
+    }
+    
+    .form-container {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+        padding: 30px;
+        margin-bottom: 30px;
+        border: 1px solid #eaedf2;
+    }
+    
+    .form-title {
+        color: #004AAD;
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 25px;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+        font-size: 15px;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 7px;
+        font-size: 15px;
+        transition: all 0.2s;
+    }
+    
+    .form-control:focus {
+        border-color: #004AAD;
+        box-shadow: 0 0 0 3px rgba(0, 74, 173, 0.15);
+        outline: none;
+    }
+    
+    .input-group {
+        display: flex;
+        align-items: stretch;
+    }
+    
+    .input-group-text {
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+        border-right: none;
+        border-radius: 7px 0 0 7px;
+        padding: 0 16px;
+        font-weight: 600;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        color: #495057;
+    }
+    
+    .input-group .form-control {
+        border-radius: 0 7px 7px 0;
+        flex: 1;
+    }
+    
+    .error-message {
+        color: #dc3545;
+        font-size: 13px;
+        margin-top: 5px;
+    }
+    
+    .submit-button {
+        width: 100%;
+        background-color: #004AAD;
+        color: white;
+        border: none;
+        border-radius: 7px;
+        padding: 14px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .submit-button:hover {
+        background-color: #003c8a;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .submit-button:active {
+        transform: translateY(0);
+    }
+    
+    .submit-button i {
+        margin-right: 8px;
+    }
+    
+    .alert {
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: flex-start;
+    }
+    
+    .alert i {
+        margin-right: 10px;
+        font-size: 18px;
+    }
+    
+    .alert-success {
+        background-color: #d1e7dd;
+        color: #0f5132;
+        border-left: 4px solid #20c997;
+    }
+    
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #842029;
+        border-left: 4px solid #dc3545;
+    }
+    
+    .alert-warning {
+        background-color: #fff3cd;
+        color: #664d03;
+        border-left: 4px solid #ffc107;
+    }
+    
+    .alert-info {
+        background-color: #cfe2ff;
+        color: #084298;
+        border-left: 4px solid #0d6efd;
+    }
+    
+    .help-text {
+        font-size: 13px;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+</style>
 
-    <!-- Encabezado -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0"><i class="fas fa-play-circle me-2"></i>Iniciar Nuevo Turno</h2>
-        <a href="{% url 'authapp:vendedor_dashboard' %}" class="btn btn-outline-secondary">
+<div class="container col-lg-6 mt-5">
+    <!-- Encabezado mejorado -->
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <h1 class="header-title">
+            <i class="fas fa-play-circle"></i>Iniciar Nuevo Turno
+        </h1>
+        <a href="{% url 'authapp:vendedor_dashboard' %}" class="back-button">
             <i class="fas fa-arrow-left"></i> Regresar
         </a>
     </div>
 
-    <!-- Mensajes -->
+    <!-- Mensajes del sistema con iconos -->
     {% if messages %}
         {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
+            <div class="alert alert-{{ message.tags }}" role="alert">
+                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% elif message.tags == 'danger' %}fa-times-circle{% else %}fa-info-circle{% endif %}"></i>
+                <div>{{ message }}</div>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
             </div>
         {% endfor %}
     {% endif %}
 
-    <!-- Formulario -->
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <form method="post" novalidate>
-                {% csrf_token %}
-                <div class="mb-3">
-                    <label for="{{ form.hora_fin_estimada.id_for_label }}" class="form-label">Hora de fin estimada:</label>
-                    {{ form.hora_fin_estimada }}
-                    {% if form.hora_fin_estimada.errors %}
-                        <div class="text-danger small">{{ form.hora_fin_estimada.errors }}</div>
-                    {% endif %}
-                </div>
-
-                <div class="mb-3">
-                    <label for="{{ form.monto_inicial.id_for_label }}" class="form-label">Monto inicial en caja:</label>
-                    <div class="input-group">
-                        <span class="input-group-text">$</span>
-                        {{ form.monto_inicial }}
+    <!-- Formulario mejorado -->
+    <div class="form-container">
+        <h2 class="form-title">Complete la información para comenzar su turno</h2>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            <!-- Hora de cierre estimada -->
+            <div class="form-group">
+                <label for="{{ form.hora_fin_estimada.id_for_label }}" class="form-label">
+                    Hora estimada de cierre:
+                </label>
+                {{ form.hora_fin_estimada }}
+                <div class="help-text">Seleccione cuándo planea terminar su turno</div>
+                {% if form.hora_fin_estimada.errors %}
+                    <div class="error-message">
+                        {{ form.hora_fin_estimada.errors|join:", " }}
                     </div>
-                    {% if form.monto_inicial.errors %}
-                        <div class="text-danger small">{{ form.monto_inicial.errors }}</div>
-                    {% endif %}
+                {% endif %}
+            </div>
+            
+            <!-- Monto inicial -->
+            <div class="form-group">
+                <label for="{{ form.monto_inicial.id_for_label }}" class="form-label">
+                    Monto inicial en caja:
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    {{ form.monto_inicial }}
                 </div>
-
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-check-circle"></i> Iniciar Turno
-                    </button>
-                </div>
-            </form>
-        </div>
+                <div class="help-text">Ingrese el efectivo con el que inicia operaciones</div>
+                {% if form.monto_inicial.errors %}
+                    <div class="error-message">
+                        {{ form.monto_inicial.errors|join:", " }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Botón de acción -->
+            <button type="submit" class="submit-button">
+                <i class="fas fa-check-circle"></i> Iniciar Turno
+            </button>
+        </form>
     </div>
-
 </div>
 {% endblock %}
