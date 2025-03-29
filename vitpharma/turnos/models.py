@@ -130,8 +130,7 @@ class Turno(models.Model):
         return self.monto_inicial + self.monto_total_efectivo
 
     def efectivo_final_en_caja(self):
-        cambios = self.calcular_cambios_dados()
-        return self.efectivo_en_caja() - cambios
+        return self.monto_inicial + self.monto_total_efectivo - self.calcular_cambios_dados()
 
     def esta_activo(self):
         return self.estado == 'activo'
@@ -181,13 +180,43 @@ class Turno(models.Model):
     # -------------------- Registro y reverso de ventas --------------------
 
     def registrar_venta(self, monto, tipo_pago, cambio=0):
-        # Este método ya no se utiliza para actualizar campos de acumulación
-        # Se utiliza solo para mantener compatibilidad con el código existente
+        monto = Decimal(str(monto))
+        tipo_pago = tipo_pago.lower()
+        
+        if 'efectivo' in tipo_pago:
+            self.actualizar_monto_efectivo(monto, es_ingreso=True)
+            if cambio > 0:
+                self.actualizar_cambios_dados(cambio)
+        else:
+            self.actualizar_montos_otros_medios(monto, tipo_pago)
+        
         return True
 
     def revertir_venta(self, monto, tipo_pago, cambio=0):
-        # Este método ya no se utiliza para actualizar campos de acumulación
-        # Se utiliza solo para mantener compatibilidad con el código existente
+        monto = Decimal(str(monto))
+        tipo_pago = tipo_pago.lower()
+        
+        if 'efectivo' in tipo_pago:
+            self.actualizar_monto_efectivo(monto, es_ingreso=False)
+            if cambio > 0:
+                # Restar el cambio de los cambios dados
+                nuevo_cambio = self.total_cambios_dados - Decimal(str(cambio))
+                if nuevo_cambio < 0:
+                    nuevo_cambio = Decimal('0.00')
+                self.total_cambios_dados = nuevo_cambio
+                self.save(update_fields=['total_cambios_dados'])
+        else:
+            tipo_pago = tipo_pago.lower()
+            if 'tarjeta' in tipo_pago:
+                self.monto_total_tarjeta -= monto
+                self.save(update_fields=['monto_total_tarjeta'])
+            elif 'transferencia' in tipo_pago:
+                self.monto_total_transferencia -= monto
+                self.save(update_fields=['monto_total_transferencia'])
+            elif 'cheque' in tipo_pago:
+                self.monto_total_cheque -= monto
+                self.save(update_fields=['monto_total_cheque'])
+        
         return True
 
     # -------------------- Consultas por usuario y fechas --------------------
