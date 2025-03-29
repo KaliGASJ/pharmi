@@ -3,45 +3,94 @@
 {% block title %}Registrar Venta | VIT PHARMA{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="mb-0"><i class="fas fa-cash-register me-2"></i>Registrar Venta</h2>
-    <a href="{% url 'authapp:vendedor_dashboard' %}" class="btn btn-outline-secondary">
+<style>
+    /* Estilos personalizados */
+    .main-header {
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 15px;
+    }
+    .search-input {
+        border-left: 3px solid #004AAD;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    }
+    .card-container {
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.09);
+        border: none;
+    }
+    .form-label {
+        font-weight: 600;
+        color: #444;
+    }
+    .table-header {
+        background-color:rgb(247, 231, 9);
+    }
+    .custom-button {
+        padding: 8px 18px;
+        border-radius: 6px;
+        font-weight: 500;
+    }
+    .product-list-item:hover {
+        background-color: #f8f9ff;
+        border-left: 3px solid #004AAD;
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4 main-header">
+    <h2 class="mb-0 text-primary"><i class="fas fa-cash-register me-2"></i>Registrar Venta</h2>
+    <a href="{% url 'authapp:vendedor_dashboard' %}" class="btn btn-outline-secondary custom-button">
         <i class="fas fa-arrow-left"></i> Regresar
     </a>
 </div>
 
 {% if messages %}
     {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+            <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% elif message.tags == 'danger' %}fa-times-circle{% else %}fa-info-circle{% endif %} me-2"></i>
             {{ message }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
         </div>
     {% endfor %}
 {% endif %}
 
-<div class="card shadow-sm mb-4">
+<div class="card card-container mb-4">
+    <div class="card-header bg-light py-3">
+        <h5 class="mb-0 text-primary"><i class="fas fa-shopping-cart me-2"></i>Formulario de venta</h5>
+    </div>
     <div class="card-body">
         <form method="post" action="{% url 'ventas:procesar_venta' %}" onsubmit="return enviarVenta()">
             {% csrf_token %}
-            <div class="row mb-4">
+            <div class="row mb-4 bg-light py-3 rounded">
                 <div class="col-md-6">
-                    <label for="{{ venta_form.metodo_pago.id_for_label }}" class="form-label">Método de pago:</label>
-                    {{ venta_form.metodo_pago }}
+                    <label for="{{ venta_form.metodo_pago.id_for_label }}" class="form-label">
+                        <i class="fas fa-credit-card me-1 text-primary"></i> Método de pago:
+                    </label>
+                    <div class="input-group">
+                        {{ venta_form.metodo_pago }}
+                    </div>
                     {% if venta_form.metodo_pago.errors %}
-                        <div class="text-danger small">{{ venta_form.metodo_pago.errors }}</div>
+                        <div class="text-danger small mt-1">{{ venta_form.metodo_pago.errors }}</div>
                     {% endif %}
                 </div>
                 <div class="col-md-6" id="campo-efectivo" style="display:none;">
-                    <label for="{{ venta_form.con_cuanto_paga.id_for_label }}" class="form-label">Con cuánto paga (solo efectivo):</label>
-                    {{ venta_form.con_cuanto_paga }}
+                    <label for="{{ venta_form.con_cuanto_paga.id_for_label }}" class="form-label">
+                        <i class="fas fa-money-bill-wave me-1 text-success"></i> Con cuánto paga:
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        {{ venta_form.con_cuanto_paga }}
+                    </div>
                     {% if venta_form.con_cuanto_paga.errors %}
-                        <div class="text-danger small">{{ venta_form.con_cuanto_paga.errors }}</div>
+                        <div class="text-danger small mt-1">{{ venta_form.con_cuanto_paga.errors }}</div>
                     {% endif %}
                 </div>
             </div>
 
             <div class="mb-3">
-                <input type="text" class="form-control" placeholder="🔍 Buscar producto por nombre o código" id="buscador-producto" oninput="buscarProducto(this.value)">
+                <label for="buscador-producto" class="form-label">
+                    <i class="fas fa-search me-1 text-primary"></i> Buscar producto:
+                </label>
+                <input type="text" class="form-control search-input" placeholder="🔍 Buscar producto por nombre o código" id="buscador-producto" oninput="buscarProducto(this.value)">
             </div>
 
             <div id="lista-productos" class="mb-3"></div>
@@ -49,34 +98,45 @@
 
             <input type="hidden" name="carrito_json" id="carrito_json">
 
-            <div class="table-responsive mb-4">
-                <table class="table table-striped table-hover align-middle">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Producto</th>
-                            <th>Lote</th>
-                            <th>Cantidad</th>
-                            <th>Precio</th>
-                            <th>Subtotal</th>
-                            <th>Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody id="carrito-body">
-                        <tr><td colspan="6" class="text-center text-muted">No hay productos en el carrito</td></tr>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="4" class="text-end fw-bold">TOTAL:</td>
-                            <td id="total-carrito" class="fw-bold">$0.00</td>
-                            <td></td>
-                        </tr>
-                    </tfoot>
-                </table>
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fas fa-shopping-basket me-2"></i>Carrito de compra</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-header text-white">
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Lote</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio</th>
+                                    <th>Subtotal</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="carrito-body">
+                                <tr><td colspan="6" class="text-center text-muted py-3">No hay productos en el carrito</td></tr>
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <td colspan="4" class="text-end fw-bold">TOTAL:</td>
+                                    <td id="total-carrito" class="fw-bold text-primary fs-5">$0.00</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
             </div>
 
-            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <button type="submit" class="btn btn-success">
-                    <i class="fas fa-check-circle"></i> Confirmar Venta
+            <div class="d-flex justify-content-between">
+                <button type="button" class="btn btn-outline-danger custom-button" 
+                        onclick="if(confirm('¿Está seguro de cancelar la venta actual?')) {carrito = []; renderizarCarrito();}">
+                    <i class="fas fa-ban me-1"></i> Cancelar
+                </button>
+                <button type="submit" class="btn btn-success custom-button px-4 shadow-sm">
+                    <i class="fas fa-check-circle me-1"></i> Confirmar Venta
                 </button>
             </div>
         </form>
@@ -104,9 +164,14 @@ function buscarProducto(query) {
                 return;
             }
 
-            let html = '<div class="list-group">';
+            let html = '<div class="list-group shadow-sm">';
             productosData.forEach(p => {
-                html += `<button type="button" class="list-group-item list-group-item-action" onclick="mostrarLotes(${p.producto_id}, '${p.nombre}', '${p.codigo_barras}')">${p.nombre} <small class="text-muted">(${p.codigo_barras})</small></button>`;
+                html += `<button type="button" class="list-group-item list-group-item-action product-list-item" onclick="mostrarLotes(${p.producto_id}, '${p.nombre}', '${p.codigo_barras}')">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-pills text-primary me-2"></i>${p.nombre}</span>
+                        <span class="badge bg-secondary rounded-pill">${p.codigo_barras}</span>
+                    </div>
+                </button>`;
             });
             html += '</div>';
             listaProductos.innerHTML = html;
@@ -121,9 +186,17 @@ function mostrarLotes(producto_id, nombre, codigo_barras) {
     fetch(`/ventas/api/lotes/${producto_id}/`)
         .then(res => res.json())
         .then(p => {
-            let html = `<h5 class="mt-3">${nombre} <span class="text-muted">(${codigo_barras})</span></h5>`;
+            let html = `<div class="card shadow-sm mt-3">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0 d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-box me-2"></i>${nombre}</span>
+                        <span class="badge bg-light text-dark">${codigo_barras}</span>
+                    </h5>
+                </div>
+                <div class="card-body">`;
+            
             if (p.lotes.length > 0) {
-                html += `<div class="table-responsive"><table class="table table-sm table-bordered mt-2">
+                html += `<div class="table-responsive"><table class="table table-striped table-bordered mt-2">
                     <thead class="table-light"><tr><th>Lote</th><th>Stock</th><th>Caducidad</th><th>Precio Final</th><th>Cantidad</th><th>Agregar</th></tr></thead><tbody>`;
                 p.lotes.forEach(l => {
                     const inputId = `cant_${p.producto_id}_${l.lote_id}`;
@@ -135,13 +208,14 @@ function mostrarLotes(producto_id, nombre, codigo_barras) {
                         <td><input type="number" id="${inputId}" value="0" min="0" max="${l.stock}" class="form-control form-control-sm"></td>
                         <td><button type="button" class="btn btn-primary btn-sm"
                             onclick="agregarAlCarrito(${p.producto_id}, '${p.nombre}', ${l.lote_id}, '${l.lote}', ${l.precio}, ${l.descuento}, ${l.stock}, parseInt(document.getElementById('${inputId}').value))">
-                            Agregar</button></td>
+                            <i class="fas fa-cart-plus me-1"></i> Agregar</button></td>
                     </tr>`;
                 });
                 html += `</tbody></table></div>`;
             } else {
                 html += `<p class="text-danger mt-2">No hay lotes disponibles.</p>`;
             }
+            html += `</div></div>`;
             lotesDiv.innerHTML = html;
         })
         .catch(err => console.error("Error al cargar lotes:", err));
@@ -217,14 +291,14 @@ function renderizarCarrito() {
         total += parseFloat(item.subtotal);
         tbody.innerHTML += `
             <tr>
-                <td>${item.nombre}</td>
-                <td>${item.lote}</td>
+                <td class="fw-bold text-primary">${item.nombre}</td>
+                <td><span class="badge bg-light text-dark border">${item.lote}</span></td>
                 <td>
                     <input type="number" class="form-control form-control-sm" value="${item.cantidad}" min="1" max="${item.stock}"
                     onchange="actualizarCantidad(${index}, parseInt(this.value))">
                 </td>
-                <td>$${item.precio_unitario}</td>
-                <td>$${item.subtotal}</td>
+                <td class="text-nowrap">$${item.precio_unitario}</td>
+                <td class="text-nowrap fw-bold">$${item.subtotal}</td>
                 <td>
                     <button type="button" class="btn btn-danger btn-sm" onclick="eliminarDelCarrito(${index})">
                         <i class="fas fa-trash"></i>
@@ -273,6 +347,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if (metodoPago) {
         toggleCampoEfectivo();
         metodoPago.addEventListener("change", toggleCampoEfectivo);
+        
+        // Agregar clases Bootstrap al select
+        metodoPago.classList.add('form-select');
+    }
+    
+    // Agregar clases al campo de pago
+    const campoPago = document.getElementById("id_con_cuanto_paga");
+    if (campoPago) {
+        campoPago.classList.add('form-control');
     }
 });
 </script>
