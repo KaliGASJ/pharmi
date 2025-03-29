@@ -16,92 +16,97 @@
         --vit-border: #dee2e6;       /* Borde */
     }
     
-    /* Contenedor principal más compacto */
+    /* Contenedor principal más compacto y aprovechando 100% del espacio */
     .main-container {
-        padding: 0.75rem;
+        padding: 0.5rem;
         max-width: 100%;
+        margin: 0;
     }
     
     /* Encabezado más compacto */
     .page-header {
-        margin-bottom: 0.75rem;
-        padding: 0.5rem;
+        margin-bottom: 0.5rem;
+        padding: 0.4rem 0.75rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-bottom: 1px solid var(--vit-border);
+        background-color: var(--vit-primary);
+        color: white;
+        border-radius: 0.25rem;
     }
     
     .page-title {
-        color: var(--vit-primary);
-        font-size: 1.25rem;
+        color: white;
+        font-size: 1.2rem;
         font-weight: 600;
         margin: 0;
     }
     
-    /* Tarjetas y contenedores */
+    /* Tarjetas y contenedores optimizados */
     .vit-card {
-        border: none;
-        border-radius: 0.5rem;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        margin-bottom: 0.75rem;
+        border: 1px solid var(--vit-border);
+        border-radius: 0.25rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        margin-bottom: 0.5rem;
         background-color: white;
     }
     
     .vit-card-header {
         background-color: var(--vit-primary);
         color: white;
-        padding: 0.6rem 1rem;
+        padding: 0.4rem 0.75rem;
         font-weight: 600;
-        border-top-left-radius: 0.5rem;
-        border-top-right-radius: 0.5rem;
-        font-size: 0.9rem;
+        border-top-left-radius: 0.25rem;
+        border-top-right-radius: 0.25rem;
+        font-size: 0.85rem;
     }
     
     .vit-card-body {
-        padding: 1rem;
+        padding: 0.75rem;
     }
     
     /* Formulario más compacto */
     .form-group {
-        margin-bottom: 0.75rem;
+        margin-bottom: 0.5rem;
     }
     
     .form-label {
         font-weight: 600;
-        font-size: 0.85rem;
-        margin-bottom: 0.25rem;
+        font-size: 0.8rem;
+        margin-bottom: 0.2rem;
         color: var(--vit-dark);
     }
     
     /* Buscador de productos mejorado */
     .search-container {
-        margin-bottom: 1rem;
+        margin-bottom: 0.75rem;
     }
     
     .search-input {
         border-left: 3px solid var(--vit-primary);
         border-radius: 0.25rem;
-        padding: 0.5rem 0.75rem;
-        font-size: 0.9rem;
+        padding: 0.4rem 0.6rem;
+        font-size: 0.85rem;
     }
     
     .search-input:focus {
-        box-shadow: 0 0 0 0.2rem rgba(0, 74, 173, 0.25);
+        box-shadow: 0 0 0 0.15rem rgba(0, 74, 173, 0.25);
         border-color: var(--vit-primary);
     }
     
     /* Resultados de búsqueda */
     .search-results {
-        max-height: 230px;
+        max-height: 200px;
         overflow-y: auto;
-        margin-bottom: 1rem;
+        margin-bottom: 0.75rem;
+        border: 1px solid var(--vit-border);
+        border-radius: 0.25rem;
     }
     
     .product-item {
-        padding: 0.5rem 0.75rem;
+        padding: 0.4rem 0.6rem;
         border-left: 0 solid transparent;
-        transition: all 0.2s;
+        transition: all 0.15s;
         cursor: pointer;
         border-bottom: 1px solid var(--vit-border);
     }
@@ -113,66 +118,69 @@
     
     .product-name {
         font-weight: 600;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
     }
     
     .product-barcode {
-        font-size: 0.8rem;
-        padding: 0.2rem 0.5rem;
+        font-size: 0.75rem;
+        padding: 0.15rem 0.4rem;
         border-radius: 1rem;
         background-color: #e9ecef;
         color: var(--vit-dark);
     }
     
-    /* Tabla de lotes */
+    /* Tabla de lotes optimizada */
     .lote-table {
         width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        font-size: 0.85rem;
+        border-collapse: collapse;
+        font-size: 0.8rem;
     }
     
     .lote-table th {
-        background-color: #f0f0f0;
+        background-color: #e9ecef;
         text-align: center;
-        padding: 0.5rem;
+        padding: 0.4rem;
         font-weight: 600;
-        border-bottom: 2px solid var(--vit-border);
+        border: 1px solid #dee2e6;
     }
     
     .lote-table td {
-        padding: 0.5rem;
-        border-bottom: 1px solid var(--vit-border);
+        padding: 0.4rem;
+        border: 1px solid #dee2e6;
         vertical-align: middle;
-    }
-    
-    /* Carrito de compras */
-    .cart-table {
-        width: 100%;
-        font-size: 0.85rem;
-    }
-    
-    .cart-table th {
-        background-color: #f0f0f0;
-        padding: 0.5rem;
-        font-weight: 600;
         text-align: center;
     }
     
+    /* Carrito de compras optimizado */
+    .cart-table {
+        width: 100%;
+        font-size: 0.8rem;
+        border-collapse: collapse;
+    }
+    
+    .cart-table th {
+        background-color: #e9ecef;
+        padding: 0.4rem;
+        font-weight: 600;
+        text-align: center;
+        border: 1px solid #dee2e6;
+    }
+    
     .cart-table td {
-        padding: 0.5rem;
-        border-bottom: 1px solid var(--vit-border);
+        padding: 0.4rem;
+        border: 1px solid #dee2e6;
         vertical-align: middle;
+        text-align: center;
     }
     
     .cart-empty {
         text-align: center;
-        padding: 2rem 1rem;
+        padding: 1.5rem 1rem;
         color: #6c757d;
     }
     
     .cart-item {
-        transition: background-color 0.2s;
+        transition: background-color 0.15s;
     }
     
     .cart-item:hover {
@@ -180,10 +188,11 @@
     }
     
     .qty-input {
-        width: 4rem;
+        width: 3.5rem;
         text-align: center;
         margin: 0 auto;
-        padding: 0.25rem;
+        padding: 0.2rem;
+        height: 2rem;
     }
     
     .cart-total {
@@ -192,17 +201,17 @@
         color: var(--vit-accent);
     }
     
-    /* Botones */
+    /* Botones más compactos */
     .vit-btn {
         border-radius: 0.25rem;
         font-weight: 600;
-        font-size: 0.85rem;
-        padding: 0.4rem 0.75rem;
+        font-size: 0.8rem;
+        padding: 0.35rem 0.65rem;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        transition: all 0.2s;
+        transition: all 0.15s;
         border: none;
     }
     
@@ -236,6 +245,7 @@
     .vit-btn-outline {
         border: 1px solid var(--vit-border);
         background-color: white;
+        color: var(--vit-primary);
     }
     
     .vit-btn-outline:hover {
@@ -243,8 +253,8 @@
     }
     
     .vit-btn-sm {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.75rem;
+        padding: 0.2rem 0.4rem;
+        font-size: 0.7rem;
     }
     
     .vit-btn-icon {
@@ -254,21 +264,22 @@
     /* Sección de pago */
     .payment-section {
         background-color: var(--vit-light);
-        border-radius: 0.5rem;
+        border-radius: 0.25rem;
         padding: 0.75rem;
-        margin-bottom: 1rem;
+        margin-bottom: 0.75rem;
         border: 1px solid var(--vit-border);
     }
     
-    /* Alertas y mensajes */
+    /* Alertas y mensajes mejorados */
     .vit-alert {
-        padding: 0.75rem;
-        margin-bottom: 1rem;
+        padding: 0.6rem;
+        margin-bottom: 0.75rem;
         border-radius: 0.25rem;
         position: relative;
         font-size: 0.85rem;
         display: flex;
         align-items: center;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
     
     .vit-alert-icon {
@@ -279,19 +290,19 @@
     .vit-alert-success {
         background-color: #d4edda;
         color: #155724;
-        border-left: 3px solid var(--vit-accent);
+        border-left: 4px solid var(--vit-accent);
     }
     
     .vit-alert-warning {
         background-color: #fff3cd;
         color: #856404;
-        border-left: 3px solid var(--vit-warning);
+        border-left: 4px solid var(--vit-warning);
     }
     
     .vit-alert-danger {
         background-color: #f8d7da;
         color: #721c24;
-        border-left: 3px solid var(--vit-danger);
+        border-left: 4px solid var(--vit-danger);
     }
     
     /* Indicadores de carga */
@@ -299,22 +310,60 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 1.5rem;
+        padding: 1rem;
     }
     
     .spinner-icon {
         color: var(--vit-primary);
         margin-right: 0.5rem;
+        font-size: 1.2rem;
     }
     
-    /* Utilizados en alertas y badges */
+    /* Badges e indicadores */
     .lote-badge {
         display: inline-block;
-        padding: 0.2rem 0.5rem;
-        font-size: 0.75rem;
+        padding: 0.15rem 0.4rem;
+        font-size: 0.7rem;
         font-weight: 600;
         border-radius: 1rem;
         background-color: #e9ecef;
+    }
+    
+    /* Diálogos modales personalizados */
+    .modal-vit {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0,0,0,0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1050;
+    }
+    
+    .modal-content-vit {
+        background-color: white;
+        border-radius: 0.3rem;
+        width: 350px;
+        padding: 1rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    
+    .modal-header-vit {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .modal-body-vit {
+        margin-bottom: 1rem;
+    }
+    
+    .modal-footer-vit {
+        display: flex;
+        justify-content: space-between;
     }
     
     /* Ajustes responsive */
@@ -332,10 +381,15 @@
 
 <div class="main-container">
     <div class="page-header">
-        <h2 class="page-title"><i class="fas fa-cash-register me-2"></i>Registrar Venta</h2>
-        <a href="{% url 'authapp:vendedor_dashboard' %}" class="vit-btn vit-btn-outline">
-            <i class="fas fa-arrow-left vit-btn-icon"></i>Regresar
-        </a>
+        <h2 class="page-title"><i class="fas fa-cash-register me-2"></i>💵 Registrar Venta</h2>
+        <div class="d-flex gap-2">
+            <a href="{% url 'ventas:historial_ventas' %}" class="vit-btn vit-btn-primary">
+                <i class="fas fa-history vit-btn-icon"></i>📋 Historial de ventas
+            </a>
+            <a href="{% url 'authapp:vendedor_dashboard' %}" class="vit-btn vit-btn-outline">
+                <i class="fas fa-arrow-left vit-btn-icon"></i>↩️ Regresar
+            </a>
+        </div>
     </div>
 
     {% if messages %}
@@ -352,18 +406,18 @@
 
     <div class="vit-card">
         <div class="vit-card-header">
-            <i class="fas fa-shopping-cart me-2"></i>Formulario de venta
+            <i class="fas fa-shopping-cart me-2"></i>🛒 Formulario de venta
         </div>
         <div class="vit-card-body">
             <form method="post" action="{% url 'ventas:procesar_venta' %}" onsubmit="return enviarVenta()">
                 {% csrf_token %}
                 
-                <!-- Sección de método de pago -->
+                <!-- Sección de método de pago mejorada -->
                 <div class="payment-section">
                     <div class="row">
                         <div class="col-md-6 mb-2">
                             <label class="form-label">
-                                <i class="fas fa-credit-card me-1 text-primary"></i> Método de pago:
+                                <i class="fas fa-credit-card me-1 text-primary"></i>💳 Método de pago:
                             </label>
                             {{ venta_form.metodo_pago }}
                             {% if venta_form.metodo_pago.errors %}
@@ -372,7 +426,7 @@
                         </div>
                         <div class="col-md-6 mb-2" id="campo-efectivo" style="display:none;">
                             <label class="form-label">
-                                <i class="fas fa-money-bill-wave me-1 text-success"></i> Con cuánto paga:
+                                <i class="fas fa-money-bill-wave me-1 text-success"></i>💵 Con cuánto paga:
                             </label>
                             <div class="input-group">
                                 <span class="input-group-text">$</span>
@@ -385,17 +439,17 @@
                     </div>
                 </div>
 
-                <!-- Búsqueda de productos -->
+                <!-- Búsqueda de productos mejorada -->
                 <div class="search-container">
                     <label for="buscador-producto" class="form-label">
-                        <i class="fas fa-search me-1 text-primary"></i> Buscar producto:
+                        <i class="fas fa-search me-1 text-primary"></i>🔍 Buscar producto:
                     </label>
                     <input type="text" class="form-control search-input" 
                         placeholder="🔍 Ingrese nombre o código de barras del producto..." 
                         id="buscador-producto" 
                         oninput="buscarProducto(this.value)"
                         autocomplete="off">
-                    <small class="text-muted d-block mt-1">Ingrese al menos 2 caracteres para iniciar la búsqueda</small>
+                    <small class="text-muted d-block mt-1">📝 Ingrese al menos 2 caracteres para iniciar la búsqueda</small>
                 </div>
 
                 <!-- Resultados de búsqueda -->
@@ -404,21 +458,21 @@
 
                 <input type="hidden" name="carrito_json" id="carrito_json">
 
-                <!-- Carrito de compra -->
+                <!-- Carrito de compra mejorado -->
                 <div class="vit-card mb-3">
                     <div class="vit-card-header">
-                        <i class="fas fa-shopping-basket me-2"></i>Carrito de compra
+                        <i class="fas fa-shopping-basket me-2"></i>🛒 Carrito de compra
                     </div>
                     <div class="table-responsive">
                         <table class="cart-table">
                             <thead>
                                 <tr>
-                                    <th width="35%">Producto</th>
-                                    <th width="15%">Lote</th>
-                                    <th width="15%">Cantidad</th>
-                                    <th width="15%">Precio</th>
-                                    <th width="15%">Subtotal</th>
-                                    <th width="5%">Acción</th>
+                                    <th width="35%">📝 Producto</th>
+                                    <th width="15%">📦 Lote</th>
+                                    <th width="15%">🔢 Cantidad</th>
+                                    <th width="15%">💲 Precio</th>
+                                    <th width="15%">💰 Subtotal</th>
+                                    <th width="5%">⚙️</th>
                                 </tr>
                             </thead>
                             <tbody id="carrito-body">
@@ -438,11 +492,11 @@
                 <!-- Botones de acción -->
                 <div class="d-flex justify-content-between action-buttons">
                     <button type="button" class="vit-btn vit-btn-danger" 
-                        onclick="if(confirm('¿Está seguro de cancelar la venta actual?')) {carrito = []; renderizarCarrito();}">
-                        <i class="fas fa-ban vit-btn-icon"></i>Cancelar venta
+                        onclick="if(confirm('⚠️ ¿Está seguro de cancelar la venta actual? Esta acción eliminará todos los productos del carrito.')) {carrito = []; renderizarCarrito();}">
+                        <i class="fas fa-ban vit-btn-icon"></i>❌ Cancelar venta
                     </button>
                     <button type="submit" class="vit-btn vit-btn-success">
-                        <i class="fas fa-check-circle vit-btn-icon"></i>Confirmar venta
+                        <i class="fas fa-check-circle vit-btn-icon"></i>✅ Confirmar venta
                     </button>
                 </div>
             </form>
@@ -464,7 +518,7 @@ function buscarProducto(query) {
     listaProductos.innerHTML = `
         <div class="loading-spinner">
             <i class="fas fa-spinner fa-pulse spinner-icon"></i>
-            <span>Buscando productos...</span>
+            <span>🔎 Buscando productos...</span>
         </div>`;
 
     fetch(`/ventas/api/buscar/?q=${query}`)
@@ -475,7 +529,7 @@ function buscarProducto(query) {
                 listaProductos.innerHTML = `
                     <div class="vit-alert vit-alert-warning">
                         <i class="fas fa-exclamation-triangle vit-alert-icon"></i>
-                        No se encontraron productos con "<strong>${query}</strong>".
+                        ⚠️ No se encontraron productos con "<strong>${query}</strong>".
                     </div>`;
                 return;
             }
@@ -487,9 +541,9 @@ function buscarProducto(query) {
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <i class="fas fa-pills text-primary me-2"></i>
-                                <span class="product-name">${p.nombre}</span>
+                                <span class="product-name">💊 ${p.nombre}</span>
                             </div>
-                            <span class="product-barcode">${p.codigo_barras}</span>
+                            <span class="product-barcode">🔢 ${p.codigo_barras}</span>
                         </div>
                     </div>`;
             });
@@ -501,7 +555,7 @@ function buscarProducto(query) {
             listaProductos.innerHTML = `
                 <div class="vit-alert vit-alert-danger">
                     <i class="fas fa-times-circle vit-alert-icon"></i>
-                    Error al buscar productos. Intente nuevamente.
+                    ❌ Error al buscar productos. Intente nuevamente.
                 </div>`;
         });
 }
@@ -511,7 +565,7 @@ function mostrarLotes(producto_id, nombre, codigo_barras) {
     lotesDiv.innerHTML = `
         <div class="loading-spinner">
             <i class="fas fa-spinner fa-pulse spinner-icon"></i>
-            <span>Cargando lotes disponibles...</span>
+            <span>⏳ Cargando lotes disponibles...</span>
         </div>`;
 
     fetch(`/ventas/api/lotes/${producto_id}/`)
@@ -521,9 +575,9 @@ function mostrarLotes(producto_id, nombre, codigo_barras) {
                 <div class="vit-card mb-3">
                     <div class="vit-card-header d-flex justify-content-between align-items-center">
                         <div>
-                            <i class="fas fa-box me-2"></i>${nombre}
+                            <i class="fas fa-box me-2"></i>📦 ${nombre}
                         </div>
-                        <span class="product-barcode">${codigo_barras}</span>
+                        <span class="product-barcode">🔢 ${codigo_barras}</span>
                     </div>
                     <div class="vit-card-body">`;
 
@@ -533,12 +587,12 @@ function mostrarLotes(producto_id, nombre, codigo_barras) {
                         <table class="lote-table">
                             <thead>
                                 <tr>
-                                    <th>Lote</th>
-                                    <th>Stock</th>
-                                    <th>Caducidad</th>
-                                    <th>Precio</th>
-                                    <th>Cantidad</th>
-                                    <th>Acción</th>
+                                    <th>📦 Lote</th>
+                                    <th>🔢 Stock</th>
+                                    <th>📅 Caducidad</th>
+                                    <th>💲 Precio</th>
+                                    <th>🔢 Cantidad</th>
+                                    <th>⚙️ Acción</th>
                                 </tr>
                             </thead>
                             <tbody>`;
@@ -565,7 +619,7 @@ function mostrarLotes(producto_id, nombre, codigo_barras) {
                                 <button type="button" 
                                     class="vit-btn vit-btn-primary vit-btn-sm" 
                                     onclick="agregarAlCarrito(${producto_id}, '${nombre.replace(/'/g, "\\'")}', ${l.lote_id}, '${l.lote}', ${l.precio}, ${l.descuento}, ${l.stock}, parseInt(document.getElementById('${inputId}').value))">
-                                    <i class="fas fa-cart-plus vit-btn-icon"></i>Agregar
+                                    <i class="fas fa-cart-plus vit-btn-icon"></i>➕
                                 </button>
                             </td>
                         </tr>`;
@@ -576,7 +630,7 @@ function mostrarLotes(producto_id, nombre, codigo_barras) {
                 html += `
                     <div class="vit-alert vit-alert-danger">
                         <i class="fas fa-exclamation-circle vit-alert-icon"></i>
-                        No hay lotes disponibles para este producto.
+                        ⚠️ No hay lotes disponibles para este producto.
                     </div>`;
             }
 
@@ -588,18 +642,18 @@ function mostrarLotes(producto_id, nombre, codigo_barras) {
             lotesDiv.innerHTML = `
                 <div class="vit-alert vit-alert-danger">
                     <i class="fas fa-times-circle vit-alert-icon"></i>
-                    Error al cargar los lotes. Intente nuevamente.
+                    ❌ Error al cargar los lotes. Intente nuevamente.
                 </div>`;
         });
 }
 
 function agregarAlCarrito(producto_id, nombre, lote_id, lote, precio, descuento, stock, cantidad) {
     if (cantidad <= 0 || cantidad > stock) {
-        alert("⚠ Cantidad inválida.");
+        alert("⚠️ Cantidad inválida. Debe ser entre 1 y " + stock);
         return;
     }
     if (carrito.find(p => p.lote_id === lote_id)) {
-        alert("⚠ Este lote ya fue agregado.");
+        alert("⚠️ Este lote ya fue agregado al carrito.");
         return;
     }
 
@@ -615,7 +669,8 @@ function agregarAlCarrito(producto_id, nombre, lote_id, lote, precio, descuento,
         cantidad,
         precio_unitario: precio_final.toFixed(2),
         subtotal: subtotal.toFixed(2),
-        stock
+        stock,
+        descuento_aplicado: descuento,
     });
     renderizarCarrito();
     
@@ -637,13 +692,13 @@ function eliminarDelCarrito(index) {
     const input = document.getElementById(inputId);
     if (input) {
         input.setAttribute("max", eliminado.stock);
-        input.value = 0;
+        input.value = 1;
     }
 }
 
 function actualizarCantidad(index, nuevaCantidad) {
     if (nuevaCantidad <= 0 || nuevaCantidad > carrito[index].stock) {
-        alert("⚠ Cantidad inválida.");
+        alert("⚠️ Cantidad inválida. Debe ser entre 1 y " + carrito[index].stock);
         renderizarCarrito();
         return;
     }
@@ -661,7 +716,7 @@ function renderizarCarrito() {
             <tr>
                 <td colspan="6" class="cart-empty">
                     <i class="fas fa-shopping-cart fa-2x mb-2 text-muted"></i>
-                    <p>No hay productos en el carrito</p>
+                    <p>🛒 No hay productos en el carrito</p>
                 </td>
             </tr>`;
         document.getElementById("total-carrito").innerText = "$0.00";
@@ -673,8 +728,8 @@ function renderizarCarrito() {
         total += parseFloat(item.subtotal);
         tbody.innerHTML += `
             <tr class="cart-item">
-                <td class="fw-bold">${item.nombre}</td>
-                <td class="text-center"><span class="lote-badge">${item.lote}</span></td>
+                <td class="fw-bold">💊 ${item.nombre}</td>
+                <td class="text-center"><span class="lote-badge">📦 ${item.lote}</span></td>
                 <td class="text-center">
                     <input type="number" 
                         class="form-control qty-input" 
@@ -687,7 +742,7 @@ function renderizarCarrito() {
                 <td class="text-center fw-bold">$${item.subtotal}</td>
                 <td class="text-center">
                     <button class="vit-btn vit-btn-danger vit-btn-sm" onclick="eliminarDelCarrito(${index})">
-                        <i class="fas fa-trash"></i>
+                        <i class="fas fa-trash"></i>❌
                     </button>
                 </td>
             </tr>`;
@@ -698,7 +753,7 @@ function renderizarCarrito() {
 
 function enviarVenta() {
     if (carrito.length === 0) {
-        alert("⚠ Debes agregar al menos un producto al carrito.");
+        alert("⚠️ Debe agregar al menos un producto al carrito para procesar la venta.");
         return false;
     }
 
@@ -709,7 +764,7 @@ function enviarVenta() {
         const total = carrito.reduce((sum, item) => sum + parseFloat(item.subtotal), 0);
         const pagado = parseFloat(pago.value || "0");
         if (pagado < total) {
-            alert(`⚠ El monto pagado ($${pagado.toFixed(2)}) no cubre el total ($${total.toFixed(2)}).`);
+            alert(`⚠️ El monto pagado ($${pagado.toFixed(2)}) no cubre el total de la venta ($${total.toFixed(2)}). Por favor verifique.`);
             return false;
         }
     }
@@ -721,24 +776,24 @@ function enviarVenta() {
 document.addEventListener("DOMContentLoaded", () => {
     // Inicializar carrito
     renderizarCarrito();
-    
+   
     // Configurar método de pago
     const metodo = document.getElementById("id_metodo_pago");
     const campoEfectivo = document.getElementById("campo-efectivo");
     const toggleCampo = () => {
         campoEfectivo.style.display = metodo.options[metodo.selectedIndex]?.text?.toLowerCase().includes("efectivo") ? "block" : "none";
     };
-
+   
     if (metodo) {
         metodo.classList.add('form-select', 'form-select-sm');
         toggleCampo();
         metodo.addEventListener("change", toggleCampo);
     }
-
+   
     // Configurar campo de pago
     const pago = document.getElementById("id_con_cuanto_paga");
     if (pago) pago.classList.add('form-control', 'form-control-sm');
-    
+       
     // Enfocar el buscador al cargar
     document.getElementById("buscador-producto").focus();
 });
