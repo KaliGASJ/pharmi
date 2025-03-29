@@ -122,11 +122,11 @@
             </tr>
             <tr class="total">
                 <td>Total ventas</td>
-                <td>${{ turno.total_ventas_turno|floatformat:2 }}</td>
+                <td>${{ turno.total_ventas_turno|add:"0"|floatformat:2 }}</td>
             </tr>
             <tr class="total">
-                <td>Efectivo final en caja</td>
-                <td>${{ turno.efectivo_final_en_caja|floatformat:2 }}</td>
+                <td><strong>Efectivo en caja</strong></td>
+                <td><strong>${{ turno.efectivo_actual_en_caja|add:"0"|floatformat:2 }}</strong></td>
             </tr>
         </tbody>
     </table>

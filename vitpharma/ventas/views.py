@@ -8,6 +8,7 @@ from weasyprint import HTML
 from decimal import Decimal
 from django.core.files.base import ContentFile
 from django.conf import settings
+from django.db.models import Q
 import json
 
 from .models import Venta, DetalleVenta
@@ -15,15 +16,11 @@ from .forms import VentaForm, CancelarVentaForm
 from turnos.models import Turno
 from inventario.models import Producto, InventarioProducto
 
-
 # -------------------- VERIFICADOR DE ROL --------------------
-
 def es_vendedor(user):
     return user.is_authenticated and user.groups.filter(name='vendedor').exists()
 
-
 # -------------------- DASHBOARD DE REGISTRO DE VENTA --------------------
-
 @login_required
 @user_passes_test(es_vendedor)
 def venta_dashboard(request):
@@ -38,9 +35,7 @@ def venta_dashboard(request):
         'turno': turno
     })
 
-
-# -------------------- API: BUSCADOR DE PRODUCTOS Y LOTES DISPONIBLES --------------------
-
+# -------------------- API: BUSCAR PRODUCTOS --------------------
 @login_required
 @user_passes_test(es_vendedor)
 def api_buscar_productos(request):
@@ -48,42 +43,59 @@ def api_buscar_productos(request):
     resultados = []
 
     if query:
-        productos = Producto.objects.filter(nombre__icontains=query, estado='activo')
+        productos = Producto.objects.filter(
+            Q(nombre__icontains=query) | Q(codigo_barras__icontains=query),
+            estado='activo'
+        )[:10]
+
         for producto in productos:
-            lotes = InventarioProducto.objects.filter(
-                producto=producto,
-                cantidad__gt=0,
-                fecha_caducidad__gte=timezone.now().date()
-            ).order_by("fecha_caducidad")
-
-            lotes_data = []
-            for lote in lotes:
-                precio_final = lote.precio_venta
-                if lote.descuento_porcentaje:
-                    precio_final -= (precio_final * (lote.descuento_porcentaje / 100))
-
-                lotes_data.append({
-                    "lote_id": lote.id_inventario,
-                    "lote": lote.lote,
-                    "stock": lote.cantidad,
-                    "precio": float(lote.precio_venta),
-                    "descuento": float(lote.descuento_porcentaje or 0),
-                    "precio_final": float(round(precio_final, 2)),
-                    "caducidad": lote.fecha_caducidad.strftime("%d/%m/%Y"),
-                })
-
             resultados.append({
                 "producto_id": producto.id_producto,
                 "nombre": producto.nombre,
                 "codigo_barras": producto.codigo_barras,
-                "lotes": lotes_data
             })
 
-    return JsonResponse({"resultados": resultados})
+    return JsonResponse({"productos": resultados})
 
+# -------------------- API: LOTES POR PRODUCTO --------------------
+@login_required
+@user_passes_test(es_vendedor)
+def api_lotes_por_producto(request, producto_id):
+    try:
+        producto = Producto.objects.get(id_producto=producto_id, estado='activo')
+    except Producto.DoesNotExist:
+        return JsonResponse({"error": "Producto no encontrado"}, status=404)
+
+    lotes = InventarioProducto.objects.filter(
+        producto=producto,
+        cantidad__gt=0,
+        fecha_caducidad__gte=timezone.now().date()
+    ).order_by("fecha_caducidad")
+
+    lotes_data = []
+    for lote in lotes:
+        precio_final = lote.precio_venta
+        if lote.descuento_porcentaje:
+            precio_final -= (precio_final * (lote.descuento_porcentaje / 100))
+
+        lotes_data.append({
+            "lote_id": lote.id_inventario,
+            "lote": lote.lote,
+            "stock": lote.cantidad,
+            "precio": float(lote.precio_venta),
+            "descuento": float(lote.descuento_porcentaje or 0),
+            "precio_final": float(round(precio_final, 2)),
+            "caducidad": lote.fecha_caducidad.strftime("%d/%m/%Y"),
+        })
+
+    return JsonResponse({
+        "producto_id": producto.id_producto,
+        "nombre": producto.nombre,
+        "codigo_barras": producto.codigo_barras,
+        "lotes": lotes_data
+    })
 
 # -------------------- PROCESAR VENTA --------------------
-
 @login_required
 @user_passes_test(es_vendedor)
 def procesar_venta(request):
@@ -99,7 +111,7 @@ def procesar_venta(request):
             venta.usuario = request.user
             venta.turno = turno
             venta.usuario_registro = request.user
-            venta.total = Decimal('0.00')  # Se calculará luego
+            venta.total = Decimal('0.00')
 
             carrito_json = request.POST.get("carrito_json")
             if not carrito_json:
@@ -107,7 +119,7 @@ def procesar_venta(request):
                 return redirect('ventas:venta_dashboard')
 
             try:
-                venta.save()  # Necesario para obtener el ID
+                venta.save()
 
                 carrito = json.loads(carrito_json)
                 for item in carrito:
@@ -132,18 +144,19 @@ def procesar_venta(request):
                     lote.cantidad -= cantidad
                     lote.save(update_fields=["cantidad"])
 
-                venta.actualizar_totales()  # Calculamos y actualizamos el total de la venta
+                venta.actualizar_totales()
 
-                # Calcular cambio (solo efectivo)
                 if venta.es_efectivo:
-                    # Calculamos el cambio correctamente
-                    if venta.con_cuanto_paga and venta.con_cuanto_paga >= venta.total:
-                        venta.cambio = venta.calcular_cambio()
-                        venta.save(update_fields=['cambio'])
+                    if venta.con_cuanto_paga is None or venta.con_cuanto_paga < venta.total:
+                        venta.delete()
+                        messages.error(request, "El monto ingresado no cubre el total de la venta.")
+                        return redirect('ventas:venta_dashboard')
+
+                    venta.cambio = venta.calcular_cambio()
+                    venta.save(update_fields=['cambio'])
 
                 venta.registrar_en_turno()
 
-                # ---------------- GENERAR TICKET PDF ----------------
                 html_string = render_to_string('ticket_venta.html', {'venta': venta})
                 html = HTML(string=html_string, base_url=settings.BASE_DIR)
                 pdf_bytes = html.write_pdf()
@@ -162,27 +175,21 @@ def procesar_venta(request):
 
     return redirect("ventas:venta_dashboard")
 
-
 # -------------------- DETALLE DE VENTA --------------------
-
 @login_required
 @user_passes_test(es_vendedor)
 def detalle_venta(request, venta_id):
     venta = get_object_or_404(Venta, id=venta_id, usuario=request.user)
     return render(request, 'detalle_venta.html', {'venta': venta})
 
-
 # -------------------- HISTORIAL DE VENTAS --------------------
-
 @login_required
 @user_passes_test(es_vendedor)
 def historial_ventas(request):
     ventas = Venta.objects.filter(usuario=request.user).order_by('-fecha_hora')
     return render(request, 'historial_ventas.html', {'ventas': ventas})
 
-
 # -------------------- CANCELAR VENTA --------------------
-
 @login_required
 @user_passes_test(es_vendedor)
 def cancelar_venta(request, venta_id):
@@ -206,9 +213,7 @@ def cancelar_venta(request, venta_id):
         'form': form
     })
 
-
-# -------------------- GENERAR PDF DEL TICKET --------------------
-
+# -------------------- GENERAR TICKET PDF --------------------
 @login_required
 @user_passes_test(es_vendedor)
 def generar_ticket_pdf(request, venta_id):
@@ -229,9 +234,7 @@ def generar_ticket_pdf(request, venta_id):
 
     raise Http404("No se pudo generar el ticket PDF.")
 
-
-# -------------------- API: ÚLTIMAS VENTAS --------------------
-
+# -------------------- API JSON DE ÚLTIMAS VENTAS --------------------
 @login_required
 @user_passes_test(es_vendedor)
 def ventas_api_json(request):
@@ -248,9 +251,7 @@ def ventas_api_json(request):
     ]
     return JsonResponse({'ventas': data})
 
-
-# -------------------- FILTRO DE VENTAS POR FECHA --------------------
-
+# -------------------- FILTRO DE VENTAS POR FECHAS --------------------
 @login_required
 @user_passes_test(es_vendedor)
 def ventas_por_fecha(request):

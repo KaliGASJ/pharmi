@@ -48,9 +48,9 @@
                     <p><strong>Ventas con cheque:</strong><br> ${{ turno.monto_total_cheque|floatformat:2 }}</p>
                 </div>
                 <div class="col-md-6">
-                    <p><strong>Total ventas:</strong><br> <span class="fw-bold text-primary">${{ turno.total_ventas_turno|floatformat:2 }}</span></p>
+                    <p><strong>Total ventas:</strong><br> <span class="fw-bold text-primary">${{ turno.total_ventas_turno|add:"0"|floatformat:2 }}</span></p>
                     <p><strong>Total cambios dados:</strong><br> <span class="text-warning fw-bold">${{ turno.total_cambios_dados|floatformat:2 }}</span></p>
-                    <p><strong>Efectivo final en caja:</strong><br> <span class="fw-bold text-dark">${{ turno.efectivo_final_en_caja|floatformat:2 }}</span></p>
+                    <p><strong>Efectivo final en caja:</strong><br> <span class="fw-bold text-dark">${{ turno.efectivo_final_en_caja|add:"0"|floatformat:2 }}</span></p>
                 </div>
             </div>
 

@@ -135,15 +135,15 @@
             </div>
             <div class="money-row">
                 <span class="money-label">Total ventas</span>
-                <span class="money-value primary">${{ turno_activo.total_ventas_turno|floatformat:2 }}</span>
+                <span class="money-value primary">${{ turno_activo.total_ventas_turno|add:"0"|floatformat:2 }}</span>
             </div>
             <div class="money-row">
                 <span class="money-label">Cambios dados</span>
-                <span class="money-value warning">${{ turno_activo.calcular_cambios_dados|floatformat:2 }}</span>
+                <span class="money-value warning">${{ turno_activo.calcular_cambios_dados|add:"0"|floatformat:2 }}</span>
             </div>
             <div class="money-row">
                 <span class="money-label">Efectivo en caja</span>
-                <span class="money-value dark">${{ turno_activo.efectivo_final_en_caja|floatformat:2 }}</span>
+                <span class="money-value dark">${{ turno_activo.efectivo_actual_en_caja|add:"0"|floatformat:2 }}</span>
             </div>
         </div>
     </div>
@@ -176,7 +176,7 @@
                 </tr>
                 <tr class="total-row">
                     <td>TOTAL</td>
-                    <td style="text-align: right;">${{ turno_activo.total_ventas_turno|floatformat:2 }}</td>
+                    <td style="text-align: right;">${{ turno_activo.total_ventas_turno|add:"0"|floatformat:2 }}</td>
                 </tr>
             </tbody>
         </table>

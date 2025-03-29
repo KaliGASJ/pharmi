@@ -10,7 +10,6 @@
     </a>
 </div>
 
-<!-- Mensajes del sistema -->
 {% if messages %}
     {% for message in messages %}
         <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
@@ -24,8 +23,6 @@
     <div class="card-body">
         <form method="post" action="{% url 'ventas:procesar_venta' %}" onsubmit="return enviarVenta()">
             {% csrf_token %}
-
-            <!-- Formulario de método de pago -->
             <div class="row mb-4">
                 <div class="col-md-6">
                     <label for="{{ venta_form.metodo_pago.id_for_label }}" class="form-label">Método de pago:</label>
@@ -43,16 +40,15 @@
                 </div>
             </div>
 
-            <!-- Buscador -->
-            <div class="mb-4">
-                <input type="text" class="form-control" placeholder="🔍 Buscar producto por nombre o código" oninput="buscarProducto(this.value)">
+            <div class="mb-3">
+                <input type="text" class="form-control" placeholder="🔍 Buscar producto por nombre o código" id="buscador-producto" oninput="buscarProducto(this.value)">
             </div>
 
-            <div id="resultados-busqueda" class="mb-4"></div>
+            <div id="lista-productos" class="mb-3"></div>
+            <div id="lotes-producto" class="mb-4"></div>
 
             <input type="hidden" name="carrito_json" id="carrito_json">
 
-            <!-- Carrito -->
             <div class="table-responsive mb-4">
                 <table class="table table-striped table-hover align-middle">
                     <thead class="table-dark">
@@ -78,7 +74,6 @@
                 </table>
             </div>
 
-            <!-- Botón confirmar -->
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                 <button type="submit" class="btn btn-success">
                     <i class="fas fa-check-circle"></i> Confirmar Venta
@@ -90,67 +85,66 @@
 
 <script>
 let carrito = [];
+let productosData = [];
 
 function buscarProducto(query) {
-    if (query.trim().length < 2) {
-        document.getElementById("resultados-busqueda").innerHTML = "";
-        return;
-    }
+    const listaProductos = document.getElementById("lista-productos");
+    const lotesDiv = document.getElementById("lotes-producto");
+    listaProductos.innerHTML = "";
+    lotesDiv.innerHTML = "";
+
+    if (query.trim().length < 2) return;
 
     fetch(`/ventas/api/buscar/?q=${query}`)
-        .then(response => response.json())
+        .then(res => res.json())
         .then(data => {
-            const resultados = data.resultados;
-            let html = "";
-
-            if (resultados.length === 0) {
-                html = `<div class="text-center text-danger">⚠ No se encontraron productos.</div>`;
-            } else {
-                resultados.forEach(p => {
-                    html += `<div class="mb-3 border rounded p-3 shadow-sm bg-light">
-                        <strong>${p.nombre}</strong> <span class="text-muted">(${p.codigo_barras})</span><br>`;
-
-                    if (p.lotes.length > 0) {
-                        html += `<div class="table-responsive">
-                            <table class="table table-sm align-middle table-bordered mt-2">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Lote</th>
-                                        <th>Stock</th>
-                                        <th>Caducidad</th>
-                                        <th>Precio Final</th>
-                                        <th>Cantidad</th>
-                                        <th>Agregar</th>
-                                    </tr>
-                                </thead>
-                                <tbody>`;
-
-                        p.lotes.forEach(l => {
-                            const inputId = `cant_${p.producto_id}_${l.lote_id}`;
-                            html += `<tr>
-                                <td>${l.lote}</td>
-                                <td>${l.stock}</td>
-                                <td>${l.caducidad}</td>
-                                <td>$${l.precio_final}</td>
-                                <td><input type="number" id="${inputId}" value="1" min="1" max="${l.stock}" class="form-control form-control-sm"></td>
-                                <td><button type="button" class="btn btn-sm btn-primary" onclick="agregarAlCarrito(${p.producto_id}, '${p.nombre}', ${l.lote_id}, '${l.lote}', ${l.precio}, ${l.descuento}, ${l.stock}, parseInt(document.getElementById('${inputId}').value))">Agregar</button></td>
-                            </tr>`;
-                        });
-
-                        html += `</tbody></table></div>`;
-                    } else {
-                        html += `<p class="text-danger mt-2">No hay lotes disponibles.</p>`;
-                    }
-
-                    html += `</div>`;
-                });
+            productosData = data.productos;
+            if (productosData.length === 0) {
+                listaProductos.innerHTML = `<div class="text-danger text-center">⚠ No se encontraron productos.</div>`;
+                return;
             }
 
-            document.getElementById("resultados-busqueda").innerHTML = html;
+            let html = '<div class="list-group">';
+            productosData.forEach(p => {
+                html += `<button type="button" class="list-group-item list-group-item-action" onclick="mostrarLotes(${p.producto_id}, '${p.nombre}', '${p.codigo_barras}')">${p.nombre} <small class="text-muted">(${p.codigo_barras})</small></button>`;
+            });
+            html += '</div>';
+            listaProductos.innerHTML = html;
         })
-        .catch(error => {
-            console.error("Error al buscar productos:", error);
-        });
+        .catch(err => console.error("Error:", err));
+}
+
+function mostrarLotes(producto_id, nombre, codigo_barras) {
+    const lotesDiv = document.getElementById("lotes-producto");
+    lotesDiv.innerHTML = "";
+
+    fetch(`/ventas/api/lotes/${producto_id}/`)
+        .then(res => res.json())
+        .then(p => {
+            let html = `<h5 class="mt-3">${nombre} <span class="text-muted">(${codigo_barras})</span></h5>`;
+            if (p.lotes.length > 0) {
+                html += `<div class="table-responsive"><table class="table table-sm table-bordered mt-2">
+                    <thead class="table-light"><tr><th>Lote</th><th>Stock</th><th>Caducidad</th><th>Precio Final</th><th>Cantidad</th><th>Agregar</th></tr></thead><tbody>`;
+                p.lotes.forEach(l => {
+                    const inputId = `cant_${p.producto_id}_${l.lote_id}`;
+                    html += `<tr>
+                        <td>${l.lote}</td>
+                        <td>${l.stock}</td>
+                        <td>${l.caducidad}</td>
+                        <td>$${l.precio_final}</td>
+                        <td><input type="number" id="${inputId}" value="0" min="0" max="${l.stock}" class="form-control form-control-sm"></td>
+                        <td><button type="button" class="btn btn-primary btn-sm"
+                            onclick="agregarAlCarrito(${p.producto_id}, '${p.nombre}', ${l.lote_id}, '${l.lote}', ${l.precio}, ${l.descuento}, ${l.stock}, parseInt(document.getElementById('${inputId}').value))">
+                            Agregar</button></td>
+                    </tr>`;
+                });
+                html += `</tbody></table></div>`;
+            } else {
+                html += `<p class="text-danger mt-2">No hay lotes disponibles.</p>`;
+            }
+            lotesDiv.innerHTML = html;
+        })
+        .catch(err => console.error("Error al cargar lotes:", err));
 }
 
 function agregarAlCarrito(producto_id, nombre, lote_id, lote, precio, descuento, stock, cantidad) {
@@ -159,8 +153,7 @@ function agregarAlCarrito(producto_id, nombre, lote_id, lote, precio, descuento,
         return;
     }
 
-    const existe = carrito.find(p => p.lote_id === lote_id);
-    if (existe) {
+    if (carrito.find(p => p.lote_id === lote_id)) {
         alert("⚠ Este lote ya fue agregado.");
         return;
     }
@@ -177,14 +170,35 @@ function agregarAlCarrito(producto_id, nombre, lote_id, lote, precio, descuento,
         cantidad,
         precio_unitario: precio_final.toFixed(2),
         descuento_aplicado: (precio_unitario - precio_final).toFixed(2),
-        subtotal: subtotal.toFixed(2)
+        subtotal: subtotal.toFixed(2),
+        stock: stock
     });
 
     renderizarCarrito();
 }
 
 function eliminarDelCarrito(index) {
+    const eliminado = carrito[index];
     carrito.splice(index, 1);
+    renderizarCarrito();
+
+    const inputId = `cant_${eliminado.producto_id}_${eliminado.lote_id}`;
+    const input = document.getElementById(inputId);
+    if (input) {
+        const maxActual = parseInt(input.getAttribute("max")) || 0;
+        input.setAttribute("max", maxActual + eliminado.cantidad);
+        input.value = 0;
+    }
+}
+
+function actualizarCantidad(index, nuevaCantidad) {
+    if (nuevaCantidad <= 0 || nuevaCantidad > carrito[index].stock) {
+        alert("⚠ Cantidad inválida.");
+        renderizarCarrito();
+        return;
+    }
+    carrito[index].cantidad = nuevaCantidad;
+    carrito[index].subtotal = (parseFloat(carrito[index].precio_unitario) * nuevaCantidad).toFixed(2);
     renderizarCarrito();
 }
 
@@ -205,7 +219,10 @@ function renderizarCarrito() {
             <tr>
                 <td>${item.nombre}</td>
                 <td>${item.lote}</td>
-                <td>${item.cantidad}</td>
+                <td>
+                    <input type="number" class="form-control form-control-sm" value="${item.cantidad}" min="1" max="${item.stock}"
+                    onchange="actualizarCantidad(${index}, parseInt(this.value))">
+                </td>
                 <td>$${item.precio_unitario}</td>
                 <td>$${item.subtotal}</td>
                 <td>
@@ -213,8 +230,7 @@ function renderizarCarrito() {
                         <i class="fas fa-trash"></i>
                     </button>
                 </td>
-            </tr>
-        `;
+            </tr>`;
     });
 
     document.getElementById("total-carrito").innerText = "$" + total.toFixed(2);
@@ -226,22 +242,32 @@ function enviarVenta() {
         return false;
     }
 
+    const metodoPago = document.getElementById("id_metodo_pago");
+    const campoPago = document.getElementById("id_con_cuanto_paga");
+
+    if (metodoPago && campoPago) {
+        const metodo = metodoPago.options[metodoPago.selectedIndex]?.text?.toLowerCase();
+        if (metodo.includes("efectivo")) {
+            const totalVenta = carrito.reduce((sum, item) => sum + parseFloat(item.subtotal), 0);
+            const montoPagado = parseFloat(campoPago.value || "0");
+            if (montoPagado < totalVenta) {
+                alert(`⚠ El monto pagado ($${montoPagado.toFixed(2)}) no cubre el total ($${totalVenta.toFixed(2)}).`);
+                return false;
+            }
+        }
+    }
+
     document.getElementById("carrito_json").value = JSON.stringify(carrito);
     return true;
 }
 
-// Mostrar campo de efectivo dinámicamente
 document.addEventListener("DOMContentLoaded", () => {
     const metodoPago = document.getElementById("id_metodo_pago");
     const campoEfectivo = document.getElementById("campo-efectivo");
 
     function toggleCampoEfectivo() {
         const selectedText = metodoPago.options[metodoPago.selectedIndex]?.text?.toLowerCase() || '';
-        if (selectedText.includes("efectivo")) {
-            campoEfectivo.style.display = "block";
-        } else {
-            campoEfectivo.style.display = "none";
-        }
+        campoEfectivo.style.display = selectedText.includes("efectivo") ? "block" : "none";
     }
 
     if (metodoPago) {
