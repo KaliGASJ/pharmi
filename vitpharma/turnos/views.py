@@ -144,3 +144,4 @@ def descargar_pdf_turno(request, turno_id):
             return response
     except FileNotFoundError:
         raise Http404("El archivo PDF no fue encontrado.")
+
