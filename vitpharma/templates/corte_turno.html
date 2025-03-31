@@ -8,140 +8,266 @@
             font-family: 'Arial', sans-serif;
             font-size: 13px;
             color: #333;
-            margin: 40px;
+            margin: 30px;
+            line-height: 1.5;
         }
-
-        h1 {
+        
+        .header {
             text-align: center;
-            font-size: 22px;
-            color: #2c3e50;
-            border-bottom: 2px solid #2c3e50;
-            padding-bottom: 10px;
-            margin-bottom: 30px;
-        }
-
-        .info {
             margin-bottom: 20px;
         }
-
-        .info p {
-            margin: 4px 0;
+        
+        .company-name {
+            color: #004AAD;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
         }
-
+        
+        .logo {
+            display: block;
+            margin: 0 auto 10px;
+            height: 60px;
+            width: auto;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 18px;
+            color: #333;
+            margin: 10px 0;
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .divider {
+            border-bottom: 1px solid #004AAD;
+            margin: 15px 0;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 35% 65%;
+            margin-bottom: 20px;
+            border-left: 4px solid #004AAD;
+            padding-left: 10px;
+        }
+        
+        .info-row {
+            display: flex;
+            margin: 5px 0;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            width: 130px;
+            color: #333;
+        }
+        
+        .info-value {
+            flex: 1;
+        }
+        
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 25px;
+            margin: 20px 0;
         }
-
-        th, td {
-            border: 1px solid #888;
+        
+        th {
+            background-color: #004AAD;
+            color: white;
             padding: 8px;
             text-align: left;
-        }
-
-        th {
-            background-color: #f4f4f4;
-        }
-
-        .total {
             font-weight: bold;
+        }
+        
+        td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        tr:nth-child(even) {
             background-color: #f9f9f9;
         }
-
-        .footer {
-            margin-top: 60px;
+        
+        .monto-col {
+            text-align: right;
+            font-family: 'Courier New', monospace;
         }
-
-        .firma {
+        
+        .total-row {
+            background-color: #f0f0f0;
+        }
+        
+        .final-row {
+            background-color: #e6ffec;
+        }
+        
+        .final-row td {
+            border-bottom: 2px solid #28a745;
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .signatures {
+            display: flex;
+            justify-content: space-between;
             margin-top: 80px;
+            margin-bottom: 40px;
+        }
+        
+        .signature {
+            width: 45%;
             text-align: center;
         }
-
-        .firma p {
+        
+        .signature-line {
+            border-top: 1px solid #000;
             margin-bottom: 5px;
         }
-
-        .firma-linea {
-            border-top: 1px solid #000;
-            width: 200px;
-            margin: 0 auto;
+        
+        .signature-name {
+            font-weight: bold;
+        }
+        
+        .signature-title {
+            font-size: 11px;
+            color: #666;
+        }
+        
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            color: #666;
+            margin-top: 30px;
+            font-style: italic;
+        }
+        
+        .has-manual {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .has-auto {
+            color: #dc3545;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-
-    <h1>Reporte de Corte de Caja</h1>
-
-    <div class="info">
-        <p><strong>ID del Turno:</strong> {{ turno.id }}</p>
-        <p><strong>Vendedor:</strong> {{ turno.usuario.username }}</p>
-        <p><strong>Fecha de Inicio:</strong> {{ turno.hora_inicio|date:"d/m/Y H:i" }}</p>
-        <p><strong>Fecha de Cierre:</strong> {{ turno.hora_fin_real|date:"d/m/Y H:i" }}</p>
-        <p><strong>Duración del Turno:</strong> {{ turno.duracion_turno }}</p>
-        <p><strong>Tipo de cierre:</strong>
-            {% if turno.cerrado_automaticamente %}
-                Automático
-            {% else %}
-                Manual
-            {% endif %}
-        </p>
+    <div class="header">
+        <img src="/static/img/log.png" alt="Farmacia Vital" class="logo">
+        <div class="company-name">FARMACIA VITAL</div>
+        <h1>Reporte de Corte de Caja</h1>
+        <p class="subtitle">Documento generado automaticamente - {{ turno.hora_fin_real|date:"d/m/Y H:i" }}</p>
     </div>
-
+    
+    <div class="divider"></div>
+    
+    <div class="info-grid">
+        <div>
+            <div class="info-row">
+                <div class="info-label">ID del Turno:</div>
+                <div class="info-value">{{ turno.id }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Vendedor:</div>
+                <div class="info-value">{{ turno.usuario.first_name }} {{ turno.usuario.last_name }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Fecha de Inicio:</div>
+                <div class="info-value">{{ turno.hora_inicio|date:"d/m/Y H:i" }}</div>
+            </div>
+        </div>
+        <div>
+            <div class="info-row">
+                <div class="info-label">Fecha de Cierre:</div>
+                <div class="info-value">{{ turno.hora_fin_real|date:"d/m/Y H:i" }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Duración del Turno:</div>
+                <div class="info-value">{{ turno.duracion_turno }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Tipo de cierre:</div>
+                <div class="info-value {% if turno.cerrado_automaticamente %}has-auto{% else %}has-manual{% endif %}">
+                    {% if turno.cerrado_automaticamente %}
+                        Automático
+                    {% else %}
+                        Manual
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <table>
         <thead>
             <tr>
                 <th>Concepto</th>
-                <th>Monto</th>
+                <th style="text-align: right;">Monto</th>
             </tr>
         </thead>
         <tbody>
             <tr>
                 <td>Monto inicial</td>
-                <td>${{ turno.monto_inicial|floatformat:2 }}</td>
+                <td class="monto-col">${{ turno.monto_inicial|floatformat:2 }}</td>
             </tr>
             <tr>
                 <td>Ventas en efectivo</td>
-                <td>${{ turno.monto_total_efectivo|floatformat:2 }}</td>
+                <td class="monto-col">${{ turno.monto_total_efectivo|floatformat:2 }}</td>
             </tr>
             <tr>
                 <td>Ventas con tarjeta</td>
-                <td>${{ turno.monto_total_tarjeta|floatformat:2 }}</td>
+                <td class="monto-col">${{ turno.monto_total_tarjeta|floatformat:2 }}</td>
             </tr>
             <tr>
                 <td>Transferencias</td>
-                <td>${{ turno.monto_total_transferencia|floatformat:2 }}</td>
+                <td class="monto-col">${{ turno.monto_total_transferencia|floatformat:2 }}</td>
             </tr>
             <tr>
                 <td>Cheques</td>
-                <td>${{ turno.monto_total_cheque|floatformat:2 }}</td>
+                <td class="monto-col">${{ turno.monto_total_cheque|floatformat:2 }}</td>
             </tr>
             <tr>
                 <td>Total cambios dados</td>
-                <td>${{ turno.total_cambios_dados|floatformat:2 }}</td>
+                <td class="monto-col">${{ turno.total_cambios_dados|floatformat:2 }}</td>
             </tr>
-            <tr class="total">
-                <td>Total ventas</td>
-                <td>${{ turno.total_ventas_turno|add:"0"|floatformat:2 }}</td>
+            <tr class="total-row">
+                <td><strong>Total ventas</strong></td>
+                <td class="monto-col"><strong>${{ turno.total_ventas_turno|add:"0"|floatformat:2 }}</strong></td>
             </tr>
-            <tr class="total">
+            <tr class="final-row">
                 <td><strong>Efectivo en caja</strong></td>
-                <td><strong>${{ turno.efectivo_actual_en_caja|add:"0"|floatformat:2 }}</strong></td>
+                <td class="monto-col"><strong>${{ turno.efectivo_actual_en_caja|add:"0"|floatformat:2 }}</strong></td>
             </tr>
         </tbody>
     </table>
-
+    
     {% if turno.observaciones %}
-    <div class="info">
-        <p><strong>Observaciones:</strong></p>
+    <div>
+        <strong>Observaciones:</strong>
         <p>{{ turno.observaciones }}</p>
     </div>
     {% endif %}
-
-    <div class="firma">
-        <p>Firma del responsable</p>
-        <div class="firma-linea"></div>
+    
+    <div class="signatures">
+        <div class="signature">
+            <div class="signature-line"></div>
+            <div class="signature-name">{{ turno.usuario.first_name }} {{ turno.usuario.last_name }}</div>
+            <div class="signature-title">Vendedor</div>
+        </div>
     </div>
-
+    
+    <div class="footer">
+        Este documento es un reporte oficial del sistema VIT PHARMA y sirve como comprobante de cierre de turno.
+    </div>
 </body>
 </html>

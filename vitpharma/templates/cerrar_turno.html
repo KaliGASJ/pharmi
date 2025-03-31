@@ -4,100 +4,203 @@
 
 {% block content %}
 <style>
-    /* (Los estilos se mantienen igual, sin cambios para no duplicar texto aquí) */
-    /* Todos los estilos que incluís están perfectos y los conservo íntegros */
+    .finalizar-container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+    }
+    .titulo {
+        color: #004AAD;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+    .link-regresar {
+        color: #004AAD;
+        text-decoration: none;
+        margin-bottom: 20px;
+        display: block;
+    }
+    .resumen-card {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+    .resumen-header {
+        background-color: #e3f2fd;
+        padding: 10px 15px;
+        font-weight: bold;
+        border-bottom: 1px solid #dee2e6;
+    }
+    .resumen-body {
+        padding: 15px;
+    }
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    .info-row:last-child {
+        border-bottom: none;
+    }
+    .info-label {
+        font-weight: 500;
+    }
+    .info-value {
+        font-weight: bold;
+    }
+    .value-green {
+        color: green;
+    }
+    .value-blue {
+        color: blue;
+    }
+    .value-yellow {
+        color: #ff9900;
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    .form-label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 5px;
+    }
+    .form-control {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+    }
+    textarea.form-control {
+        min-height: 100px;
+    }
+    .alert-warning {
+        background-color: #fff3cd;
+        border: 1px solid #ffecb5;
+        border-left: 4px solid #ffc107;
+        padding: 12px;
+        margin-bottom: 15px;
+        border-radius: 4px;
+        color: #856404;
+    }
+    .btn-confirmar {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        font-weight: bold;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 100%;
+    }
+    .btn-confirmar:hover {
+        background-color: #c82333;
+    }
 </style>
 
-<div class="container col-lg-7 mt-5">
-    <div class="page-header d-flex justify-content-between align-items-center">
-        <h1 class="header-title">
-            <i class="fas fa-stop-circle"></i>Finalizar Turno
-        </h1>
-        <a href="{% url 'authapp:vendedor_dashboard' %}" class="back-button">
-            <i class="fas fa-arrow-left"></i> Regresar
-        </a>
-    </div>
+<div class="finalizar-container">
+    <h1 class="titulo">Finalizar Turno</h1>
+    <a href="{% url 'authapp:vendedor_dashboard' %}" class="link-regresar">
+        <i class="fas fa-arrow-left"></i> Regresar
+    </a>
 
     {% if messages %}
         {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% elif message.tags == 'danger' %}fa-times-circle{% else %}fa-info-circle{% endif %} me-2"></i>
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3" role="alert">
                 {{ message }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
             </div>
         {% endfor %}
     {% endif %}
 
-    <div class="summary-card">
-        <div class="card-header-custom">
-            <i class="fas fa-info-circle"></i>
-            <span>Resumen del Turno</span>
+    <div class="resumen-card">
+        <div class="resumen-header">
+            Resumen del Turno
         </div>
-        <div class="card-body-custom">
+        <div class="resumen-body">
             <div class="info-row">
                 <div class="info-label">Inicio:</div>
                 <div class="info-value">{{ turno.hora_inicio|date:"d/m/Y H:i" }}</div>
             </div>
             <div class="info-row">
                 <div class="info-label">Monto inicial:</div>
-                <div class="info-value value-success">${{ turno.monto_inicial|floatformat:2 }}</div>
+                <div class="info-value value-green">${{ turno.monto_inicial|floatformat:2 }}</div>
             </div>
             <div class="info-row">
                 <div class="info-label">Total ventas:</div>
-                <div class="info-value value-primary">${{ turno.total_ventas_turno|add:"0"|floatformat:2 }}</div>
+                <div class="info-value value-blue">${{ turno.total_ventas_turno|add:"0"|floatformat:2 }}</div>
             </div>
             <div class="info-row">
                 <div class="info-label">Cambios dados:</div>
-                <div class="info-value value-warning">${{ turno.total_cambios_dados|floatformat:2 }}</div>
+                <div class="info-value value-yellow">${{ turno.calcular_cambios_dados|add:"0"|floatformat:2 }}</div>
             </div>
             <div class="info-row">
-                <div class="info-label">Efectivo final en caja:</div>
-                <div class="info-value value-dark">${{ turno.efectivo_final_en_caja|add:"0"|floatformat:2 }}</div>
+                <div class="info-label">Efectivo en caja:</div>
+                <div class="info-value">${{ turno.efectivo_actual_en_caja|add:"0"|floatformat:2 }}</div>
             </div>
         </div>
     </div>
 
-    <div class="form-card">
-        <div class="card-body-custom">
-            <form method="post" novalidate>
-                {% csrf_token %}
-
-                <div class="form-group">
-                    <label for="{{ form.hora_fin_real.id_for_label }}" class="form-label">
-                        Hora real de cierre:
-                    </label>
-                    {{ form.hora_fin_real }}
-                    {% if form.hora_fin_real.errors %}
-                        <span class="error-message">
-                            {{ form.hora_fin_real.errors|join:", " }}
-                        </span>
-                    {% endif %}
+    <form method="post" novalidate>
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="{{ form.hora_fin_real.id_for_label }}" class="form-label">Hora real de cierre:</label>
+            {{ form.hora_fin_real }}
+            {% if form.hora_fin_real.errors %}
+                <div class="text-danger mt-1">
+                    {{ form.hora_fin_real.errors|join:", " }}
                 </div>
-
-                <div class="form-group">
-                    <label for="{{ form.observaciones.id_for_label }}" class="form-label">
-                        Observaciones (opcional):
-                    </label>
-                    {{ form.observaciones }}
-                    {% if form.observaciones.errors %}
-                        <span class="error-message">
-                            {{ form.observaciones.errors|join:", " }}
-                        </span>
-                    {% endif %}
-                </div>
-
-                <div class="alert-custom">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <div>
-                        Una vez finalices el turno, no podrás modificarlo. Se generará un reporte PDF automáticamente.
-                    </div>
-                </div>
-
-                <button type="submit" class="close-button">
-                    <i class="fas fa-check-circle"></i> Confirmar Cierre del Turno
-                </button>
-            </form>
+            {% endif %}
         </div>
-    </div>
+        
+        <div class="form-group">
+            <label for="{{ form.observaciones.id_for_label }}" class="form-label">Observaciones (opcional):</label>
+            {{ form.observaciones }}
+            {% if form.observaciones.errors %}
+                <div class="text-danger mt-1">
+                    {{ form.observaciones.errors|join:", " }}
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="alert-warning">
+            Una vez finalices el turno, no podrás modificarlo. Se generará un reporte PDF automáticamente.
+        </div>
+        
+        <button type="submit" class="btn-confirmar">Confirmar Cierre del Turno</button>
+    </form>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Aplicar clases a los widgets del formulario
+        var horaFinReal = document.getElementById('{{ form.hora_fin_real.id_for_label }}');
+        var observaciones = document.getElementById('{{ form.observaciones.id_for_label }}');
+        
+        if (horaFinReal) {
+            horaFinReal.classList.add('form-control');
+            
+            // Si la fecha/hora no está inicializada, establecerla como la hora actual
+            if (!horaFinReal.value) {
+                var now = new Date();
+                var year = now.getFullYear();
+                var month = String(now.getMonth() + 1).padStart(2, '0');
+                var day = String(now.getDate()).padStart(2, '0');
+                var hours = String(now.getHours()).padStart(2, '0');
+                var minutes = String(now.getMinutes()).padStart(2, '0');
+                
+                horaFinReal.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+            }
+        }
+        
+        if (observaciones) {
+            observaciones.classList.add('form-control');
+        }
+    });
+</script>
 {% endblock %}
