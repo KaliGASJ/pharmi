@@ -3,127 +3,469 @@
 {% block title %}Detalle de Venta | VIT PHARMA{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-4">
+<style>
+    :root {
+        --primary-color: #004aad;
+        --primary-light: #e6f0ff;
+        --secondary-color: #0056b3;
+        --success-color: #28a745;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+        --light-color: #f8f9fa;
+        --dark-color: #343a40;
+        --border-radius: 0.5rem;
+        --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        --transition: all 0.3s ease;
+    }
 
+    .venta-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1.5rem;
+    }
+
+    .venta-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--primary-light);
+    }
+
+    .venta-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .venta-id {
+        font-size: 1.5rem;
+        font-weight: 600;
+        padding: 0.25rem 0.75rem;
+        background-color: var(--primary-light);
+        color: var(--primary-color);
+        border-radius: var(--border-radius);
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background-color: var(--light-color);
+        border: 1px solid #e0e0e0;
+        border-radius: var(--border-radius);
+        color: var(--dark-color);
+        font-weight: 600;
+        text-decoration: none;
+        transition: var(--transition);
+    }
+
+    .back-btn:hover {
+        background-color: #e9ecef;
+        transform: translateY(-2px);
+    }
+
+    .info-card {
+        background-color: white;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--box-shadow);
+        margin-bottom: 1.5rem;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .card-header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 1rem 1.5rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .info-item {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s;
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .info-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .info-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .info-icon {
+        color: var(--primary-color);
+        font-size: 1.2rem;
+    }
+
+    .info-label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        font-weight: 600;
+    }
+
+    .info-value {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--dark-color);
+    }
+
+    /* Estilos específicos para cada tipo de información */
+    .info-user {
+        border-left-color: #6f42c1;
+    }
+    .info-user .info-icon {
+        color: #6f42c1;
+    }
+
+    .info-date {
+        border-left-color: #17a2b8;
+    }
+    .info-date .info-icon {
+        color: #17a2b8;
+    }
+
+    .info-payment {
+        border-left-color: #fd7e14;
+    }
+    .info-payment .info-icon {
+        color: #fd7e14;
+    }
+
+    .info-money {
+        border-left-color: var(--success-color);
+    }
+    .info-money .info-icon {
+        color: var(--success-color);
+    }
+
+    .info-change {
+        border-left-color: var(--warning-color);
+    }
+    .info-change .info-icon {
+        color: var(--warning-color);
+    }
+
+    .info-status {
+        border-left-color: #20c997;
+    }
+    .info-status .info-icon {
+        color: #20c997;
+    }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .badge-active {
+        background-color: rgba(40, 167, 69, 0.15);
+        color: var(--success-color);
+        border: 1px solid rgba(40, 167, 69, 0.3);
+    }
+
+    .badge-cancelled {
+        background-color: rgba(220, 53, 69, 0.15);
+        color: var(--danger-color);
+        border: 1px solid rgba(220, 53, 69, 0.3);
+    }
+
+    .products-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .products-table th {
+        text-align: left;
+        padding: 1rem;
+        background-color: #f8f9fa;
+        font-weight: 600;
+        color: var(--dark-color);
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .products-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #e9ecef;
+        vertical-align: middle;
+    }
+
+    .products-table tbody tr:hover {
+        background-color: rgba(0, 74, 173, 0.02);
+    }
+
+    .product-name {
+        font-weight: 600;
+        color: var(--dark-color);
+    }
+
+    .lote-badge {
+        display: inline-block;
+        background-color: var(--primary-light);
+        color: var(--primary-color);
+        padding: 0.35rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .text-end {
+        text-align: right;
+    }
+
+    .price {
+        font-weight: 600;
+        font-family: 'Roboto Mono', monospace, system-ui;
+        white-space: nowrap;
+    }
+
+    .price-total {
+        font-size: 1.15rem;
+        color: var(--primary-color);
+    }
+
+    .subtotal {
+        color: var(--success-color);
+    }
+
+    .actions-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 1.5rem;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--border-radius);
+        font-weight: 600;
+        text-decoration: none;
+        transition: var(--transition);
+        border: none;
+        font-size: 0.95rem;
+        cursor: pointer;
+    }
+
+    .btn-cancel {
+        background-color: var(--danger-color);
+        color: white;
+    }
+
+    .btn-cancel:hover {
+        background-color: #c82333;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.25);
+    }
+
+    .btn-pdf {
+        background-color: white;
+        color: var(--primary-color);
+        border: 1px solid var(--primary-color);
+    }
+
+    .btn-pdf:hover {
+        background-color: var(--primary-color);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 74, 173, 0.25);
+    }
+
+    @media (max-width: 768px) {
+        .venta-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .products-table {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+        }
+        
+        .actions-container {
+            flex-direction: column-reverse;
+            gap: 1rem;
+        }
+        
+        .btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="venta-container">
     <!-- Encabezado -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0 text-primary">
-            <i class="fas fa-file-invoice-dollar me-2 text-primary"></i>
-            Detalle de Venta <span class="text-dark">#{{ venta.id }}</span>
-        </h2>
-        <a href="{% url 'ventas:historial_ventas' %}" class="btn btn-outline-secondary btn-sm">
-            <i class="fas fa-arrow-left me-1"></i> Regresar
+    <div class="venta-header">
+        <div class="venta-title">
+            <i class="fas fa-file-invoice-dollar"></i>
+            Detalle de Venta <span class="venta-id">#{{ venta.id }}</span>
+        </div>
+        <a href="{% url 'ventas:historial_ventas' %}" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Volver al historial
         </a>
     </div>
 
     <!-- Información general -->
-    <div class="card shadow-sm border-0 mb-4">
+    <div class="info-card">
+        <div class="card-header">
+            <i class="fas fa-info-circle"></i>
+            Información de la venta
+        </div>
         <div class="card-body">
-            <div class="row g-3 mb-3">
-                <div class="col-md-4">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-user text-primary me-2"></i>
-                        <div>
-                            <strong>Vendedor:</strong><br>
-                            {{ venta.usuario.username }}
-                        </div>
+            <div class="info-grid">
+                <div class="info-item info-user">
+                    <div class="info-header">
+                        <i class="fas fa-user info-icon"></i>
+                        <span class="info-label">Vendedor</span>
                     </div>
+                    <div class="info-value">{{ venta.usuario.username }}</div>
                 </div>
-                <div class="col-md-4">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-calendar-alt text-primary me-2"></i>
-                        <div>
-                            <strong>Fecha y Hora:</strong><br>
-                            {{ venta.fecha_hora|date:"d/m/Y H:i" }}
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-credit-card text-primary me-2"></i>
-                        <div>
-                            <strong>Método de Pago:</strong><br>
-                            {% if venta.metodo_pago %}
-                                {{ venta.metodo_pago.nombre }}
-                            {% else %}
-                                N/D
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            {% if venta.metodo_pago and venta.metodo_pago.nombre|lower == 'efectivo' %}
-            <div class="row g-3 mb-3">
-                <div class="col-md-4">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-money-bill-wave text-success me-2"></i>
-                        <div>
-                            <strong>Con cuánto pagó:</strong><br>
-                            ${{ venta.con_cuanto_paga|floatformat:2 }}
-                        </div>
+                <div class="info-item info-date">
+                    <div class="info-header">
+                        <i class="fas fa-calendar-alt info-icon"></i>
+                        <span class="info-label">Fecha y Hora</span>
                     </div>
+                    <div class="info-value">{{ venta.fecha_hora|date:"d/m/Y H:i" }}</div>
                 </div>
-                <div class="col-md-4">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-hand-holding-usd text-warning me-2"></i>
-                        <div>
-                            <strong>Cambio:</strong><br>
-                            ${{ venta.cambio|floatformat:2 }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
 
-            <div class="row mt-2">
-                <div class="col-md-4">
-                    <strong><i class="fas fa-check-circle me-1 text-info"></i>Estado:</strong>
-                    {% if venta.estado == 'activa' %}
-                        <span class="badge bg-success px-3 py-2 rounded-pill">Activa</span>
-                    {% else %}
-                        <span class="badge bg-danger px-3 py-2 rounded-pill">Cancelada</span>
-                    {% endif %}
+                <div class="info-item info-payment">
+                    <div class="info-header">
+                        <i class="fas fa-credit-card info-icon"></i>
+                        <span class="info-label">Método de Pago</span>
+                    </div>
+                    <div class="info-value">
+                        {% if venta.metodo_pago %}
+                            {{ venta.metodo_pago.nombre }}
+                        {% else %}
+                            No disponible
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if venta.metodo_pago and venta.metodo_pago.es_efectivo %}
+                <div class="info-item info-money">
+                    <div class="info-header">
+                        <i class="fas fa-money-bill-wave info-icon"></i>
+                        <span class="info-label">Con cuánto pagó</span>
+                    </div>
+                    <div class="info-value">${{ venta.con_cuanto_paga|floatformat:2 }}</div>
+                </div>
+
+                <div class="info-item info-change">
+                    <div class="info-header">
+                        <i class="fas fa-hand-holding-usd info-icon"></i>
+                        <span class="info-label">Cambio entregado</span>
+                    </div>
+                    <div class="info-value">${{ venta.cambio|floatformat:2 }}</div>
+                </div>
+                {% endif %}
+
+                <div class="info-item info-status">
+                    <div class="info-header">
+                        <i class="fas fa-check-circle info-icon"></i>
+                        <span class="info-label">Estado</span>
+                    </div>
+                    <div class="info-value">
+                        {% if venta.estado == 'activa' %}
+                            <span class="badge badge-active">
+                                <i class="fas fa-check-circle"></i> Activa
+                            </span>
+                        {% else %}
+                            <span class="badge badge-cancelled">
+                                <i class="fas fa-times-circle"></i> Cancelada
+                            </span>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Tabla de productos vendidos -->
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header bg-primary text-white d-flex align-items-center">
-            <i class="fas fa-shopping-basket me-2"></i>
-            <h5 class="mb-0">Productos Vendidos</h5>
+    <div class="info-card">
+        <div class="card-header">
+            <i class="fas fa-shopping-basket"></i>
+            Productos Vendidos
         </div>
-        <div class="card-body p-0">
+        <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered table-hover align-middle mb-0">
-                    <thead class="table-light text-center">
+                <table class="products-table">
+                    <thead>
                         <tr>
                             <th>Producto</th>
-                            <th>Lote</th>
-                            <th>Cantidad</th>
-                            <th>Precio Unitario</th>
-                            <th>Descuento</th>
-                            <th>Subtotal</th>
+                            <th class="text-center">Lote</th>
+                            <th class="text-center">Cantidad</th>
+                            <th class="text-end">Precio Unitario</th>
+                            <th class="text-end">Descuento</th>
+                            <th class="text-end">Subtotal</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for item in venta.detalles.all %}
                         <tr>
-                            <td>{{ item.producto.nombre }}</td>
-                            <td class="text-center">{{ item.lote.codigo_lote }}</td>
+                            <td class="product-name">{{ item.producto.nombre }}</td>
+                            <td class="text-center">
+                                <span class="lote-badge">{{ item.lote.codigo_lote }}</span>
+                            </td>
                             <td class="text-center">{{ item.cantidad }}</td>
-                            <td class="text-center">${{ item.precio_unitario|floatformat:2 }}</td>
-                            <td class="text-center">${{ item.descuento_aplicado|floatformat:2 }}</td>
-                            <td class="text-center fw-bold text-success">${{ item.subtotal|floatformat:2 }}</td>
+                            <td class="text-end price">${{ item.precio_unitario|floatformat:2 }}</td>
+                            <td class="text-end price">${{ item.descuento_aplicado|floatformat:2 }}</td>
+                            <td class="text-end price subtotal">${{ item.subtotal|floatformat:2 }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
-                    <tfoot class="table-light">
+                    <tfoot>
                         <tr>
-                            <td colspan="5" class="text-end fw-bold">TOTAL:</td>
-                            <td class="fw-bold text-primary text-center">${{ venta.total|floatformat:2 }}</td>
+                            <td colspan="5" class="text-end" style="font-weight: 700; padding: 1.25rem 1rem;">TOTAL:</td>
+                            <td class="text-end price price-total">${{ venta.total|floatformat:2 }}</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -132,19 +474,17 @@
     </div>
 
     <!-- Acciones -->
-    <div class="d-flex justify-content-between align-items-center mt-4">
-        {% if venta.estado == 'activa' %}
-            <a href="{% url 'ventas:cancelar_venta' venta.id %}" class="btn btn-danger shadow-sm">
-                <i class="fas fa-times-circle me-1"></i> Cancelar Venta
-            </a>
-        {% else %}
-            <span></span>
-        {% endif %}
-
-        <a href="{% url 'ventas:generar_ticket_pdf' venta.id %}" class="btn btn-outline-primary shadow-sm" target="_blank">
-            <i class="fas fa-file-pdf me-1"></i> Ver Ticket PDF
+    <div class="actions-container">
+        <div>
+            {% if venta.estado == 'activa' %}
+                <a href="{% url 'ventas:cancelar_venta' venta.id %}" class="btn btn-cancel">
+                    <i class="fas fa-times-circle"></i> Cancelar Venta
+                </a>
+            {% endif %}
+        </div>
+        <a href="{% url 'ventas:generar_ticket_pdf' venta.id %}" class="btn btn-pdf" target="_blank">
+            <i class="fas fa-file-pdf"></i> Ver Ticket PDF
         </a>
     </div>
-
 </div>
 {% endblock %}

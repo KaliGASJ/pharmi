@@ -3,86 +3,526 @@
 {% block title %}Historial de Ventas | VIT PHARMA{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-4">
+<style>
+    :root {
+        --primary-color: #004aad;
+        --primary-light: #e6f0ff;
+        --secondary-color: #0056b3;
+        --success-color: #28a745;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+        --light-color: #f8f9fa;
+        --dark-color: #343a40;
+        --border-radius: 0.5rem;
+        --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        --transition: all 0.3s ease;
+    }
 
-    <!-- Encabezado y botón de regreso -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0"><i class="fas fa-history me-2"></i>Historial de Ventas</h2>
-        <a href="{% url 'ventas:venta_dashboard' %}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left"></i> Regresar
-        </a>
+    .historial-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1.5rem;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--primary-light);
+    }
+
+    .page-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .actions-container {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1.2rem;
+        border-radius: var(--border-radius);
+        font-weight: 600;
+        text-decoration: none;
+        transition: var(--transition);
+        border: none;
+        font-size: 0.9rem;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--secondary-color);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 74, 173, 0.25);
+    }
+
+    .btn-outline {
+        background-color: white;
+        color: var(--dark-color);
+        border: 1px solid #dee2e6;
+    }
+
+    .btn-outline:hover {
+        background-color: var(--light-color);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .filter-card {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .filter-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .filter-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .form-group {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--dark-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.6rem 0.8rem;
+        border: 1px solid #dee2e6;
+        border-radius: var(--border-radius);
+        font-size: 0.9rem;
+        transition: var(--transition);
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(0, 74, 173, 0.25);
+        outline: none;
+    }
+
+    .ventas-table-container {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .ventas-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .ventas-table th {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .ventas-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #e9ecef;
+        vertical-align: middle;
+    }
+
+    .ventas-table tr:hover {
+        background-color: var(--primary-light);
+    }
+
+    .ventas-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .venta-id {
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        font-size: 0.8rem;
+    }
+
+    .badge-active {
+        background-color: rgba(40, 167, 69, 0.15);
+        color: var(--success-color);
+        border: 1px solid rgba(40, 167, 69, 0.3);
+    }
+
+    .badge-cancelled {
+        background-color: rgba(220, 53, 69, 0.15);
+        color: var(--danger-color);
+        border: 1px solid rgba(220, 53, 69, 0.3);
+    }
+
+    .price {
+        font-weight: 600;
+        font-family: 'Roboto Mono', monospace, system-ui;
+        white-space: nowrap;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .text-end {
+        text-align: right;
+    }
+
+    .actions-group {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-sm {
+        padding: 0.35rem 0.65rem;
+        font-size: 0.8rem;
+    }
+
+    .btn-info {
+        background-color: #17a2b8;
+        color: white;
+    }
+
+    .btn-info:hover {
+        background-color: #138496;
+    }
+
+    .btn-pdf {
+        background-color: #e83e8c;
+        color: white;
+    }
+
+    .btn-pdf:hover {
+        background-color: #d6337c;
+    }
+
+    .empty-state {
+        padding: 3rem 2rem;
+        text-align: center;
+        color: #6c757d;
+    }
+
+    .empty-state-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: #adb5bd;
+    }
+
+    .empty-state-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--dark-color);
+    }
+
+    .alert {
+        padding: 1rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .alert-info {
+        background-color: #cfe2ff;
+        color: #084298;
+        border-left: 4px solid #0d6efd;
+    }
+
+    .alert-warning {
+        background-color: #fff3cd;
+        color: #856404;
+        border-left: 4px solid var(--warning-color);
+    }
+
+    .alert-success {
+        background-color: #d1e7dd;
+        color: #155724;
+        border-left: 4px solid var(--success-color);
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border-left: 4px solid var(--danger-color);
+    }
+
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 1.5rem;
+    }
+
+    .pagination {
+        display: flex;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .page-item {
+        border-right: 1px solid #dee2e6;
+    }
+
+    .page-item:last-child {
+        border-right: none;
+    }
+
+    .page-link {
+        display: block;
+        padding: 0.5rem 0.85rem;
+        text-decoration: none;
+        color: var(--primary-color);
+        background-color: white;
+        transition: var(--transition);
+    }
+
+    .page-link:hover {
+        background-color: var(--primary-light);
+    }
+
+    .page-item.active .page-link {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .actions-container {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .btn {
+            width: 100%;
+        }
+
+        .filter-form {
+            flex-direction: column;
+        }
+
+        .form-group {
+            width: 100%;
+        }
+
+        .ventas-table {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .actions-group {
+            flex-direction: column;
+        }
+
+        .btn-sm {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="historial-container">
+    <!-- Encabezado de página -->
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-history"></i>
+            Historial de Ventas
+        </h1>
+        <div class="actions-container">
+            <a href="{% url 'ventas:venta_dashboard' %}" class="btn btn-outline">
+                <i class="fas fa-arrow-left"></i> Regresar
+            </a>
+            <a href="{% url 'ventas:ventas_por_fecha' %}" class="btn btn-primary">
+                <i class="fas fa-calendar-alt"></i> Filtrar por Fecha
+            </a>
+        </div>
     </div>
 
     <!-- Mensajes del sistema -->
     {% if messages %}
         {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            <div class="alert alert-{{ message.tags }}" role="alert">
+                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% elif message.tags == 'danger' %}fa-times-circle{% else %}fa-info-circle{% endif %}"></i>
+                <div>{{ message }}</div>
             </div>
         {% endfor %}
     {% endif %}
 
-    <!-- Tabla de historial de ventas -->
-    <div class="card shadow-sm">
-        <div class="card-body p-0">
-            {% if ventas %}
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover mb-0 align-middle">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>#</th>
-                                <th>Fecha</th>
-                                <th>Total</th>
-                                <th>Método de Pago</th>
-                                <th>Estado</th>
-                                <th class="text-center">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for venta in ventas %}
-                            <tr>
-                                <td>#{{ venta.id }}</td>
-                                <td>{{ venta.fecha_hora|date:"d/m/Y H:i" }}</td>
-                                <td>${{ venta.total|floatformat:2 }}</td>
-                                <td>
-                                    {% if venta.metodo_pago %}
-                                        {{ venta.metodo_pago.nombre }}
-                                    {% else %}
-                                        N/D
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if venta.estado == 'activa' %}
-                                        <span class="badge bg-success">Activa</span>
-                                    {% else %}
-                                        <span class="badge bg-danger">Cancelada</span>
-                                    {% endif %}
-                                </td>
-                                <td class="text-center">
-                                    <a href="{% url 'ventas:detalle_venta' venta.id %}" class="btn btn-sm btn-info me-1" title="Ver detalle">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    {% if venta.ticket_pdf %}
-                                    <a href="{% url 'ventas:generar_ticket_pdf' venta.id %}" class="btn btn-sm btn-primary" target="_blank" title="Ver Ticket PDF">
-                                        <i class="fas fa-file-pdf"></i>
-                                    </a>
-                                    {% else %}
-                                    <span class="badge bg-secondary">Sin PDF</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+    <!-- Tabla de ventas -->
+    <div class="ventas-table-container">
+        {% if ventas %}
+            <table class="ventas-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th class="text-end">Total</th>
+                        <th>Método de Pago</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for venta in ventas %}
+                    <tr>
+                        <td class="venta-id">#{{ venta.id }}</td>
+                        <td>{{ venta.fecha_hora|date:"d/m/Y H:i" }}</td>
+                        <td class="text-end price">${{ venta.total|floatformat:2 }}</td>
+                        <td>
+                            {% if venta.metodo_pago %}
+                                <i class="fas {% if 'efectivo' in venta.metodo_pago.nombre|lower %}fa-money-bill-wave text-success{% elif 'tarjeta' in venta.metodo_pago.nombre|lower %}fa-credit-card text-primary{% elif 'transferencia' in venta.metodo_pago.nombre|lower %}fa-exchange-alt text-info{% else %}fa-money-check text-warning{% endif %} me-2"></i>
+                                {{ venta.metodo_pago.nombre }}
+                            {% else %}
+                                <span class="text-muted">N/D</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if venta.estado == 'activa' %}
+                                <span class="badge badge-active">
+                                    <i class="fas fa-check-circle"></i> Activa
+                                </span>
+                            {% else %}
+                                <span class="badge badge-cancelled">
+                                    <i class="fas fa-times-circle"></i> Cancelada
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="actions-group">
+                                <a href="{% url 'ventas:detalle_venta' venta.id %}" class="btn btn-sm btn-info" title="Ver detalle">
+                                    <i class="fas fa-eye"></i> Detalle
+                                </a>
+                                
+                                {% if venta.ticket_pdf %}
+                                <a href="{% url 'ventas:generar_ticket_pdf' venta.id %}" class="btn btn-sm btn-pdf" target="_blank" title="Ver Ticket PDF">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </a>
+                                {% else %}
+                                <span class="badge text-bg-secondary">Sin PDF</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="fas fa-receipt"></i>
                 </div>
-            {% else %}
-                <div class="alert alert-info m-3">
-                    <i class="fas fa-info-circle me-2"></i> No hay ventas registradas aún.
-                </div>
-            {% endif %}
-        </div>
+                <h3 class="empty-state-title">No hay ventas registradas</h3>
+                <p>Aún no has registrado ninguna venta en el sistema.</p>
+                <a href="{% url 'ventas:venta_dashboard' %}" class="btn btn-primary mt-3">
+                    <i class="fas fa-cash-register"></i> Registrar una venta
+                </a>
+            </div>
+        {% endif %}
     </div>
 
+    <!-- Paginación (opcional) -->
+    {% if ventas.has_other_pages %}
+    <div class="pagination-container">
+        <ul class="pagination">
+            {% if ventas.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1" aria-label="Primera">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ ventas.previous_page_number }}" aria-label="Anterior">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                </li>
+            {% endif %}
+            
+            {% for num in ventas.paginator.page_range %}
+                {% if ventas.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% elif num > ventas.number|add:'-3' and num < ventas.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if ventas.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ ventas.next_page_number }}" aria-label="Siguiente">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ ventas.paginator.num_pages }}" aria-label="Última">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

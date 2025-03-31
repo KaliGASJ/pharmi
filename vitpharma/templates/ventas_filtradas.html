@@ -3,19 +3,522 @@
 {% block title %}Ventas por Fecha | VIT PHARMA{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-4">
+<style>
+    :root {
+        --primary-color: #004aad;
+        --primary-light: #e6f0ff;
+        --primary-dark: #00377f;
+        --secondary-color: #0056b3;
+        --success-color: #28a745;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+        --light-color: #f8f9fa;
+        --dark-color: #343a40;
+        --gray-100: #f8f9fa;
+        --gray-200: #e9ecef;
+        --gray-300: #dee2e6;
+        --gray-400: #ced4da;
+        --gray-500: #adb5bd;
+        --gray-600: #6c757d;
+        --gray-700: #495057;
+        --gray-800: #343a40;
+        --gray-900: #212529;
+        --border-radius: 0.5rem;
+        --box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+        --transition: all 0.3s ease;
+    }
 
-    <!-- Encabezado y volver -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">
-            <i class="fas fa-calendar-alt me-2"></i>Ventas por Rango de Fechas
-        </h2>
-        <a href="{% url 'ventas:venta_dashboard' %}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left"></i> Regresar
-        </a>
+    .page-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1.5rem;
+    }
+
+    .header-section {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .header-section::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 6px;
+        height: 100%;
+        background-color: var(--primary-color);
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0;
+    }
+
+    .page-title {
+        margin: 0;
+        color: var(--primary-color);
+        font-size: 1.75rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .page-title i {
+        font-size: 1.8rem;
+    }
+
+    .page-subtitle {
+        color: var(--gray-600);
+        margin-top: 0.5rem;
+        font-size: 1rem;
+        font-weight: 400;
+    }
+
+    .filter-form-container {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        padding: 1.75rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .filter-title {
+        margin: 0 0 1.5rem 0;
+        color: var(--gray-800);
+        font-size: 1.2rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .filter-title i {
+        color: var(--primary-color);
+    }
+
+    .filter-form {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        align-items: flex-end;
+    }
+
+    .form-group {
+        margin-bottom: 0;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--gray-700);
+        font-size: 0.9rem;
+    }
+
+    .form-control {
+        display: block;
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: var(--gray-800);
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid var(--gray-300);
+        border-radius: var(--border-radius);
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem rgba(0, 74, 173, 0.25);
+    }
+
+    .btn {
+        display: inline-block;
+        font-weight: 600;
+        line-height: 1.5;
+        color: #212529;
+        text-align: center;
+        text-decoration: none;
+        vertical-align: middle;
+        cursor: pointer;
+        user-select: none;
+        background-color: transparent;
+        border: 1px solid transparent;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.95rem;
+        border-radius: var(--border-radius);
+        transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        color: #fff;
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+    .btn-primary:hover {
+        color: #fff;
+        background-color: var(--primary-dark);
+        border-color: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 0.3rem 0.5rem rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-outline {
+        color: var(--gray-700);
+        border-color: var(--gray-300);
+        background-color: white;
+    }
+
+    .btn-outline:hover {
+        color: var(--gray-900);
+        background-color: var(--gray-100);
+        border-color: var(--gray-400);
+        transform: translateY(-2px);
+        box-shadow: 0 0.3rem 0.5rem rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.5rem;
+        height: 2.5rem;
+        padding: 0;
+        border-radius: 50%;
+        font-size: 1rem;
+    }
+
+    .results-container {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.05);
+        margin-bottom: 1.5rem;
+    }
+
+    .results-header {
+        background-color: var(--primary-light);
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .results-title {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .results-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 2rem;
+        height: 2rem;
+        padding: 0 0.65rem;
+        font-size: 0.85rem;
+        font-weight: 700;
+        line-height: 1;
+        color: #fff;
+        background-color: var(--primary-color);
+        border-radius: 2rem;
+    }
+
+    .ventas-table {
+        width: 100%;
+        margin-bottom: 0;
+        border-collapse: collapse;
+    }
+
+    .ventas-table th,
+    .ventas-table td {
+        padding: 1rem 1.25rem;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .ventas-table thead th {
+        font-weight: 600;
+        color: var(--gray-700);
+        background-color: var(--gray-100);
+        border-bottom: 2px solid var(--gray-300);
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.03em;
+    }
+
+    .ventas-table tbody tr:hover {
+        background-color: rgba(0, 74, 173, 0.03);
+    }
+
+    .ventas-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .badge {
+        display: inline-flex;
+        padding: 0.35em 0.65em;
+        font-size: 0.75em;
+        font-weight: 700;
+        line-height: 1;
+        color: #fff;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 50rem;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .badge-success {
+        color: #006644;
+        background-color: #E3FCEF;
+        border: 1px solid #ABF5D1;
+    }
+
+    .badge-danger {
+        color: #B42318;
+        background-color: #FFEBE6;
+        border: 1px solid #FFBDAD;
+    }
+
+    .badge-secondary {
+        color: var(--gray-700);
+        background-color: var(--gray-200);
+        border: 1px solid var(--gray-300);
+    }
+
+    .venta-id {
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+
+    .price {
+        font-weight: 600;
+        font-family: 'Roboto Mono', monospace, system-ui;
+        white-space: nowrap;
+    }
+
+    .actions-group {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.2rem;
+        height: 2.2rem;
+        padding: 0;
+        font-size: 0.9rem;
+        border-radius: 50%;
+        transition: all 0.2s ease;
+    }
+
+    .btn-action:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.3rem 0.5rem rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-detail {
+        color: white;
+        background-color: #17a2b8;
+        border-color: #17a2b8;
+    }
+
+    .btn-detail:hover {
+        background-color: #138496;
+        border-color: #117a8b;
+    }
+
+    .btn-pdf {
+        color: white;
+        background-color: #e83e8c;
+        border-color: #e83e8c;
+    }
+
+    .btn-pdf:hover {
+        background-color: #d6337c;
+        border-color: #d6337c;
+    }
+
+    .payment-method {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .payment-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.8rem;
+        height: 1.8rem;
+        border-radius: 50%;
+        background-color: var(--primary-light);
+        color: var(--primary-color);
+    }
+
+    .empty-alert {
+        display: flex;
+        align-items: center;
+        padding: 1.5rem;
+        margin: 1.5rem;
+        background-color: #e6f7ff;
+        border: 1px solid #91d5ff;
+        border-radius: var(--border-radius);
+        color: #1890ff;
+    }
+
+    .empty-icon {
+        font-size: 1.5rem;
+        margin-right: 1rem;
+    }
+
+    .date-range-summary {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: var(--gray-600);
+        font-size: 0.9rem;
+        margin-top: 0.25rem;
+    }
+
+    .date-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.35rem 0.75rem;
+        background-color: var(--primary-light);
+        border-radius: 2rem;
+        color: var(--primary-color);
+        font-weight: 600;
+        font-size: 0.8rem;
+    }
+
+    .summary-box {
+        padding: 1.5rem;
+        background-color: white;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--gray-200);
+        margin-top: 1.5rem;
+        text-align: center;
+    }
+
+    .summary-item {
+        display: inline-block;
+        padding: 1rem 2rem;
+        background-color: var(--primary-light);
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .summary-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--gray-600);
+        margin-bottom: 0.5rem;
+    }
+
+    .summary-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+
+    .highlight-row td {
+        background-color: var(--primary-light) !important;
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .filter-form {
+            grid-template-columns: 1fr;
+        }
+
+        .actions-group {
+            flex-direction: column;
+        }
+
+        .summary-box {
+            flex-direction: column;
+        }
+
+        .btn-action {
+            width: 100%;
+            height: auto;
+            border-radius: var(--border-radius);
+            padding: 0.5rem;
+        }
+    }
+</style>
+
+<div class="page-container">
+    <!-- Encabezado de la página -->
+    <div class="header-section">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">
+                    <i class="fas fa-calendar-alt"></i>
+                    Ventas por Fechas
+                </h1>
+                {% if fecha_inicio or fecha_fin %}
+                <div class="date-range-summary">
+                    <span>Periodo:</span>
+                    {% if fecha_inicio %}
+                    <div class="date-pill">
+                        <i class="fas fa-calendar-day"></i> Desde: {{ fecha_inicio|date:"d/m/Y" }}
+                    </div>
+                    {% endif %}
+                    {% if fecha_fin %}
+                    <div class="date-pill">
+                        <i class="fas fa-calendar-day"></i> Hasta: {{ fecha_fin|date:"d/m/Y" }}
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <p class="page-subtitle">Consulta tus ventas por rango de fechas específico</p>
+                {% endif %}
+            </div>
+            <a href="{% url 'ventas:venta_dashboard' %}" class="btn btn-outline">
+                <i class="fas fa-arrow-left"></i> Volver al panel
+            </a>
+        </div>
     </div>
 
-    <!-- Mensajes -->
+    <!-- Mensajes del sistema -->
     {% if messages %}
         {% for message in messages %}
             <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
@@ -26,86 +529,195 @@
     {% endif %}
 
     <!-- Formulario de filtro -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <form method="get" class="row g-3">
-                <div class="col-md-4">
-                    <label for="inicio" class="form-label">Desde:</label>
-                    <input type="date" name="inicio" id="inicio" class="form-control" value="{{ fecha_inicio }}">
-                </div>
-                <div class="col-md-4">
-                    <label for="fin" class="form-label">Hasta:</label>
-                    <input type="date" name="fin" id="fin" class="form-control" value="{{ fecha_fin }}">
-                </div>
-                <div class="col-md-4 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-search"></i> Filtrar
-                    </button>
-                </div>
-            </form>
-        </div>
+    <div class="filter-form-container">
+        <h3 class="filter-title">
+            <i class="fas fa-filter"></i>
+            Filtrar ventas por periodo
+        </h3>
+        <form method="get" class="filter-form">
+            <div class="form-group">
+                <label for="inicio" class="form-label">Fecha inicial:</label>
+                <input type="date" name="inicio" id="inicio" class="form-control" value="{{ fecha_inicio }}">
+            </div>
+            <div class="form-group">
+                <label for="fin" class="form-label">Fecha final:</label>
+                <input type="date" name="fin" id="fin" class="form-control" value="{{ fecha_fin }}">
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+            </div>
+        </form>
     </div>
 
     <!-- Resultados -->
-    <div class="card shadow-sm">
-        <div class="card-body p-0">
+    <div class="results-container">
+        <div class="results-header">
+            <h3 class="results-title">
+                <i class="fas fa-receipt"></i>
+                Ventas encontradas
+                {% if ventas %}
+                <span class="results-count">{{ ventas|length }}</span>
+                {% endif %}
+            </h3>
             {% if ventas %}
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover mb-0 align-middle">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>ID</th>
-                                <th>Fecha</th>
-                                <th>Total</th>
-                                <th>Método</th>
-                                <th>Estado</th>
-                                <th class="text-center">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for venta in ventas %}
-                            <tr>
-                                <td>#{{ venta.id }}</td>
-                                <td>{{ venta.fecha_hora|date:"d/m/Y H:i" }}</td>
-                                <td>${{ venta.total|floatformat:2 }}</td>
-                                <td>
-                                    {% if venta.metodo_pago %}
-                                        {{ venta.metodo_pago.nombre }}
-                                    {% else %}
-                                        N/D
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if venta.estado == 'activa' %}
-                                        <span class="badge bg-success">Activa</span>
-                                    {% else %}
-                                        <span class="badge bg-danger">Cancelada</span>
-                                    {% endif %}
-                                </td>
-                                <td class="text-center">
-                                    <a href="{% url 'ventas:detalle_venta' venta.id %}" class="btn btn-sm btn-info me-1" title="Ver detalle">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    {% if venta.ticket_pdf %}
-                                        <a href="{% url 'ventas:generar_ticket_pdf' venta.id %}" target="_blank" class="btn btn-sm btn-primary" title="Ver Ticket PDF">
-                                            <i class="fas fa-file-pdf"></i>
-                                        </a>
-                                    {% else %}
-                                        <span class="badge bg-secondary">Sin PDF</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            {% else %}
-                <div class="alert alert-info m-3">
-                    <i class="fas fa-info-circle"></i> No se encontraron ventas para el rango seleccionado.
-                </div>
+            <a href="#" onclick="exportToExcel()" class="btn btn-outline btn-sm">
+                <i class="fas fa-file-excel"></i> Exportar
+            </a>
             {% endif %}
         </div>
-    </div>
 
+        {% if ventas %}
+            <div class="table-responsive">
+                <table class="ventas-table" id="ventasTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 8%">ID</th>
+                            <th style="width: 20%">Fecha y Hora</th>
+                            <th style="width: 15%" class="text-end">Total</th>
+                            <th style="width: 22%">Método de Pago</th>
+                            <th style="width: 15%" class="text-center">Estado</th>
+                            <th style="width: 20%" class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for venta in ventas %}
+                        <tr {% if forloop.first %}class="highlight-row"{% endif %}>
+                            <td class="venta-id">#{{ venta.id }}</td>
+                            <td>{{ venta.fecha_hora|date:"d/m/Y H:i" }}</td>
+                            <td class="text-end price">${{ venta.total|floatformat:2 }}</td>
+                            <td>
+                                <div class="payment-method">
+                                    {% if venta.metodo_pago %}
+                                        <div class="payment-icon">
+                                            <i class="fas 
+                                                {% if 'efectivo' in venta.metodo_pago.nombre|lower %}fa-money-bill-wave
+                                                {% elif 'tarjeta' in venta.metodo_pago.nombre|lower %}fa-credit-card
+                                                {% elif 'transferencia' in venta.metodo_pago.nombre|lower %}fa-exchange-alt
+                                                {% else %}fa-money-check
+                                                {% endif %}">
+                                            </i>
+                                        </div>
+                                        <span>{{ venta.metodo_pago.nombre }}</span>
+                                    {% else %}
+                                        <span class="text-muted">No disponible</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                {% if venta.estado == 'activa' %}
+                                    <span class="badge badge-success">
+                                        <i class="fas fa-check-circle"></i> Activa
+                                    </span>
+                                {% else %}
+                                    <span class="badge badge-danger">
+                                        <i class="fas fa-times-circle"></i> Cancelada
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="actions-group">
+                                    <a href="{% url 'ventas:detalle_venta' venta.id %}" class="btn btn-action btn-detail" title="Ver detalle">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    
+                                    {% if venta.ticket_pdf %}
+                                    <a href="{% url 'ventas:generar_ticket_pdf' venta.id %}" class="btn btn-action btn-pdf" target="_blank" title="Ver Ticket PDF">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </a>
+                                    {% else %}
+                                    <span class="badge badge-secondary" title="No hay ticket PDF disponible">Sin PDF</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Resumen de ventas filtradas -->
+            <div class="summary-box">
+                <div class="summary-item">
+                    <div class="summary-label">Total Ventas</div>
+                    <div class="summary-value">{{ ventas|length }}</div>
+                </div>
+            </div>
+        {% else %}
+            <div class="empty-alert">
+                <i class="fas fa-info-circle empty-icon"></i>
+                <div>
+                    <strong>Sin resultados</strong>
+                    <p class="mb-0">No se encontraron ventas en el rango de fechas seleccionado.</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
 </div>
+
+<script>
+    function exportToExcel() {
+        const table = document.getElementById("ventasTable");
+        if (!table) return;
+        
+        // Crear una matriz para almacenar los datos
+        let data = [];
+        const rows = table.querySelectorAll("tr");
+        
+        // Encabezados
+        const headers = ["ID", "Fecha y Hora", "Total", "Método de Pago", "Estado"];
+        data.push(headers);
+        
+        // Filas de datos (excluyendo la columna de acciones)
+        for (let i = 1; i < rows.length; i++) { // Comenzamos desde 1 para saltar la fila de encabezado
+            const cols = rows[i].querySelectorAll("td");
+            if (cols.length === 0) continue;
+            
+            const rowData = [];
+            // Solo procesamos las primeras 5 columnas (ID, Fecha, Total, Método, Estado)
+            for (let j = 0; j < 5; j++) {
+                let cellData = cols[j].innerText.trim();
+                
+                // Para el estado, solo guardamos "Activa" o "Cancelada"
+                if (j === 4) {
+                    cellData = cellData.includes("Activa") ? "Activa" : "Cancelada";
+                }
+                
+                rowData.push(cellData);
+            }
+            data.push(rowData);
+        }
+        
+        // Crear el contenido del archivo Excel (formato compatible con CSV)
+        let csvContent = "";
+        data.forEach(function(rowArray) {
+            let row = rowArray.map(cell => {
+                // Escapar comillas y envolver en comillas si es necesario
+                if (typeof cell === 'string' && (cell.includes(',') || cell.includes('"') || cell.includes('\n'))) {
+                    return '"' + cell.replace(/"/g, '""') + '"';
+                }
+                return cell;
+            }).join(",");
+            csvContent += row + "\r\n";
+        });
+        
+        // Crear el archivo y forzar la descarga
+        const filename = "ventas_" + new Date().toISOString().slice(0, 10) + ".csv";
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        
+        if (navigator.msSaveBlob) { // IE 10+
+            navigator.msSaveBlob(blob, filename);
+        } else {
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", filename);
+            link.style.visibility = "hidden";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }
+</script>
 {% endblock %}
