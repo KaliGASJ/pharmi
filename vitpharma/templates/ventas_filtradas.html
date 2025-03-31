@@ -423,38 +423,13 @@
         font-size: 0.8rem;
     }
 
-    .summary-box {
-        padding: 1.5rem;
-        background-color: white;
-        border-radius: var(--border-radius);
-        border: 1px solid var(--gray-200);
-        margin-top: 1.5rem;
-        text-align: center;
-    }
-
-    .summary-item {
-        display: inline-block;
-        padding: 1rem 2rem;
-        background-color: var(--primary-light);
-        border-radius: 0.5rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-
-    .summary-label {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: var(--gray-600);
-        margin-bottom: 0.5rem;
-    }
-
-    .summary-value {
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: var(--primary-color);
-    }
-
     .highlight-row td {
         background-color: var(--primary-light) !important;
+    }
+
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
     }
 
     @media (max-width: 768px) {
@@ -469,10 +444,6 @@
         }
 
         .actions-group {
-            flex-direction: column;
-        }
-
-        .summary-box {
             flex-direction: column;
         }
 
@@ -636,14 +607,6 @@
                     </tbody>
                 </table>
             </div>
-
-            <!-- Resumen de ventas filtradas -->
-            <div class="summary-box">
-                <div class="summary-item">
-                    <div class="summary-label">Total Ventas</div>
-                    <div class="summary-value">{{ ventas|length }}</div>
-                </div>
-            </div>
         {% else %}
             <div class="empty-alert">
                 <i class="fas fa-info-circle empty-icon"></i>
@@ -661,12 +624,20 @@
         const table = document.getElementById("ventasTable");
         if (!table) return;
         
+        // Configuración para el Excel
+        const workbook = {
+            SheetNames: ['Ventas'],
+            Sheets: {
+                'Ventas': {}
+            }
+        };
+        
         // Crear una matriz para almacenar los datos
         let data = [];
         const rows = table.querySelectorAll("tr");
         
         // Encabezados
-        const headers = ["ID", "Fecha y Hora", "Total", "Método de Pago", "Estado"];
+        const headers = ["ID de Venta", "Fecha y Hora", "Total ($)", "Método de Pago", "Estado"];
         data.push(headers);
         
         // Filas de datos (excluyendo la columna de acciones)
@@ -679,6 +650,16 @@
             for (let j = 0; j < 5; j++) {
                 let cellData = cols[j].innerText.trim();
                 
+                // Limpiar el ID (quitar el #)
+                if (j === 0) {
+                    cellData = cellData.replace('#', '');
+                }
+                
+                // Formatear el precio correctamente
+                if (j === 2) {
+                    cellData = cellData.replace('$', '');
+                }
+                
                 // Para el estado, solo guardamos "Activa" o "Cancelada"
                 if (j === 4) {
                     cellData = cellData.includes("Activa") ? "Activa" : "Cancelada";
@@ -689,12 +670,12 @@
             data.push(rowData);
         }
         
-        // Crear el contenido del archivo Excel (formato compatible con CSV)
-        let csvContent = "";
+        // Crear el contenido del archivo Excel (formato CSV bien estructurado)
+        let csvContent = "sep=,\n"; // Indicador de separador para Excel
         data.forEach(function(rowArray) {
             let row = rowArray.map(cell => {
                 // Escapar comillas y envolver en comillas si es necesario
-                if (typeof cell === 'string' && (cell.includes(',') || cell.includes('"') || cell.includes('\n'))) {
+                if (cell && typeof cell === 'string' && (cell.includes(',') || cell.includes('"') || cell.includes('\n'))) {
                     return '"' + cell.replace(/"/g, '""') + '"';
                 }
                 return cell;
@@ -702,8 +683,17 @@
             csvContent += row + "\r\n";
         });
         
+        // Metadatos para mejor compatibilidad con Excel
+        const excelMetadata = "\uFEFF"; // BOM para UTF-8
+        csvContent = excelMetadata + csvContent;
+        
+        // Generar nombre de archivo con fecha y hora
+        const now = new Date();
+        const formattedDate = now.toISOString().slice(0, 10);
+        const formattedTime = now.toTimeString().slice(0, 8).replace(/:/g, '-');
+        const filename = `Reporte_Ventas_${formattedDate}_${formattedTime}.csv`;
+        
         // Crear el archivo y forzar la descarga
-        const filename = "ventas_" + new Date().toISOString().slice(0, 10) + ".csv";
         const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
         
         if (navigator.msSaveBlob) { // IE 10+
@@ -717,6 +707,11 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            
+            // Notificar al usuario
+            setTimeout(() => {
+                alert("El reporte se ha descargado correctamente.");
+            }, 500);
         }
     }
 </script>
