@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Departamento | VIT PHARMA{% endblock %}
+
+{% block content %}
+<style>
+    .container {
+        max-width: 600px;
+        margin: auto;
+        padding: 30px;
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .form-title {
+        text-align: center;
+        font-size: 26px;
+        font-weight: bold;
+        color: #004AAD;
+        margin-bottom: 30px;
+    }
+
+    form .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-weight: bold;
+        color: #333;
+    }
+
+    input[type="text"] {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 15px;
+    }
+
+    .buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30px;
+    }
+
+    .btn-save {
+        background-color: #FFC107;
+        color: black;
+        padding: 12px 20px;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-save:hover {
+        background-color: #e0a800;
+    }
+
+    .btn-cancel {
+        background-color: #6c757d;
+        color: white;
+        padding: 12px 20px;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-cancel:hover {
+        background-color: #5a6268;
+    }
+</style>
+
+<div class="container">
+    <h2 class="form-title">✏️ Editar Departamento</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.nombre.label_tag }}
+            {{ form.nombre }}
+            {{ form.nombre.errors }}
+        </div>
+
+        <div class="buttons">
+            <button type="submit" class="btn-save">💾 Guardar Cambios</button>
+            <a href="{% url 'inventario:listar_departamentos' %}" class="btn-cancel">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

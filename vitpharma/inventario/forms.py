@@ -1,5 +1,5 @@
 from django import forms
-from .models import Producto, InventarioProducto, Proveedor
+from .models import Producto, InventarioProducto, Proveedor, Categoria, Departamento
 from datetime import date
 
 # -------------------- FORMULARIO DE REGISTRO Y EDICIÓN DE PRODUCTOS --------------------
@@ -46,7 +46,7 @@ class AgregarLoteForm(forms.ModelForm):
 
     class Meta:
         model = InventarioProducto
-        exclude = ["codigo_lote"]  # No se muestra, se asigna automáticamente
+        exclude = ["codigo_lote"]
         labels = {
             "producto": "Producto",
             "lote": "Número de Lote",
@@ -143,10 +143,7 @@ class EditarLoteForm(forms.ModelForm):
         widgets = {
             "lote": forms.TextInput(attrs={"class": "form-control"}),
             "codigo_lote": forms.TextInput(attrs={"class": "form-control", "readonly": "readonly"}),
-            "fecha_caducidad": forms.DateInput(
-                attrs={"type": "date", "class": "form-control"},
-                format="%Y-%m-%d"
-            ),
+            "fecha_caducidad": forms.DateInput(attrs={"type": "date", "class": "form-control"}, format="%Y-%m-%d"),
             "precio_compra": forms.NumberInput(attrs={"class": "form-control", "step": "0.01", "min": "0"}),
             "precio_venta": forms.NumberInput(attrs={"class": "form-control", "step": "0.01", "min": "0"}),
             "cantidad": forms.NumberInput(attrs={"class": "form-control", "min": "0"}),
@@ -166,10 +163,8 @@ class EditarLoteForm(forms.ModelForm):
 
         if cantidad is None or cantidad < 0:
             self.add_error("cantidad", "La cantidad debe ser mayor o igual a cero.")
-
         if precio_venta is not None and precio_compra is not None and precio_venta < precio_compra:
             self.add_error("precio_venta", "El precio de venta no puede ser menor al precio de compra.")
-
         return cleaned_data
 
 
@@ -210,4 +205,54 @@ class EliminarProveedorForm(forms.Form):
     confirmacion = forms.BooleanField(
         required=True,
         label="Confirmo que deseo eliminar este proveedor"
+    )
+
+
+# -------------------- FORMULARIOS PARA CATEGORÍAS --------------------
+
+class AgregarCategoriaForm(forms.ModelForm):
+    class Meta:
+        model = Categoria
+        fields = ["nombre"]
+        widgets = {
+            "nombre": forms.TextInput(attrs={"class": "form-control"}),
+        }
+
+class EditarCategoriaForm(forms.ModelForm):
+    class Meta:
+        model = Categoria
+        fields = ["nombre"]
+        widgets = {
+            "nombre": forms.TextInput(attrs={"class": "form-control"}),
+        }
+
+class EliminarCategoriaForm(forms.Form):
+    confirmacion = forms.BooleanField(
+        required=True,
+        label="Confirmo que deseo eliminar esta categoría"
+    )
+
+
+# -------------------- FORMULARIOS PARA DEPARTAMENTOS --------------------
+
+class AgregarDepartamentoForm(forms.ModelForm):
+    class Meta:
+        model = Departamento
+        fields = ["nombre"]
+        widgets = {
+            "nombre": forms.TextInput(attrs={"class": "form-control"}),
+        }
+
+class EditarDepartamentoForm(forms.ModelForm):
+    class Meta:
+        model = Departamento
+        fields = ["nombre"]
+        widgets = {
+            "nombre": forms.TextInput(attrs={"class": "form-control"}),
+        }
+
+class EliminarDepartamentoForm(forms.Form):
+    confirmacion = forms.BooleanField(
+        required=True,
+        label="Confirmo que deseo eliminar este departamento"
     )

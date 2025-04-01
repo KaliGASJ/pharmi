@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Lista de Proveedores | VIT PHARMA{% endblock %}
+{% block title %}Lista de Departamentos | VIT PHARMA{% endblock %}
 
 {% block content %}
 <style>
@@ -152,38 +152,32 @@
             <a href="javascript:history.back()" class="btn btn-regresar">🔙 Regresar</a>
         {% endif %}
 
-        <a href="{% url 'inventario:agregar_proveedor' %}" class="btn btn-agregar">➕ Agregar Proveedor</a>
+        <a href="{% url 'inventario:agregar_departamento' %}" class="btn btn-agregar">➕ Agregar Departamento</a>
     </div>
 
     <div class="table-container">
-        {% if proveedores %}
+        {% if departamentos %}
         <table>
             <thead>
                 <tr>
                     <th>Nombre</th>
-                    <th>Dirección</th>
-                    <th>Teléfono</th>
-                    <th>Correo Electrónico</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                {% for proveedor in proveedores %}
+                {% for departamento in departamentos %}
                 <tr>
-                    <td>{{ proveedor.nombre }}</td>
-                    <td>{{ proveedor.direccion|default:"-" }}</td>
-                    <td>{{ proveedor.telefono|default:"-" }}</td>
-                    <td>{{ proveedor.email|default:"-" }}</td>
+                    <td>{{ departamento.nombre }}</td>
                     <td class="acciones">
-                        <a href="{% url 'inventario:editar_proveedor' proveedor.id_proveedor %}" class="btn-editar">✏️ Editar</a>
-                        <a href="{% url 'inventario:eliminar_proveedor' proveedor.id_proveedor %}" class="btn-eliminar">🗑 Eliminar</a>
+                        <a href="{% url 'inventario:editar_departamento' departamento.id_departamento %}" class="btn-editar">✏️ Editar</a>
+                        <a href="{% url 'inventario:eliminar_departamento' departamento.id_departamento %}" class="btn-eliminar">🗑 Eliminar</a>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
         {% else %}
-        <p class="no-data">✅ No hay proveedores registrados.</p>
+        <p class="no-data">✅ No hay departamentos registrados.</p>
         {% endif %}
     </div>
 </div>

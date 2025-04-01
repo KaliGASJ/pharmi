@@ -91,7 +91,7 @@ class Producto(models.Model):
 class InventarioProducto(models.Model):
     id_inventario = models.AutoField(primary_key=True)
     producto = models.ForeignKey(Producto, related_name="lotes", on_delete=models.CASCADE, null=False)
-    lote = models.CharField(max_length=50, default="SIN-LOTE", null=False)
+    lote = models.CharField(max_length=50, default="", null=False)
     codigo_lote = models.CharField(max_length=30, unique=True, null=False, blank=True)
     id_proveedor = models.ForeignKey(Proveedor, related_name="productos_proveedor", on_delete=models.SET_NULL, null=True)
     fecha_caducidad = models.DateField(blank=True, null=True)

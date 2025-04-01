@@ -97,8 +97,10 @@
 
     tr:hover { background-color: #f1f1f1; }
 
-    .low-stock { color: #DC3545; font-weight: bold; }
-    .expiring { color: #FFC107; font-weight: bold; }
+    .low-stock td {
+        color: #DC3545;
+        font-weight: bold;
+    }
 
     .action-buttons {
         display: flex;
@@ -158,10 +160,15 @@
         </thead>
         <tbody>
             {% for producto in productos %}
-            <tr class="{% if producto.total_stock <= 5 %}low-stock{% elif producto.proximo_a_caducar %}expiring{% endif %}">
+            <tr class="{% if producto.total_stock <= producto.stock_minimo %}low-stock{% endif %}">
                 <td title="{{ producto.nombre }}">{{ producto.nombre|truncatechars:20 }}</td>
                 <td>{{ producto.codigo_barras|default:"N/A" }}</td>
-                <td>{{ producto.total_stock }}</td>
+                <td>
+                    {{ producto.total_stock }}
+                    {% if producto.total_stock <= producto.stock_minimo %}
+                        <span title="Bajo Stock">🔻</span>
+                    {% endif %}
+                </td>
                 <td class="action-buttons">
                     <a href="{% url 'inventario:detalle_producto' producto.id_producto %}" class="btn-small view-button">👁 Ver</a>
                     <a href="{% url 'inventario:detalle_lotes' producto.id_producto %}" class="btn-small stock-button">📦 Lotes</a>

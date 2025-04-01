@@ -75,6 +75,7 @@
         color: white;
         transition: transform 0.2s ease-in-out, box-shadow 0.3s;
         box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        width: 260px;
     }
 
     .button:hover {
@@ -84,20 +85,32 @@
     }
 
     .list-button {
-        background: linear-gradient(to right, #007BFF, #0056b3);
+        background: linear-gradient(to right, #007BFF, #0056b3); /* azul */
     }
 
     .bajo-stock-button {
-        background: linear-gradient(to right, #c82333, #dc3545);
+        background: linear-gradient(to right, #dc3545, #b02a37); /* rojo */
     }
 
     .caducidad-button {
-        background: linear-gradient(to right, #ffc107, #e0a800);
-        color: black;
+        background: linear-gradient(to right, #ffc107, #e0a800); /* amarillo */
+        color: #212529;
+    }
+
+    .proveedores-button {
+        background: linear-gradient(to right, #fd7e14, #e8590c); /* naranja */
+    }
+
+    .departamentos-button {
+        background: linear-gradient(to right, #6f42c1, #5a32a3); /* morado */
+    }
+
+    .categorias-button {
+        background: linear-gradient(to right, #17a2b8, #138496); /* cyan */
     }
 
     .back-button {
-        background: linear-gradient(to right, #6c757d, #495057);
+        background: linear-gradient(to right, #6c757d, #495057); /* gris */
     }
 </style>
 
@@ -106,9 +119,12 @@
 
     <!-- Botones de acción -->
     <div class="button-container">
-        <a href="{% url 'inventario:listar_productos' %}" class="button list-button">📋 Lista de Productos</a>
+        <a href="{% url 'inventario:listar_productos' %}" class="button list-button">📋 Productos</a>
         <a href="{% url 'inventario:productos_bajo_stock' %}" class="button bajo-stock-button">🔻 Bajo Stock</a>
-        <a href="{% url 'inventario:lotes_proximos_caducar' %}" class="button caducidad-button">⏰ Próximos a Caducar</a>
+        <a href="{% url 'inventario:lotes_proximos_caducar' %}" class="button caducidad-button">🕒 Próximos a Caducar</a>
+        <a href="{% url 'inventario:listar_categorias' %}" class="button categorias-button">📁 Categorías</a>
+        <a href="{% url 'inventario:listar_departamentos' %}" class="button departamentos-button">🏢 Departamentos</a>
+        <a href="{% url 'inventario:listar_proveedores' %}" class="button proveedores-button">🚚 Proveedores</a>
         <a href="{% url 'authapp:admin_dashboard' %}" class="button back-button">🔙 Regresar</a>
     </div>
 </div>

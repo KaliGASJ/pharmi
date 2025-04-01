@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar Departamento | VIT PHARMA{% endblock %}
+
+{% block content %}
+<style>
+    .container {
+        max-width: 600px;
+        margin: auto;
+        padding: 40px;
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
+        text-align: center;
+    }
+
+    .warning-icon {
+        font-size: 48px;
+        color: #dc3545;
+        margin-bottom: 20px;
+    }
+
+    .message {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+    .confirmacion {
+        font-weight: bold;
+        color: #333;
+    }
+
+    .buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+    }
+
+    .btn-delete {
+        background-color: #dc3545;
+        color: white;
+        padding: 12px 20px;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    .btn-delete:hover {
+        background-color: #c82333;
+    }
+
+    .btn-cancel {
+        background-color: #6c757d;
+        color: white;
+        padding: 12px 20px;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        text-decoration: none;
+    }
+
+    .btn-cancel:hover {
+        background-color: #5a6268;
+    }
+</style>
+
+<div class="container">
+    <div class="warning-icon">⚠️</div>
+    <div class="message">
+        ¿Estás seguro de que deseas eliminar el departamento:<br>
+        <strong>"{{ departamento.nombre }}"</strong>?
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.confirmacion }}
+            {{ form.confirmacion.errors }}
+        </div>
+
+        <div class="buttons">
+            <button type="submit" class="btn-delete">🗑 Eliminar</button>
+            <a href="{% url 'inventario:listar_departamentos' %}" class="btn-cancel">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

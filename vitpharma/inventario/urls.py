@@ -34,4 +34,17 @@ urlpatterns = [
     path("proveedores/agregar/", views.agregar_proveedor, name="agregar_proveedor"),
     path("proveedores/editar/<int:proveedor_id>/", views.editar_proveedor, name="editar_proveedor"),
     path("proveedores/eliminar/<int:proveedor_id>/", views.eliminar_proveedor, name="eliminar_proveedor"),
+
+    # Gestión de categorías
+    path("categorias/", views.listar_categorias, name="listar_categorias"),
+    path("categorias/agregar/", views.agregar_categoria, name="agregar_categoria"),
+    path("categorias/editar/<int:categoria_id>/", views.editar_categoria, name="editar_categoria"),
+    path("categorias/eliminar/<int:categoria_id>/", views.eliminar_categoria, name="eliminar_categoria"),
+
+    # Gestión de departamentos
+    path("departamentos/", views.listar_departamentos, name="listar_departamentos"),
+    path("departamentos/agregar/", views.agregar_departamento, name="agregar_departamento"),
+    path("departamentos/editar/<int:departamento_id>/", views.editar_departamento, name="editar_departamento"),
+    path("departamentos/eliminar/<int:departamento_id>/", views.eliminar_departamento, name="eliminar_departamento"),
+
 ]

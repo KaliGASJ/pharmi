@@ -1,14 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-from .models import Producto, InventarioProducto, Proveedor
+from .models import Producto, InventarioProducto, Proveedor, Categoria, Departamento
 from .forms import (
     ProductoForm, AgregarLoteForm, AgregarStockForm, EditarLoteForm,
-    EliminarLoteForm, AgregarProveedorForm, EditarProveedorForm, EliminarProveedorForm
+    EliminarLoteForm, AgregarProveedorForm, EditarProveedorForm, EliminarProveedorForm, 
+    AgregarCategoriaForm, EditarCategoriaForm, EliminarCategoriaForm,
+    AgregarDepartamentoForm, EditarDepartamentoForm, EliminarDepartamentoForm
 )
 from datetime import date
 from django.db.models import Q
 from django.http import HttpResponse
+
 
 
 # -------------------- PERMISOS --------------------
@@ -244,14 +247,12 @@ def lotes_proximos_caducar(request):
 # -------------------- GESTIÓN DE PROVEEDORES --------------------
 
 @login_required
-@user_passes_test(es_administrador)
 def listar_proveedores(request):
     proveedores = Proveedor.objects.all()
     return render(request, "listar_proveedores.html", {"proveedores": proveedores})
 
 
 @login_required
-@user_passes_test(es_administrador)
 def agregar_proveedor(request):
     if request.method == "POST":
         form = AgregarProveedorForm(request.POST)
@@ -266,7 +267,6 @@ def agregar_proveedor(request):
 
 
 @login_required
-@user_passes_test(es_administrador)
 def editar_proveedor(request, proveedor_id):
     proveedor = get_object_or_404(Proveedor, id_proveedor=proveedor_id)
     if request.method == "POST":
@@ -282,7 +282,6 @@ def editar_proveedor(request, proveedor_id):
 
 
 @login_required
-@user_passes_test(es_administrador)
 def eliminar_proveedor(request, proveedor_id):
     proveedor = get_object_or_404(Proveedor, id_proveedor=proveedor_id)
     if request.method == "POST":
@@ -294,3 +293,105 @@ def eliminar_proveedor(request, proveedor_id):
     else:
         form = EliminarProveedorForm()
     return render(request, "eliminar_proveedor.html", {"form": form, "proveedor": proveedor})
+
+# -------------------- GESTIÓN DE CATEGORÍAS --------------------
+
+@login_required
+def listar_categorias(request):
+    categorias = Categoria.objects.all()
+    return render(request, "listar_categorias.html", {"categorias": categorias})
+
+
+@login_required
+def agregar_categoria(request):
+    if request.method == "POST":
+        form = AgregarCategoriaForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Categoría registrada correctamente.")
+            return redirect("inventario:listar_categorias")
+        messages.error(request, "Error al registrar la categoría.")
+    else:
+        form = AgregarCategoriaForm()
+    return render(request, "agregar_categoria.html", {"form": form})
+
+
+@login_required
+def editar_categoria(request, categoria_id):
+    categoria = get_object_or_404(Categoria, id_categoria=categoria_id)
+    if request.method == "POST":
+        form = EditarCategoriaForm(request.POST, instance=categoria)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Categoría actualizada correctamente.")
+            return redirect("inventario:listar_categorias")
+        messages.error(request, "Error al actualizar la categoría.")
+    else:
+        form = EditarCategoriaForm(instance=categoria)
+    return render(request, "editar_categoria.html", {"form": form, "categoria": categoria})
+
+
+@login_required
+def eliminar_categoria(request, categoria_id):
+    categoria = get_object_or_404(Categoria, id_categoria=categoria_id)
+    if request.method == "POST":
+        form = EliminarCategoriaForm(request.POST)
+        if form.is_valid() and form.cleaned_data["confirmacion"]:
+            categoria.delete()
+            messages.success(request, "Categoría eliminada correctamente.")
+            return redirect("inventario:listar_categorias")
+    else:
+        form = EliminarCategoriaForm()
+    return render(request, "eliminar_categoria.html", {"form": form, "categoria": categoria})
+
+
+
+# -------------------- GESTIÓN DE DEPARTAMENTOS --------------------
+
+@login_required
+def listar_departamentos(request):
+    departamentos = Departamento.objects.all()
+    return render(request, "listar_departamentos.html", {"departamentos": departamentos})
+
+
+@login_required
+def agregar_departamento(request):
+    if request.method == "POST":
+        form = AgregarDepartamentoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Departamento registrado correctamente.")
+            return redirect("inventario:listar_departamentos")
+        messages.error(request, "Error al registrar el departamento.")
+    else:
+        form = AgregarDepartamentoForm()
+    return render(request, "agregar_departamento.html", {"form": form})
+
+
+@login_required
+def editar_departamento(request, departamento_id):
+    departamento = get_object_or_404(Departamento, id_departamento=departamento_id)
+    if request.method == "POST":
+        form = EditarDepartamentoForm(request.POST, instance=departamento)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Departamento actualizado correctamente.")
+            return redirect("inventario:listar_departamentos")
+        messages.error(request, "Error al actualizar el departamento.")
+    else:
+        form = EditarDepartamentoForm(instance=departamento)
+    return render(request, "editar_departamento.html", {"form": form, "departamento": departamento})
+
+
+@login_required
+def eliminar_departamento(request, departamento_id):
+    departamento = get_object_or_404(Departamento, id_departamento=departamento_id)
+    if request.method == "POST":
+        form = EliminarDepartamentoForm(request.POST)
+        if form.is_valid() and form.cleaned_data["confirmacion"]:
+            departamento.delete()
+            messages.success(request, "Departamento eliminado correctamente.")
+            return redirect("inventario:listar_departamentos")
+    else:
+        form = EliminarDepartamentoForm()
+    return render(request, "eliminar_departamento.html", {"form": form, "departamento": departamento})
