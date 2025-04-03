@@ -10,7 +10,6 @@ from django.core.files.base import ContentFile
 from django.conf import settings
 from django.db.models import Q
 import json
-
 from .models import Venta, DetalleVenta
 from .forms import VentaForm, CancelarVentaForm
 from turnos.models import Turno
@@ -30,9 +29,12 @@ def venta_dashboard(request):
         return redirect('turnos:abrir_turno')
 
     venta_form = VentaForm()
+    efectivo_en_caja = turno.efectivo_actual_en_caja()  # 👈 Se calcula el efectivo actual
+
     return render(request, 'registro_venta.html', {
         'venta_form': venta_form,
-        'turno': turno
+        'turno': turno,
+        'efectivo_en_caja': efectivo_en_caja,  # 👈 Se pasa al contexto
     })
 
 # -------------------- API: BUSCAR PRODUCTOS --------------------
@@ -153,10 +155,22 @@ def procesar_venta(request):
                         return redirect('ventas:venta_dashboard')
 
                     venta.cambio = venta.calcular_cambio()
+
+                    # 🔐 Validación adicional: verificar si hay efectivo suficiente en caja para el cambio
+                    efectivo_en_caja = turno.efectivo_actual_en_caja()
+                    if venta.cambio > efectivo_en_caja:
+                        venta.delete()
+                        messages.error(
+                            request,
+                            f"No hay suficiente efectivo en caja para dar ${venta.cambio} de cambio. Disponible: ${efectivo_en_caja}."
+                        )
+                        return redirect('ventas:venta_dashboard')
+
                     venta.save(update_fields=['cambio'])
 
                 venta.registrar_en_turno()
 
+                # Generar PDF del ticket de venta
                 html_string = render_to_string('ticket_venta.html', {'venta': venta})
                 html = HTML(string=html_string, base_url=settings.BASE_DIR)
                 pdf_bytes = html.write_pdf()

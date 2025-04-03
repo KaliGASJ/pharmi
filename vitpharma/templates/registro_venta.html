@@ -780,28 +780,30 @@ function enviarVenta() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Inicializar carrito
+    // Inicializar carrito al cargar
     renderizarCarrito();
-   
-    // Configurar método de pago
+
+    // Mostrar/ocultar el campo 'Con cuánto paga'
     const metodo = document.getElementById("id_metodo_pago");
     const campoEfectivo = document.getElementById("campo-efectivo");
     const toggleCampo = () => {
-        campoEfectivo.style.display = metodo.options[metodo.selectedIndex]?.text?.toLowerCase().includes("efectivo") ? "block" : "none";
+        const metodoSeleccionado = metodo.options[metodo.selectedIndex].text.toLowerCase();
+        campoEfectivo.style.display = metodoSeleccionado.includes("efectivo") ? "block" : "none";
     };
-   
+
     if (metodo) {
         metodo.classList.add('form-select', 'form-select-sm');
         toggleCampo();
         metodo.addEventListener("change", toggleCampo);
     }
-   
-    // Configurar campo de pago
+
+    // Formato del input de pago
     const pago = document.getElementById("id_con_cuanto_paga");
     if (pago) pago.classList.add('form-control', 'form-control-sm');
-       
-    // Enfocar el buscador al cargar
-    document.getElementById("buscador-producto").focus();
+
+    // Enfocar el buscador al iniciar
+    const buscador = document.getElementById("buscador-producto");
+    if (buscador) buscador.focus();
 });
 </script>
 {% endblock %}

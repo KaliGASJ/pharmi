@@ -71,7 +71,11 @@
     }
     .btn-action:hover { background-color: #c82333; }
     .no-turno { text-align: center; padding: 40px 20px; }
-    .no-turno-icon { font-size: 48px; color: #004AAD; opacity: 0.7; margin-bottom: 20px; }
+    .no-turno-icon { 
+        margin-top: 30px;
+        display: flex;
+        justify-content: center;
+    }
     .no-turno-title { color: #333; font-size: 22px; font-weight: 600; margin-bottom: 15px; }
     .no-turno-desc {
         color: #666; max-width: 450px;
@@ -189,9 +193,6 @@
     </div>
 {% else %}
     <div class="info-card no-turno">
-        <div class="no-turno-icon">
-            <i class="fas fa-clock"></i>
-        </div>
         <h2 class="no-turno-title">No tienes un turno activo</h2>
         <p class="no-turno-desc">
             Para comenzar a registrar ventas y gestionar operaciones, debes iniciar un nuevo turno.
@@ -205,6 +206,17 @@
                 <i class="fas fa-history me-2"></i> Ver Historial
             </a>
         </div>
+        <div class="no-turno-icon">
+            <lottie-player src="https://lottie.host/3bd2505e-12f7-420b-abbf-5e56425c03cf/ncT1BPKtYI.json"
+                background="transparent"
+                speed="1"
+                style="width: 180px; height: 180px; margin: 0 auto;"
+                loop autoplay>
+            </lottie-player>
+        </div>
     </div>
 {% endif %}
+
+<!-- Script de Lottie Player (si no está en tu base.html) -->
+<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 {% endblock %}

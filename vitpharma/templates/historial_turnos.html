@@ -215,7 +215,7 @@
 
 <div class="page-header">
     <h1 class="header-title">Historial de Turnos Finalizados</h1>
-    <a href="{% url 'authapp:vendedor_dashboard' %}" class="back-link">
+    <a href="{% url 'turnos:turno_dashboard' %}" class="back-link">
         <i class="fas fa-arrow-left"></i> Regresar al Dashboard
     </a>
 </div>
@@ -273,7 +273,7 @@
                         <td>{{ turno.hora_fin_real|date:"d/m/Y H:i" }}</td>
                         <td class="money-value">${{ turno.monto_inicial|floatformat:2 }}</td>
                         <td class="money-value">${{ turno.total_ventas_turno|floatformat:2 }}</td>
-                        <td class="money-value">${{ turno.efectivo_final_en_caja|floatformat:2 }}</td>
+                        <td class="money-value">${{ turno.efectivo_actual_en_caja|floatformat:2 }}</td>
                         <td>
                             {% if turno.pdf_reporte %}
                                 <a href="{% url 'turnos:descargar_pdf_turno' turno.id %}" target="_blank" class="btn-pdf">
