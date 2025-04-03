@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte de Inventario</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+            margin: 30px;
+        }
+        h2 {
+            text-align: center;
+            color: #003366;
+            margin-bottom: 25px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #444;
+            padding: 5px;
+            text-align: center;
+        }
+        th {
+            background-color: #003366;
+            color: white;
+        }
+        .text-end {
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <h2>Reporte de Inventario</h2>
+
+    {% if productos %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID Producto</th>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Departamento</th>
+                <th>Stock Total</th>
+                <th>Estado</th>
+                <th>Lote</th>
+                <th>Código Lote</th>
+                <th>Proveedor</th>
+                <th>Caducidad</th>
+                <th>Cantidad</th>
+                <th>Precio Compra</th>
+                <th>Precio Venta</th>
+                <th>Descuento</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producto in productos %}
+                {% for lote in producto.lotes.all %}
+                <tr>
+                    <td>{{ producto.id_producto }}</td>
+                    <td>{{ producto.nombre }}</td>
+                    <td>{{ producto.id_categoria.nombre }}</td>
+                    <td>{{ producto.id_departamento.nombre }}</td>
+                    <td class="text-end">{{ producto.total_stock }}</td>
+                    <td>{{ producto.estado|title }}</td>
+                    <td>{{ lote.lote|default:"SIN-LOTE" }}</td>
+                    <td>{{ lote.codigo_lote }}</td>
+                    <td>{{ lote.id_proveedor.nombre|default:"N/D" }}</td>
+                    <td>
+                        {% if lote.fecha_caducidad %}
+                            {{ lote.fecha_caducidad|date:"d/m/Y" }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td class="text-end">{{ lote.cantidad }}</td>
+                    <td class="text-end">${{ lote.precio_compra }}</td>
+                    <td class="text-end">${{ lote.precio_venta }}</td>
+                    <td class="text-end">
+                        {% if lote.descuento_porcentaje %}
+                            {{ lote.descuento_porcentaje }}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p style="text-align: center;"><em>No hay productos registrados en el inventario.</em></p>
+    {% endif %}
+</body>
+</html>

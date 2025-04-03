@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Título -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary">
+            <i class="fas fa-boxes-stacked me-2"></i> Reporte de Inventario Detallado
+        </h2>
+    </div>
+
+    <!-- Botón PDF -->
+    {% if productos %}
+    <div class="mb-3 text-end">
+        <a href="{% url 'reportes:exportar_inventario_pdf' %}" 
+           target="_blank" 
+           class="btn btn-danger">
+            <i class="fas fa-file-pdf me-1"></i> Exportar a PDF
+        </a>
+    </div>
+    {% endif %}
+
+    {% if productos %}
+        <div class="table-responsive shadow-sm rounded">
+            <table class="table table-bordered table-hover text-center align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID Producto</th>
+                        <th>Nombre</th>
+                        <th>Categoría</th>
+                        <th>Departamento</th>
+                        <th>Stock Total</th>
+                        <th>Estado</th>
+                        <th>Lote</th>
+                        <th>Código Lote</th>
+                        <th>Proveedor</th>
+                        <th>Caducidad</th>
+                        <th>Cantidad</th>
+                        <th>Precio Compra</th>
+                        <th>Precio Venta</th>
+                        <th>Descuento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for producto in productos %}
+                        {% for lote in producto.lotes.all %}
+                        <tr>
+                            <td>{{ producto.id_producto }}</td>
+                            <td>{{ producto.nombre }}</td>
+                            <td>{{ producto.id_categoria.nombre }}</td>
+                            <td>{{ producto.id_departamento.nombre }}</td>
+                            <td class="text-end">{{ producto.total_stock }}</td>
+                            <td>
+                                {% if producto.estado == "activo" %}
+                                    <span class="badge bg-success">Activo</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactivo</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ lote.lote|default:"SIN-LOTE" }}</td>
+                            <td>{{ lote.codigo_lote }}</td>
+                            <td>{{ lote.id_proveedor.nombre|default:"N/D" }}</td>
+                            <td>
+                                {% if lote.fecha_caducidad %}
+                                    {{ lote.fecha_caducidad|date:"d/m/Y" }}
+                                {% else %}
+                                    <span class="text-muted">Sin fecha</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">{{ lote.cantidad }}</td>
+                            <td class="text-end">${{ lote.precio_compra }}</td>
+                            <td class="text-end">${{ lote.precio_venta }}</td>
+                            <td class="text-end">
+                                {% if lote.descuento_porcentaje %}
+                                    {{ lote.descuento_porcentaje }}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-warning text-center mt-4">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            No hay productos registrados en el inventario.
+        </div>
+    {% endif %}
+
+    <!-- Botón de regreso -->
+    <div class="mt-4">
+        <a href="{% url 'admin:index' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Regresar al panel
+        </a>
+    </div>
+</div>
+{% endblock %}

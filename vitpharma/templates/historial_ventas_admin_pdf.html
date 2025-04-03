@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Historial de Ventas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            margin: 30px;
+        }
+        h2 {
+            text-align: center;
+            color: #003366;
+            margin-bottom: 25px;
+        }
+        p {
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #444;
+            padding: 6px;
+            text-align: center;
+        }
+        th {
+            background-color: #003366;
+            color: white;
+        }
+        .text-end {
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <h2>Historial de Ventas</h2>
+
+    {% if fecha_inicio and fecha_fin %}
+        <p><strong>Rango de fechas:</strong> {{ fecha_inicio }} al {{ fecha_fin }}</p>
+    {% endif %}
+
+    {% if ventas %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Fecha y hora</th>
+                <th>Método de pago</th>
+                <th>Total</th>
+                <th>Con cuánto pagó</th>
+                <th>Cambio</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for venta in ventas %}
+            <tr>
+                <td>{{ venta.id }}</td>
+                <td>{{ venta.usuario.username }}</td>
+                <td>{{ venta.fecha_hora|date:"d/m/Y H:i" }}</td>
+                <td>{{ venta.metodo_pago.nombre }}</td>
+                <td class="text-end">${{ venta.total }}</td>
+                <td class="text-end">
+                    {% if venta.con_cuanto_paga %}${{ venta.con_cuanto_paga }}{% else %}-{% endif %}
+                </td>
+                <td class="text-end">
+                    {% if venta.cambio %}${{ venta.cambio }}{% else %}-{% endif %}
+                </td>
+                <td>{{ venta.estado|title }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p style="text-align: center;"><em>No se encontraron ventas en el rango de fechas.</em></p>
+    {% endif %}
+</body>
+</html>

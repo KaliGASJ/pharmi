@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Historial de Cortes de Caja</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            margin: 30px;
+        }
+        h2 {
+            color: #003366;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #444;
+            padding: 6px;
+            text-align: center;
+        }
+        th {
+            background-color: #003366;
+            color: white;
+        }
+        .text-end {
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <h2>Historial de Cortes de Caja</h2>
+
+    {% if cortes %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Inicio</th>
+                <th>Fin</th>
+                <th>Monto Inicial</th>
+                <th>Efectivo</th>
+                <th>Tarjeta</th>
+                <th>Transferencia</th>
+                <th>Cheque</th>
+                <th>Cambio</th>
+                <th>Total Ventas</th>
+                <th>Efectivo Final</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for turno in cortes %}
+            <tr>
+                <td>{{ turno.id }}</td>
+                <td>{{ turno.usuario.username }}</td>
+                <td>{{ turno.hora_inicio|date:"d/m/Y H:i" }}</td>
+                <td>{{ turno.hora_fin_real|date:"d/m/Y H:i" }}</td>
+                <td class="text-end">${{ turno.monto_inicial }}</td>
+                <td class="text-end">${{ turno.monto_total_efectivo }}</td>
+                <td class="text-end">${{ turno.monto_total_tarjeta }}</td>
+                <td class="text-end">${{ turno.monto_total_transferencia }}</td>
+                <td class="text-end">${{ turno.monto_total_cheque }}</td>
+                <td class="text-end">${{ turno.total_cambios_dados }}</td>
+                <td class="text-end">${{ turno.total_ventas_turno }}</td>
+                <td class="text-end">${{ turno.efectivo_final_en_caja }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p style="text-align: center;"><em>No hay cortes de caja registrados.</em></p>
+    {% endif %}
+</body>
+</html>

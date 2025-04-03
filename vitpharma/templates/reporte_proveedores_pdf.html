@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte de Proveedores</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            margin: 30px;
+        }
+        h2 {
+            text-align: center;
+            color: #003366;
+            margin-bottom: 25px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #444;
+            padding: 6px;
+            text-align: center;
+        }
+        th {
+            background-color: #003366;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h2>Reporte de Proveedores</h2>
+
+    {% if proveedores %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Dirección</th>
+                <th>Teléfono</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for proveedor in proveedores %}
+            <tr>
+                <td>{{ proveedor.id_proveedor }}</td>
+                <td>{{ proveedor.nombre }}</td>
+                <td>{{ proveedor.direccion|default:"-" }}</td>
+                <td>{{ proveedor.telefono|default:"-" }}</td>
+                <td>{{ proveedor.email|default:"-" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p style="text-align: center;"><em>No hay proveedores registrados.</em></p>
+    {% endif %}
+</body>
+</html>

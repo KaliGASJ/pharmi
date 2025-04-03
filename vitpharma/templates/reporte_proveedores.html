@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Título -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary">
+            <i class="fas fa-truck me-2"></i> Reporte de Proveedores
+        </h2>
+    </div>
+
+    <!-- Botón PDF -->
+    {% if proveedores %}
+    <div class="mb-3 text-end">
+        <a href="{% url 'reportes:exportar_proveedores_pdf' %}" 
+           target="_blank" 
+           class="btn btn-danger">
+            <i class="fas fa-file-pdf me-1"></i> Exportar a PDF
+        </a>
+    </div>
+    {% endif %}
+
+    {% if proveedores %}
+        <div class="table-responsive shadow-sm rounded">
+            <table class="table table-bordered table-hover align-middle text-center">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Dirección</th>
+                        <th>Teléfono</th>
+                        <th>Email</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for proveedor in proveedores %}
+                    <tr>
+                        <td>{{ proveedor.id_proveedor }}</td>
+                        <td>{{ proveedor.nombre }}</td>
+                        <td>{{ proveedor.direccion|default:"-" }}</td>
+                        <td>
+                            {% if proveedor.telefono %}
+                                <a href="tel:{{ proveedor.telefono }}">{{ proveedor.telefono }}</a>
+                            {% else %}
+                                <span class="text-muted">No disponible</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if proveedor.email %}
+                                <a href="mailto:{{ proveedor.email }}">{{ proveedor.email }}</a>
+                            {% else %}
+                                <span class="text-muted">No disponible</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info mt-4 text-center">
+            <i class="fas fa-info-circle me-2"></i>
+            No hay proveedores registrados.
+        </div>
+    {% endif %}
+
+    <!-- Botón de regreso -->
+    <div class="mt-4">
+        <a href="{% url 'admin:index' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Regresar al panel
+        </a>
+    </div>
+</div>
+{% endblock %}
