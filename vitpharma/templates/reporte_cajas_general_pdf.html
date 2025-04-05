@@ -8,36 +8,53 @@
             font-family: Arial, sans-serif;
             font-size: 12px;
             margin: 30px;
+            color: #333;
         }
         h2 {
             color: #003366;
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+        p {
+            font-size: 13px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .text-end {
+            text-align: right;
         }
         table {
-            width: 100%;
+            width: 95%;
             border-collapse: collapse;
-            margin-top: 15px;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 20px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
         }
         th, td {
             border: 1px solid #444;
             padding: 6px;
-            text-align: center;
+            font-size: 11.5px;
         }
         th {
             background-color: #003366;
             color: white;
+            font-weight: bold;
         }
-        .text-end {
-            text-align: right;
+        .empty-message {
+            text-align: center;
+            font-style: italic;
+            margin-top: 30px;
+            color: #777;
         }
     </style>
 </head>
 <body>
     <h2>Reporte de Cajas General</h2>
 
-    {% if fecha_inicio and fecha_fin %}
-        <p><strong>Rango de fechas:</strong> {{ fecha_inicio }} al {{ fecha_fin }}</p>
+    {% if fecha %}
+        <p><strong>Fecha del reporte:</strong> {{ fecha }}</p>
     {% endif %}
 
     {% if turnos %}
@@ -46,14 +63,12 @@
             <tr>
                 <th>ID</th>
                 <th>Usuario</th>
-                <th>Inicio</th>
-                <th>Fin</th>
+                <th>Fecha</th>
                 <th>Monto Inicial</th>
                 <th>Efectivo</th>
                 <th>Tarjeta</th>
                 <th>Transferencia</th>
                 <th>Cheque</th>
-                <th>Cambio</th>
                 <th>Total Ventas</th>
                 <th>Efectivo Final</th>
             </tr>
@@ -63,22 +78,20 @@
             <tr>
                 <td>{{ turno.id }}</td>
                 <td>{{ turno.usuario.username }}</td>
-                <td>{{ turno.hora_inicio|date:"d/m/Y H:i" }}</td>
-                <td>{{ turno.hora_fin_real|date:"d/m/Y H:i" }}</td>
+                <td>{{ turno.hora_inicio|date:"d/m/Y" }}</td>
                 <td class="text-end">${{ turno.monto_inicial }}</td>
                 <td class="text-end">${{ turno.monto_total_efectivo }}</td>
                 <td class="text-end">${{ turno.monto_total_tarjeta }}</td>
                 <td class="text-end">${{ turno.monto_total_transferencia }}</td>
                 <td class="text-end">${{ turno.monto_total_cheque }}</td>
-                <td class="text-end">${{ turno.total_cambios_dados }}</td>
-                <td class="text-end">${{ turno.total_ventas_turno }}</td>
-                <td class="text-end">${{ turno.efectivo_final_en_caja }}</td>
+                <td class="text-end" style="font-weight: bold;">${{ turno.total_ventas_turno }}</td>
+                <td class="text-end" style="font-weight: bold;">${{ turno.efectivo_final_en_caja }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
     {% else %}
-        <p><em>No se encontraron cortes en el rango de fechas indicado.</em></p>
+        <p class="empty-message">No se encontraron cortes para la fecha indicada.</p>
     {% endif %}
 </body>
 </html>

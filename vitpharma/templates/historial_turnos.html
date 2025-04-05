@@ -4,7 +4,6 @@
 
 {% block content %}
 <style>
-    /* Estilos específicos para esta página */
     .page-header {
         margin-bottom: 25px;
     }
@@ -215,9 +214,15 @@
 
 <div class="page-header">
     <h1 class="header-title">Historial de Turnos Finalizados</h1>
-    <a href="{% url 'turnos:turno_dashboard' %}" class="back-link">
-        <i class="fas fa-arrow-left"></i> Regresar al Dashboard
-    </a>
+    {% if es_admin %}
+        <a href="{% url 'reportes:dashboard_reportes' %}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Regresar a Reportes
+        </a>
+    {% else %}
+        <a href="{% url 'turnos:turno_dashboard' %}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Regresar al Dashboard
+        </a>
+    {% endif %}
 </div>
 
 {% if messages %}
@@ -236,11 +241,11 @@
     <form method="get" class="filter-form">
         <div class="form-group">
             <label for="fecha_inicio" class="form-label">Desde:</label>
-            <input type="date" name="fecha_inicio" id="fecha_inicio" class="form-control" value="{{ request.GET.fecha_inicio }}">
+            <input type="date" name="fecha_inicio" id="fecha_inicio" class="form-control" value="{{ fecha_inicio }}">
         </div>
         <div class="form-group">
             <label for="fecha_fin" class="form-label">Hasta:</label>
-            <input type="date" name="fecha_fin" id="fecha_fin" class="form-control" value="{{ request.GET.fecha_fin }}">
+            <input type="date" name="fecha_fin" id="fecha_fin" class="form-control" value="{{ fecha_fin }}">
         </div>
         <div style="align-self: flex-end;">
             <button type="submit" class="btn-filter">

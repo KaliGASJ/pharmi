@@ -456,38 +456,40 @@
     }
 </style>
 
-<div class="page-container">
-    <!-- Encabezado de la página -->
-    <div class="header-section">
-        <div class="page-header">
-            <div>
-                <h1 class="page-title">
-                    <i class="fas fa-calendar-alt"></i>
-                    Ventas por Fechas
-                </h1>
-                {% if fecha_inicio or fecha_fin %}
-                <div class="date-range-summary">
-                    <span>Periodo:</span>
-                    {% if fecha_inicio %}
-                    <div class="date-pill">
-                        <i class="fas fa-calendar-day"></i> Desde: {{ fecha_inicio|date:"d/m/Y" }}
-                    </div>
-                    {% endif %}
-                    {% if fecha_fin %}
-                    <div class="date-pill">
-                        <i class="fas fa-calendar-day"></i> Hasta: {{ fecha_fin|date:"d/m/Y" }}
-                    </div>
-                    {% endif %}
-                </div>
-                {% else %}
-                <p class="page-subtitle">Consulta tus ventas por rango de fechas específico</p>
-                {% endif %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">
+            <i class="fas fa-calendar-alt"></i>
+            Ventas por Fechas
+        </h1>
+        {% if fecha_inicio or fecha_fin %}
+        <div class="date-range-summary">
+            <span>Periodo:</span>
+            {% if fecha_inicio %}
+            <div class="date-pill">
+                <i class="fas fa-calendar-day"></i> Desde: {{ fecha_inicio|date:"d/m/Y" }}
             </div>
-            <a href="{% url 'ventas:venta_dashboard' %}" class="btn btn-outline">
-                <i class="fas fa-arrow-left"></i> Volver al panel
-            </a>
+            {% endif %}
+            {% if fecha_fin %}
+            <div class="date-pill">
+                <i class="fas fa-calendar-day"></i> Hasta: {{ fecha_fin|date:"d/m/Y" }}
+            </div>
+            {% endif %}
         </div>
+        {% else %}
+        <p class="page-subtitle">Consulta tus ventas por rango de fechas específico</p>
+        {% endif %}
     </div>
+    {% if es_admin %}
+        <a href="{% url 'ventas:historial_ventas' %}" class="btn btn-outline">
+            <i class="fas fa-arrow-left"></i> Regresar
+        </a>
+    {% else %}
+        <a href="{% url 'ventas:venta_dashboard' %}" class="btn btn-outline">
+            <i class="fas fa-arrow-left"></i> Regresar
+        </a>
+    {% endif %}
+</div>
 
     <!-- Mensajes del sistema -->
     {% if messages %}
@@ -540,179 +542,145 @@
         </div>
 
         {% if ventas %}
-            <div class="table-responsive">
-                <table class="ventas-table" id="ventasTable">
-                    <thead>
-                        <tr>
-                            <th style="width: 8%">ID</th>
-                            <th style="width: 20%">Fecha y Hora</th>
-                            <th style="width: 15%" class="text-end">Total</th>
-                            <th style="width: 22%">Método de Pago</th>
-                            <th style="width: 15%" class="text-center">Estado</th>
-                            <th style="width: 20%" class="text-center">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for venta in ventas %}
-                        <tr {% if forloop.first %}class="highlight-row"{% endif %}>
-                            <td class="venta-id">#{{ venta.id }}</td>
-                            <td>{{ venta.fecha_hora|date:"d/m/Y H:i" }}</td>
-                            <td class="text-end price">${{ venta.total|floatformat:2 }}</td>
-                            <td>
-                                <div class="payment-method">
-                                    {% if venta.metodo_pago %}
-                                        <div class="payment-icon">
-                                            <i class="fas 
-                                                {% if 'efectivo' in venta.metodo_pago.nombre|lower %}fa-money-bill-wave
-                                                {% elif 'tarjeta' in venta.metodo_pago.nombre|lower %}fa-credit-card
-                                                {% elif 'transferencia' in venta.metodo_pago.nombre|lower %}fa-exchange-alt
-                                                {% else %}fa-money-check
-                                                {% endif %}">
-                                            </i>
-                                        </div>
-                                        <span>{{ venta.metodo_pago.nombre }}</span>
-                                    {% else %}
-                                        <span class="text-muted">No disponible</span>
-                                    {% endif %}
+        <div class="table-responsive">
+            <table class="ventas-table" id="ventasTable">
+                <thead>
+                    <tr>
+                        <th style="width: 8%">ID</th>
+                        <th style="width: 20%">Fecha y Hora</th>
+                        <th style="width: 15%" class="text-end">Total</th>
+                        <th style="width: 22%">Método de Pago</th>
+                        <th style="width: 15%" class="text-center">Estado</th>
+                        <th style="width: 20%" class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for venta in ventas %}
+                    <tr {% if forloop.first %}class="highlight-row"{% endif %}>
+                        <td class="venta-id">#{{ venta.id }}</td>
+                        <td>{{ venta.fecha_hora|date:"d/m/Y H:i" }}</td>
+                        <td class="text-end price">${{ venta.total|floatformat:2 }}</td>
+                        <td>
+                            <div class="payment-method">
+                                {% if venta.metodo_pago %}
+                                <div class="payment-icon">
+                                    <i class="fas 
+                                        {% if 'efectivo' in venta.metodo_pago.nombre|lower %}fa-money-bill-wave
+                                        {% elif 'tarjeta' in venta.metodo_pago.nombre|lower %}fa-credit-card
+                                        {% elif 'transferencia' in venta.metodo_pago.nombre|lower %}fa-exchange-alt
+                                        {% else %}fa-money-check
+                                        {% endif %}">
+                                    </i>
                                 </div>
-                            </td>
-                            <td class="text-center">
-                                {% if venta.estado == 'activa' %}
-                                    <span class="badge badge-success">
-                                        <i class="fas fa-check-circle"></i> Activa
-                                    </span>
+                                <span>{{ venta.metodo_pago.nombre }}</span>
                                 {% else %}
-                                    <span class="badge badge-danger">
-                                        <i class="fas fa-times-circle"></i> Cancelada
-                                    </span>
+                                <span class="text-muted">No disponible</span>
                                 {% endif %}
-                            </td>
-                            <td>
-                                <div class="actions-group">
-                                    <a href="{% url 'ventas:detalle_venta' venta.id %}" class="btn btn-action btn-detail" title="Ver detalle">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    
-                                    {% if venta.ticket_pdf %}
-                                    <a href="{% url 'ventas:generar_ticket_pdf' venta.id %}" class="btn btn-action btn-pdf" target="_blank" title="Ver Ticket PDF">
-                                        <i class="fas fa-file-pdf"></i>
-                                    </a>
-                                    {% else %}
-                                    <span class="badge badge-secondary" title="No hay ticket PDF disponible">Sin PDF</span>
-                                    {% endif %}
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            {% if venta.estado == 'activa' %}
+                            <span class="badge badge-success">
+                                <i class="fas fa-check-circle"></i> Activa
+                            </span>
+                            {% else %}
+                            <span class="badge badge-danger">
+                                <i class="fas fa-times-circle"></i> Cancelada
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="actions-group">
+                                <a href="{% url 'ventas:detalle_venta' venta.id %}" class="btn btn-action btn-detail" title="Ver detalle">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {% if venta.ticket_pdf %}
+                                <a href="{% url 'ventas:generar_ticket_pdf' venta.id %}" class="btn btn-action btn-pdf" target="_blank" title="Ver Ticket PDF">
+                                    <i class="fas fa-file-pdf"></i>
+                                </a>
+                                {% else %}
+                                <span class="badge badge-secondary" title="No hay ticket PDF disponible">Sin PDF</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
         {% else %}
-            <div class="empty-alert">
-                <i class="fas fa-info-circle empty-icon"></i>
-                <div>
-                    <strong>Sin resultados</strong>
-                    <p class="mb-0">No se encontraron ventas en el rango de fechas seleccionado.</p>
-                </div>
+        <div class="empty-alert">
+            <i class="fas fa-info-circle empty-icon"></i>
+            <div>
+                <strong>Sin resultados</strong>
+                <p class="mb-0">No se encontraron ventas en el rango de fechas seleccionado.</p>
             </div>
+        </div>
         {% endif %}
     </div>
 </div>
 
 <script>
-    function exportToExcel() {
-        const table = document.getElementById("ventasTable");
-        if (!table) return;
-        
-        // Configuración para el Excel
-        const workbook = {
-            SheetNames: ['Ventas'],
-            Sheets: {
-                'Ventas': {}
-            }
-        };
-        
-        // Crear una matriz para almacenar los datos
-        let data = [];
-        const rows = table.querySelectorAll("tr");
-        
-        // Encabezados
-        const headers = ["ID de Venta", "Fecha y Hora", "Total ($)", "Método de Pago", "Estado"];
-        data.push(headers);
-        
-        // Filas de datos (excluyendo la columna de acciones)
-        for (let i = 1; i < rows.length; i++) { // Comenzamos desde 1 para saltar la fila de encabezado
-            const cols = rows[i].querySelectorAll("td");
-            if (cols.length === 0) continue;
-            
-            const rowData = [];
-            // Solo procesamos las primeras 5 columnas (ID, Fecha, Total, Método, Estado)
-            for (let j = 0; j < 5; j++) {
-                let cellData = cols[j].innerText.trim();
-                
-                // Limpiar el ID (quitar el #)
-                if (j === 0) {
-                    cellData = cellData.replace('#', '');
-                }
-                
-                // Formatear el precio correctamente
-                if (j === 2) {
-                    cellData = cellData.replace('$', '');
-                }
-                
-                // Para el estado, solo guardamos "Activa" o "Cancelada"
-                if (j === 4) {
-                    cellData = cellData.includes("Activa") ? "Activa" : "Cancelada";
-                }
-                
-                rowData.push(cellData);
-            }
-            data.push(rowData);
+function exportToExcel() {
+    const table = document.getElementById("ventasTable");
+    if (!table) return;
+
+    let data = [];
+    const rows = table.querySelectorAll("tr");
+    const headers = ["ID de Venta", "Fecha y Hora", "Total ($)", "Método de Pago", "Estado"];
+    data.push(headers);
+
+    for (let i = 1; i < rows.length; i++) {
+        const cols = rows[i].querySelectorAll("td");
+        if (cols.length === 0) continue;
+
+        const rowData = [];
+        for (let j = 0; j < 5; j++) {
+            let cellData = cols[j].innerText.trim();
+            if (j === 0) cellData = cellData.replace('#', '');
+            if (j === 2) cellData = cellData.replace('$', '');
+            if (j === 4) cellData = cellData.includes("Activa") ? "Activa" : "Cancelada";
+            rowData.push(cellData);
         }
-        
-        // Crear el contenido del archivo Excel (formato CSV bien estructurado)
-        let csvContent = "sep=,\n"; // Indicador de separador para Excel
-        data.forEach(function(rowArray) {
-            let row = rowArray.map(cell => {
-                // Escapar comillas y envolver en comillas si es necesario
-                if (cell && typeof cell === 'string' && (cell.includes(',') || cell.includes('"') || cell.includes('\n'))) {
-                    return '"' + cell.replace(/"/g, '""') + '"';
-                }
-                return cell;
-            }).join(",");
-            csvContent += row + "\r\n";
-        });
-        
-        // Metadatos para mejor compatibilidad con Excel
-        const excelMetadata = "\uFEFF"; // BOM para UTF-8
-        csvContent = excelMetadata + csvContent;
-        
-        // Generar nombre de archivo con fecha y hora
-        const now = new Date();
-        const formattedDate = now.toISOString().slice(0, 10);
-        const formattedTime = now.toTimeString().slice(0, 8).replace(/:/g, '-');
-        const filename = `Reporte_Ventas_${formattedDate}_${formattedTime}.csv`;
-        
-        // Crear el archivo y forzar la descarga
-        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-        
-        if (navigator.msSaveBlob) { // IE 10+
-            navigator.msSaveBlob(blob, filename);
-        } else {
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", filename);
-            link.style.visibility = "hidden";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            // Notificar al usuario
-            setTimeout(() => {
-                alert("El reporte se ha descargado correctamente.");
-            }, 500);
-        }
+        data.push(rowData);
     }
+
+    let csvContent = "sep=,\n";
+    data.forEach(function(rowArray) {
+        let row = rowArray.map(cell => {
+            if (cell && typeof cell === 'string' && (cell.includes(',') || cell.includes('"') || cell.includes('\n'))) {
+                return '"' + cell.replace(/"/g, '""') + '"';
+            }
+            return cell;
+        }).join(",");
+        csvContent += row + "\r\n";
+    });
+
+    const excelMetadata = "\uFEFF";
+    csvContent = excelMetadata + csvContent;
+
+    const now = new Date();
+    const formattedDate = now.toISOString().slice(0, 10);
+    const formattedTime = now.toTimeString().slice(0, 8).replace(/:/g, '-');
+    const filename = `Reporte_Ventas_${formattedDate}_${formattedTime}.csv`;
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+
+    if (navigator.msSaveBlob) {
+        navigator.msSaveBlob(blob, filename);
+    } else {
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", filename);
+        link.style.visibility = "hidden";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => {
+            alert("El reporte se ha descargado correctamente.");
+        }, 500);
+    }
+}
 </script>
 {% endblock %}

@@ -389,9 +389,15 @@
             Historial de Ventas
         </h1>
         <div class="actions-container">
-            <a href="{% url 'ventas:venta_dashboard' %}" class="btn btn-outline">
-                <i class="fas fa-arrow-left"></i> Regresar
-            </a>
+            {% if user.groups.first.name == 'administrador' %}
+                <a href="{% url 'reportes:dashboard_reportes' %}" class="btn btn-outline">
+                    <i class="fas fa-arrow-left"></i> Regresar a Reportes
+                </a>
+            {% else %}
+                <a href="{% url 'ventas:venta_dashboard' %}" class="btn btn-outline">
+                    <i class="fas fa-arrow-left"></i> Regresar
+                </a>
+            {% endif %}
             <a href="{% url 'ventas:ventas_por_fecha' %}" class="btn btn-primary">
                 <i class="fas fa-calendar-alt"></i> Filtrar por Fecha
             </a>
@@ -452,13 +458,12 @@
                                 <a href="{% url 'ventas:detalle_venta' venta.id %}" class="btn btn-sm btn-info" title="Ver detalle">
                                     <i class="fas fa-eye"></i> Detalle
                                 </a>
-                                
                                 {% if venta.ticket_pdf %}
-                                <a href="{% url 'ventas:generar_ticket_pdf' venta.id %}" class="btn btn-sm btn-pdf" target="_blank" title="Ver Ticket PDF">
-                                    <i class="fas fa-file-pdf"></i> PDF
-                                </a>
+                                    <a href="{% url 'ventas:generar_ticket_pdf' venta.id %}" class="btn btn-sm btn-pdf" target="_blank" title="Ver Ticket PDF">
+                                        <i class="fas fa-file-pdf"></i> PDF
+                                    </a>
                                 {% else %}
-                                <span class="badge text-bg-secondary">Sin PDF</span>
+                                    <span class="badge text-bg-secondary">Sin PDF</span>
                                 {% endif %}
                             </div>
                         </td>
@@ -480,7 +485,7 @@
         {% endif %}
     </div>
 
-    <!-- Paginación (opcional) -->
+    <!-- Paginación -->
     {% if ventas.has_other_pages %}
     <div class="pagination-container">
         <ul class="pagination">
@@ -496,7 +501,6 @@
                     </a>
                 </li>
             {% endif %}
-            
             {% for num in ventas.paginator.page_range %}
                 {% if ventas.number == num %}
                     <li class="page-item active">
@@ -508,7 +512,6 @@
                     </li>
                 {% endif %}
             {% endfor %}
-            
             {% if ventas.has_next %}
                 <li class="page-item">
                     <a class="page-link" href="?page={{ ventas.next_page_number }}" aria-label="Siguiente">

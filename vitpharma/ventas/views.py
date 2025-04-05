@@ -14,10 +14,13 @@ from .models import Venta, DetalleVenta
 from .forms import VentaForm, CancelarVentaForm
 from turnos.models import Turno
 from inventario.models import Producto, InventarioProducto
-
+from django.core.exceptions import PermissionDenied
 # -------------------- VERIFICADOR DE ROL --------------------
 def es_vendedor(user):
     return user.is_authenticated and user.groups.filter(name='vendedor').exists()
+
+def es_administrador(user):
+    return user.is_authenticated and user.groups.filter(name="administrador").exists()
 
 # -------------------- DASHBOARD DE REGISTRO DE VENTA --------------------
 @login_required
@@ -191,23 +194,61 @@ def procesar_venta(request):
 
 # -------------------- DETALLE DE VENTA --------------------
 @login_required
-@user_passes_test(es_vendedor)
 def detalle_venta(request, venta_id):
-    venta = get_object_or_404(Venta, id=venta_id, usuario=request.user)
+    venta = get_object_or_404(Venta, id=venta_id)
+
+    # Validación de acceso: solo admins o dueño de la venta
+    if not es_administrador(request.user) and venta.usuario != request.user:
+        raise PermissionDenied("No tienes permiso para ver esta venta.")
+
     return render(request, 'detalle_venta.html', {'venta': venta})
 
 # -------------------- HISTORIAL DE VENTAS --------------------
 @login_required
-@user_passes_test(es_vendedor)
 def historial_ventas(request):
-    ventas = Venta.objects.filter(usuario=request.user).order_by('-fecha_hora')
-    return render(request, 'historial_ventas.html', {'ventas': ventas})
+    usuario = request.user
+    fecha_inicio = request.GET.get('fecha_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
 
+    # Filtro por usuario
+    if es_administrador(usuario):
+        ventas = Venta.objects.all()
+    else:
+        ventas = Venta.objects.filter(usuario=usuario)
+
+    # Filtro por fechas
+    if fecha_inicio:
+        try:
+            fecha_inicio_dt = timezone.datetime.fromisoformat(fecha_inicio)
+            ventas = ventas.filter(fecha_hora__date__gte=fecha_inicio_dt.date())
+        except ValueError:
+            messages.error(request, "Fecha de inicio inválida.")
+
+    if fecha_fin:
+        try:
+            fecha_fin_dt = timezone.datetime.fromisoformat(fecha_fin)
+            ventas = ventas.filter(fecha_hora__date__lte=fecha_fin_dt.date())
+        except ValueError:
+            messages.error(request, "Fecha de fin inválida.")
+
+    ventas = ventas.order_by('-fecha_hora')
+    sin_resultados = not ventas.exists()
+
+    return render(request, 'historial_ventas.html', {
+        'ventas': ventas,
+        'sin_resultados': sin_resultados,
+        'fecha_inicio': fecha_inicio,
+        'fecha_fin': fecha_fin,
+        'es_admin': es_administrador(usuario),
+    })
 # -------------------- CANCELAR VENTA --------------------
 @login_required
-@user_passes_test(es_vendedor)
 def cancelar_venta(request, venta_id):
-    venta = get_object_or_404(Venta, id=venta_id, usuario=request.user)
+    venta = get_object_or_404(Venta, id=venta_id)
+
+    # Validación de acceso:
+    if not es_administrador(request.user) and venta.usuario != request.user:
+        raise PermissionDenied("No tienes permiso para cancelar esta venta.")
 
     if venta.estado != 'activa':
         messages.warning(request, "Esta venta ya fue cancelada.")
@@ -229,10 +270,14 @@ def cancelar_venta(request, venta_id):
 
 # -------------------- GENERAR TICKET PDF --------------------
 @login_required
-@user_passes_test(es_vendedor)
 def generar_ticket_pdf(request, venta_id):
-    venta = get_object_or_404(Venta, id=venta_id, usuario=request.user)
+    venta = get_object_or_404(Venta, id=venta_id)
 
+    # Validación de acceso: solo admins o dueño de la venta
+    if not es_administrador(request.user) and venta.usuario != request.user:
+        raise PermissionDenied("No tienes permiso para ver este ticket.")
+
+    # Generar el PDF solo si aún no fue generado
     if not venta.ticket_pdf:
         html_string = render_to_string('ticket_venta.html', {'venta': venta})
         html = HTML(string=html_string, base_url=settings.BASE_DIR)
@@ -240,6 +285,7 @@ def generar_ticket_pdf(request, venta_id):
         filename = f"ticket_venta_{venta.id}_{venta.usuario.username}.pdf"
         venta.ticket_pdf.save(filename, ContentFile(pdf_bytes), save=True)
 
+    # Devolver el PDF generado
     if venta.ticket_pdf:
         with open(venta.ticket_pdf.path, 'rb') as pdf:
             response = HttpResponse(pdf.read(), content_type='application/pdf')
@@ -267,22 +313,28 @@ def ventas_api_json(request):
 
 # -------------------- FILTRO DE VENTAS POR FECHAS --------------------
 @login_required
-@user_passes_test(es_vendedor)
 def ventas_por_fecha(request):
+    usuario = request.user
     fecha_inicio = request.GET.get('inicio')
     fecha_fin = request.GET.get('fin')
 
-    ventas = Venta.objects.filter(usuario=request.user)
+    # Obtener ventas según el rol
+    if es_administrador(usuario):
+        ventas = Venta.objects.all()
+    else:
+        ventas = Venta.objects.filter(usuario=usuario)
 
+    # Aplicar filtros por fecha
     if fecha_inicio:
-        ventas = ventas.filter(fecha_hora__gte=fecha_inicio)
+        ventas = ventas.filter(fecha_hora__date__gte=fecha_inicio)
     if fecha_fin:
-        ventas = ventas.filter(fecha_hora__lte=fecha_fin)
+        ventas = ventas.filter(fecha_hora__date__lte=fecha_fin)
 
     ventas = ventas.order_by('-fecha_hora')
 
     return render(request, 'ventas_filtradas.html', {
         'ventas': ventas,
         'fecha_inicio': fecha_inicio,
-        'fecha_fin': fecha_fin
+        'fecha_fin': fecha_fin,
+        'es_admin': es_administrador(usuario),  # Útil para el template
     })
