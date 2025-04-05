@@ -40,14 +40,10 @@
     <table>
         <thead>
             <tr>
-                <th>ID Producto</th>
                 <th>Nombre</th>
-                <th>Categoría</th>
-                <th>Departamento</th>
                 <th>Stock Total</th>
                 <th>Estado</th>
                 <th>Lote</th>
-                <th>Código Lote</th>
                 <th>Proveedor</th>
                 <th>Caducidad</th>
                 <th>Cantidad</th>
@@ -60,14 +56,10 @@
             {% for producto in productos %}
                 {% for lote in producto.lotes.all %}
                 <tr>
-                    <td>{{ producto.id_producto }}</td>
                     <td>{{ producto.nombre }}</td>
-                    <td>{{ producto.id_categoria.nombre }}</td>
-                    <td>{{ producto.id_departamento.nombre }}</td>
                     <td class="text-end">{{ producto.total_stock }}</td>
                     <td>{{ producto.estado|title }}</td>
                     <td>{{ lote.lote|default:"SIN-LOTE" }}</td>
-                    <td>{{ lote.codigo_lote }}</td>
                     <td>{{ lote.id_proveedor.nombre|default:"N/D" }}</td>
                     <td>
                         {% if lote.fecha_caducidad %}

@@ -26,14 +26,10 @@
             <table class="table table-bordered table-hover text-center align-middle">
                 <thead class="table-dark">
                     <tr>
-                        <th>ID Producto</th>
                         <th>Nombre</th>
-                        <th>Categoría</th>
-                        <th>Departamento</th>
                         <th>Stock Total</th>
                         <th>Estado</th>
                         <th>Lote</th>
-                        <th>Código Lote</th>
                         <th>Proveedor</th>
                         <th>Caducidad</th>
                         <th>Cantidad</th>
@@ -46,10 +42,7 @@
                     {% for producto in productos %}
                         {% for lote in producto.lotes.all %}
                         <tr>
-                            <td>{{ producto.id_producto }}</td>
                             <td>{{ producto.nombre }}</td>
-                            <td>{{ producto.id_categoria.nombre }}</td>
-                            <td>{{ producto.id_departamento.nombre }}</td>
                             <td class="text-end">{{ producto.total_stock }}</td>
                             <td>
                                 {% if producto.estado == "activo" %}
@@ -59,7 +52,6 @@
                                 {% endif %}
                             </td>
                             <td>{{ lote.lote|default:"SIN-LOTE" }}</td>
-                            <td>{{ lote.codigo_lote }}</td>
                             <td>{{ lote.id_proveedor.nombre|default:"N/D" }}</td>
                             <td>
                                 {% if lote.fecha_caducidad %}
@@ -93,7 +85,7 @@
 
     <!-- Botón de regreso -->
     <div class="mt-4">
-        <a href="{% url 'admin:index' %}" class="btn btn-secondary">
+        <a href="{% url 'reportes:dashboard_reportes' %}" class="btn btn-secondary">
             <i class="fas fa-arrow-left me-1"></i> Regresar al panel
         </a>
     </div>
