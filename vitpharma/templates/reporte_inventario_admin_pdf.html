@@ -4,37 +4,154 @@
     <meta charset="UTF-8">
     <title>Reporte de Inventario</title>
     <style>
+        @page {
+            size: landscape;
+            margin: 1.5cm;
+            @bottom-center {
+                content: "Página " counter(page) " de " counter(pages);
+                font-size: 9px;
+                color: #666;
+                font-family: Arial, sans-serif;
+            }
+        }
+        
         body {
             font-family: Arial, sans-serif;
             font-size: 11px;
-            margin: 30px;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            background-color: #fff;
         }
-        h2 {
+        
+        .header {
             text-align: center;
-            color: #003366;
             margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #004AAD;
+            position: relative;
         }
+        
+        h2 {
+            color: #004AAD;
+            text-align: center;
+            margin: 0 0 5px 0;
+            font-size: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .subtitle {
+            font-size: 12px;
+            color: #666;
+            margin: 0;
+            text-align: center;
+        }
+        
+        .fecha-reporte {
+            font-size: 11px;
+            color: #666;
+            text-align: center;
+            margin-top: 5px;
+        }
+        
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
+            margin-top: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
+        
         th, td {
-            border: 1px solid #444;
-            padding: 5px;
+            border: 1px solid #ddd;
+            padding: 7px 5px;
+            font-size: 10px;
+        }
+        
+        th {
+            background-color: #004AAD;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            text-transform: uppercase;
+            font-size: 9px;
+            letter-spacing: 0.5px;
+        }
+        
+        td {
             text-align: center;
         }
-        th {
-            background-color: #003366;
-            color: white;
+        
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
         }
+        
+        tbody tr:hover {
+            background-color: #f1f5fb;
+        }
+        
         .text-end {
             text-align: right;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .nombre-producto {
+            text-align: left;
+            font-weight: 600;
+            color: #004AAD;
+        }
+        
+        .estado-activo {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .estado-inactivo {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .sin-datos {
+            text-align: center;
+            margin: 30px 0;
+            color: #666;
+            font-style: italic;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 10px;
+            color: #666;
+            padding-top: 5px;
+            border-top: 1px solid #ddd;
+        }
+        
+        .caducidad-proxima {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .precio {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
-    <h2>Reporte de Inventario</h2>
+    <div class="header">
+        <h2>Reporte de Inventario</h2>
+        <p class="subtitle">VIT PHARMA</p>
+        <p class="fecha-reporte">Generado el: {% now "d/m/Y H:i" %}</p>
+    </div>
 
     {% if productos %}
     <table>
@@ -56,12 +173,12 @@
             {% for producto in productos %}
                 {% for lote in producto.lotes.all %}
                 <tr>
-                    <td>{{ producto.nombre }}</td>
-                    <td class="text-end">{{ producto.total_stock }}</td>
-                    <td>{{ producto.estado|title }}</td>
+                    <td class="nombre-producto">{{ producto.nombre }}</td>
+                    <td class="text-center">{{ producto.total_stock }}</td>
+                    <td class="text-center {% if producto.estado == 'activo' %}estado-activo{% else %}estado-inactivo{% endif %}">{{ producto.estado|title }}</td>
                     <td>{{ lote.lote|default:"SIN-LOTE" }}</td>
                     <td>{{ lote.id_proveedor.nombre|default:"N/D" }}</td>
-                    <td>
+                    <td class="{% if lote.fecha_caducidad and lote.fecha_caducidad|date:'Y-m-d' < now|date:'Y-m-d' %}caducidad-proxima{% endif %}">
                         {% if lote.fecha_caducidad %}
                             {{ lote.fecha_caducidad|date:"d/m/Y" }}
                         {% else %}
@@ -69,11 +186,11 @@
                         {% endif %}
                     </td>
                     <td class="text-end">{{ lote.cantidad }}</td>
-                    <td class="text-end">${{ lote.precio_compra }}</td>
-                    <td class="text-end">${{ lote.precio_venta }}</td>
-                    <td class="text-end">
+                    <td class="text-end precio">${{ lote.precio_compra|floatformat:2 }}</td>
+                    <td class="text-end precio">${{ lote.precio_venta|floatformat:2 }}</td>
+                    <td class="text-center">
                         {% if lote.descuento_porcentaje %}
-                            {{ lote.descuento_porcentaje }}%
+                            <strong>{{ lote.descuento_porcentaje|floatformat:1 }}%</strong>
                         {% else %}
                             0%
                         {% endif %}
@@ -83,8 +200,12 @@
             {% endfor %}
         </tbody>
     </table>
+    
+    <div class="footer">
+        VIT PHARMA &copy; {% now "Y" %} - Documento generado automáticamente por el sistema
+    </div>
     {% else %}
-        <p style="text-align: center;"><em>No hay productos registrados en el inventario.</em></p>
+        <p class="sin-datos"><em>No hay productos registrados en el inventario.</em></p>
     {% endif %}
 </body>
 </html>

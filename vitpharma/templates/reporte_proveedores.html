@@ -2,43 +2,117 @@
 {% load static %}
 
 {% block content %}
-<div class="container mt-4">
-    <!-- Título -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-primary">
-            <i class="fas fa-truck me-2"></i> Reporte de Proveedores
-        </h2>
+<style>
+    body {
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .btn-corporativo {
+        padding: 0.65rem 1.5rem;
+        font-size: 1rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        transition: all 0.2s ease;
+    }
+
+    .btn-pdf {
+        background-color: #dc3545;
+        border: none;
+        color: #fff;
+    }
+
+    .btn-pdf:hover {
+        background-color: #bb2d3b;
+        color: #fff;
+    }
+
+    .btn-regresar {
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
+        color: #212529;
+    }
+
+    .btn-regresar:hover {
+        background-color: #e2e6ea;
+    }
+
+    .action-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .table thead th {
+        font-size: 13px;
+        text-transform: uppercase;
+        background-color: #004aad;
+        color: #fff;
+        text-align: center;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+
+    .text-muted {
+        font-size: 13px;
+    }
+
+    .table a {
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .btn-wrapper {
+        display: flex;
+        gap: 10px;
+    }
+
+</style>
+
+<div class="container-fluid py-4 px-4">
+
+    <!-- ENCABEZADO Y BOTONES -->
+    <div class="action-bar">
+        <div>
+            <h2 class="fw-bold text-primary mb-0">
+                <i class="fas fa-truck me-2"></i>Reporte de Proveedores
+            </h2>
+            <p class="text-muted small">Listado actualizado de proveedores registrados en el sistema</p>
+        </div>
+        {% if proveedores %}
+        <div class="btn-wrapper">
+            <a href="{% url 'reportes:exportar_proveedores_pdf' %}" target="_blank" class="btn btn-corporativo btn-pdf">
+                <i class="fas fa-file-pdf me-2"></i> Exportar PDF
+            </a>
+            <a href="{% url 'reportes:dashboard_reportes' %}" class="btn btn-corporativo btn-regresar">
+                <i class="fas fa-arrow-left me-2"></i> Regresar
+            </a>
+        </div>
+        {% endif %}
     </div>
 
-    <!-- Botón PDF -->
+    <!-- TABLA DE PROVEEDORES -->
     {% if proveedores %}
-    <div class="mb-3 text-end">
-        <a href="{% url 'reportes:exportar_proveedores_pdf' %}" 
-           target="_blank" 
-           class="btn btn-danger">
-            <i class="fas fa-file-pdf me-1"></i> Exportar a PDF
-        </a>
-    </div>
-    {% endif %}
-
-    {% if proveedores %}
-        <div class="table-responsive shadow-sm rounded">
-            <table class="table table-bordered table-hover align-middle text-center">
-                <thead class="table-dark">
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle mb-0 text-center">
+                <thead>
                     <tr>
                         <th>ID</th>
                         <th>Nombre</th>
-                        <th>Dirección</th>
                         <th>Teléfono</th>
                         <th>Email</th>
+                        <th>Dirección</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for proveedor in proveedores %}
                     <tr>
                         <td>{{ proveedor.id_proveedor }}</td>
-                        <td>{{ proveedor.nombre }}</td>
-                        <td>{{ proveedor.direccion|default:"-" }}</td>
+                        <td class="text-start">{{ proveedor.nombre }}</td>
                         <td>
                             {% if proveedor.telefono %}
                                 <a href="tel:{{ proveedor.telefono }}">{{ proveedor.telefono }}</a>
@@ -53,23 +127,24 @@
                                 <span class="text-muted">No disponible</span>
                             {% endif %}
                         </td>
+                        <td class="text-start">{{ proveedor.direccion|default:"-" }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+    </div>
     {% else %}
-        <div class="alert alert-info mt-4 text-center">
-            <i class="fas fa-info-circle me-2"></i>
-            No hay proveedores registrados.
+    <div class="card border-0 shadow-sm text-center py-5 my-4">
+        <div class="card-body">
+            <div class="empty-state-icon bg-light rounded-circle p-4 d-inline-flex mb-4">
+                <i class="fas fa-address-book fa-3x text-primary opacity-50"></i>
+            </div>
+            <h5 class="fw-semibold text-dark mb-2">No hay proveedores registrados</h5>
+            <p class="text-muted mb-0">Agrega proveedores desde el panel para comenzar a gestionar</p>
         </div>
+    </div>
     {% endif %}
 
-    <!-- Botón de regreso -->
-    <div class="mt-4">
-        <a href="{% url 'reportes:dashboard_reportes' %}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left me-1"></i> Regresar al panel
-        </a>
-    </div>
 </div>
 {% endblock %}

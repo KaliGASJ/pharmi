@@ -179,7 +179,8 @@ class DetalleVenta(models.Model):
         super().save(*args, **kwargs)
 
     def calcular_subtotal(self):
-        return (Decimal(self.precio_unitario) - Decimal(self.descuento_aplicado)) * self.cantidad
+        return Decimal(self.precio_unitario) * self.cantidad  # ✅ Ya viene con descuento aplicado
+
 
 
 # -------------------- SIGNALS --------------------

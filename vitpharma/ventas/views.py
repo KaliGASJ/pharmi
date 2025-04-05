@@ -131,9 +131,9 @@ def procesar_venta(request):
                     producto_id = item.get("producto_id")
                     lote_id = item.get("lote_id")
                     cantidad = int(item.get("cantidad"))
-                    precio_unitario = Decimal(str(item.get("precio_unitario")))
+                    precio_unitario = Decimal(str(item.get("precio_unitario")))  # Ya viene con descuento aplicado
                     descuento = Decimal(str(item.get("descuento_aplicado") or 0))
-                    subtotal = (precio_unitario - descuento) * cantidad
+                    subtotal = precio_unitario * cantidad  # ✅ No volver a aplicar el descuento
 
                     DetalleVenta.objects.create(
                         venta=venta,
@@ -191,6 +191,7 @@ def procesar_venta(request):
         messages.error(request, "Error en los datos del formulario de venta.")
 
     return redirect("ventas:venta_dashboard")
+
 
 # -------------------- DETALLE DE VENTA --------------------
 @login_required
