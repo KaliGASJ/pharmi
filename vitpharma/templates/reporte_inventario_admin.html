@@ -1,93 +1,94 @@
 {% extends "base.html" %}
 {% load static %}
-
 {% block content %}
 <div class="container mt-4">
     <!-- Título -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-primary">
+        <h2 class="fw-bold" style="color: #003366; font-family: 'Segoe UI', Roboto, sans-serif;">
             <i class="fas fa-boxes-stacked me-2"></i> Reporte de Inventario Detallado
         </h2>
-    </div>
-
-    <!-- Botón PDF -->
-    {% if productos %}
-    <div class="mb-3 text-end">
-        <a href="{% url 'reportes:exportar_inventario_pdf' %}" 
-           target="_blank" 
-           class="btn btn-danger">
-            <i class="fas fa-file-pdf me-1"></i> Exportar a PDF
-        </a>
-    </div>
-    {% endif %}
-
-    {% if productos %}
-        <div class="table-responsive shadow-sm rounded">
-            <table class="table table-bordered table-hover text-center align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Stock Total</th>
-                        <th>Estado</th>
-                        <th>Lote</th>
-                        <th>Proveedor</th>
-                        <th>Caducidad</th>
-                        <th>Cantidad</th>
-                        <th>Precio Compra</th>
-                        <th>Precio Venta</th>
-                        <th>Descuento</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for producto in productos %}
-                        {% for lote in producto.lotes.all %}
-                        <tr>
-                            <td>{{ producto.nombre }}</td>
-                            <td class="text-end">{{ producto.total_stock }}</td>
-                            <td>
-                                {% if producto.estado == "activo" %}
-                                    <span class="badge bg-success">Activo</span>
-                                {% else %}
-                                    <span class="badge bg-secondary">Inactivo</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ lote.lote|default:"SIN-LOTE" }}</td>
-                            <td>{{ lote.id_proveedor.nombre|default:"N/D" }}</td>
-                            <td>
-                                {% if lote.fecha_caducidad %}
-                                    {{ lote.fecha_caducidad|date:"d/m/Y" }}
-                                {% else %}
-                                    <span class="text-muted">Sin fecha</span>
-                                {% endif %}
-                            </td>
-                            <td class="text-end">{{ lote.cantidad }}</td>
-                            <td class="text-end">${{ lote.precio_compra }}</td>
-                            <td class="text-end">${{ lote.precio_venta }}</td>
-                            <td class="text-end">
-                                {% if lote.descuento_porcentaje %}
-                                    {{ lote.descuento_porcentaje }}%
-                                {% else %}
-                                    0%
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    {% else %}
-        <div class="alert alert-warning text-center mt-4">
-            <i class="fas fa-exclamation-circle me-2"></i>
-            No hay productos registrados en el inventario.
-        </div>
-    {% endif %}
-
-    <!-- Botón de regreso -->
-    <div class="mt-4">
-        <a href="{% url 'reportes:dashboard_reportes' %}" class="btn btn-secondary">
+        <a href="{% url 'reportes:dashboard_reportes' %}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
             <i class="fas fa-arrow-left me-1"></i> Regresar al panel
         </a>
     </div>
+    
+    <!-- Botones de acción -->
+    {% if productos %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="{% url 'reportes:exportar_inventario_pdf' %}"
+           target="_blank"
+           class="btn btn-danger btn-sm rounded-pill px-3 shadow-sm">
+            <i class="fas fa-file-pdf me-1"></i> Exportar a PDF
+        </a>
+        <div class="text-muted small">
+            <i class="fas fa-clock me-1"></i> Última actualización: {% now "d/m/Y H:i" %}
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if productos %}
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-family: 'Segoe UI', Roboto, sans-serif;">
+                    <thead style="background-color: #003366; color: white;">
+                        <tr>
+                            <th class="py-3" style="font-weight: 500;">Nombre</th>
+                            <th class="py-3 text-center" style="font-weight: 500;">Stock</th>
+                            <th class="py-3 text-center" style="font-weight: 500;">Estado</th>
+                            <th class="py-3" style="font-weight: 500;">Lote</th>
+                            <th class="py-3" style="font-weight: 500;">Proveedor</th>
+                            <th class="py-3 text-center" style="font-weight: 500;">Caducidad</th>
+                            <th class="py-3 text-center" style="font-weight: 500;">Cantidad</th>
+                            <th class="py-3 text-end" style="font-weight: 500;">P. Compra</th>
+                            <th class="py-3 text-end" style="font-weight: 500;">P. Venta</th>
+                            <th class="py-3 text-center" style="font-weight: 500;">Dcto.</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in productos %}
+                            {% for lote in producto.lotes.all %}
+                            <tr style="border-bottom: 1px solid #f0f0f0;">
+                                <td class="py-2 fw-medium" style="color: #003366;">{{ producto.nombre }}</td>
+                                <td class="py-2 text-center">{{ producto.total_stock }}</td>
+                                <td class="py-2 text-center">
+                                    {% if producto.estado == "activo" %}
+                                        <span class="badge rounded-pill bg-success text-white px-3" style="font-weight: normal;">Activo</span>
+                                    {% else %}
+                                        <span class="badge rounded-pill bg-secondary text-white px-3" style="font-weight: normal;">Inactivo</span>
+                                    {% endif %}
+                                </td>
+                                <td class="py-2">{{ lote.lote|default:"SIN-LOTE" }}</td>
+                                <td class="py-2">{{ lote.id_proveedor.nombre|default:"N/D" }}</td>
+                                <td class="py-2 text-center">
+                                    {% if lote.fecha_caducidad %}
+                                        {{ lote.fecha_caducidad|date:"d/m/Y" }}
+                                    {% else %}
+                                        <span class="text-muted">Sin fecha</span>
+                                    {% endif %}
+                                </td>
+                                <td class="py-2 text-center">{{ lote.cantidad }}</td>
+                                <td class="py-2 text-end">${{ lote.precio_compra }}</td>
+                                <td class="py-2 text-end fw-medium">${{ lote.precio_venta }}</td>
+                                <td class="py-2 text-center">
+                                    {% if lote.descuento_porcentaje %}
+                                        <span class="badge bg-info text-dark rounded-pill px-2">{{ lote.descuento_porcentaje }}%</span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert border-0 text-center py-4 mt-4" style="background-color: #f8f9fa;">
+            <i class="fas fa-exclamation-circle fa-2x mb-3 text-warning"></i>
+            <h5 class="mb-1">No hay productos registrados</h5>
+            <p class="text-muted">No se encontraron productos en el inventario.</p>
+        </div>
+    {% endif %}
 </div>
 {% endblock %}

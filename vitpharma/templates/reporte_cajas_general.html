@@ -2,60 +2,334 @@
 {% load static %}
 
 {% block content %}
-<div class="container mt-4">
-    <!-- Título -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-primary">
-            <i class="fas fa-cash-register me-2"></i> Reporte de Cajas General
-        </h2>
-    </div>
+<style>
+    :root {
+        --primary: #004AAD;
+        --primary-light: #E6F0FF;
+        --primary-dark: #003b8a;
+        --success: #28a745;
+        --success-light: #d4edda;
+        --warning: #ffc107;
+        --warning-light: #fff3cd;
+        --danger: #dc3545;
+        --danger-light: #f8d7da;
+        --dark: #343a40;
+        --light: #f8f9fa;
+        --border-radius: 6px;
+        --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        --transition: all 0.3s ease;
+    }
+    
+    .report-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 1.25rem;
+        position: relative;
+    }
+    
+    .report-header {
+        margin-bottom: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #e0e0e0;
+        padding-bottom: 1rem;
+    }
+    
+    .report-title {
+        color: var(--primary);
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background-color: var(--light);
+        color: var(--dark);
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border-radius: var(--border-radius);
+        text-decoration: none;
+        transition: var(--transition);
+        font-size: 0.875rem;
+        border: 1px solid #dee2e6;
+    }
+    
+    .back-btn:hover {
+        background-color: #e9ecef;
+        transform: translateY(-2px);
+        box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .filter-container {
+        background-color: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: var(--border-radius);
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--box-shadow);
+    }
+    
+    .filter-form {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 1rem;
+        align-items: end;
+    }
+    
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .form-group-date {
+        grid-column: span 4;
+    }
+    
+    .form-group-button {
+        grid-column: span 4;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: #4b5563;
+    }
+    
+    .form-control {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: var(--border-radius);
+        font-size: 0.875rem;
+        transition: var(--transition);
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(0, 74, 173, 0.15);
+    }
+    
+    .filter-btn {
+        background-color: var(--primary);
+        color: white;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        height: 38px;
+    }
+    
+    .filter-btn:hover {
+        background-color: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    }
+    
+    .filter-btn:active {
+        transform: translateY(0);
+    }
+    
+    .actions-bar {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 1rem;
+    }
+    
+    .export-btn {
+        background-color: var(--danger);
+        color: white;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border-radius: var(--border-radius);
+        text-decoration: none;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .export-btn:hover {
+        background-color: #c82333;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    }
+    
+    .table-container {
+        background-color: white;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--box-shadow);
+        margin-bottom: 1.5rem;
+    }
+    
+    .report-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+    }
+    
+    .report-table th {
+        background-color: var(--primary);
+        color: white;
+        padding: 0.75rem 1rem;
+        text-align: left;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    
+    .report-table th:first-child {
+        border-top-left-radius: var(--border-radius);
+    }
+    
+    .report-table th:last-child {
+        border-top-right-radius: var(--border-radius);
+    }
+    
+    .report-table td {
+        padding: 0.75rem 1rem;
+        border-top: 1px solid #e5e7eb;
+        color: #4b5563;
+        vertical-align: middle;
+    }
+    
+    .report-table tr:hover td {
+        background-color: #f9fafb;
+    }
+    
+    .report-table .text-right {
+        text-align: right;
+    }
+    
+    .report-table .text-center {
+        text-align: center;
+    }
+    
+    .report-table .text-success {
+        color: var(--success);
+    }
+    
+    .report-table .text-primary {
+        color: var(--primary);
+    }
+    
+    .report-table .fw-bold {
+        font-weight: 700;
+    }
+    
+    .empty-message {
+        padding: 2rem;
+        text-align: center;
+        background-color: var(--warning-light);
+        border-radius: var(--border-radius);
+        color: #856404;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .empty-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    @media (max-width: 992px) {
+        .filter-form {
+            grid-template-columns: repeat(1, 1fr);
+            gap: 1rem;
+        }
+        
+        .form-group-date, .form-group-button {
+            grid-column: span 1;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .report-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .back-btn {
+            align-self: flex-start;
+        }
+        
+        .report-table {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+        }
+    }
+</style>
 
-    <!-- Filtro de fechas -->
-    <form method="get" class="row g-3 align-items-end mb-4 bg-light p-3 rounded shadow-sm">
-        <div class="col-md-4">
-            <label for="fecha_inicio" class="form-label fw-semibold">Fecha de inicio:</label>
-            <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control"
-                   value="{{ fecha_inicio }}" required>
-        </div>
-        <div class="col-md-4">
-            <label for="fecha_fin" class="form-label fw-semibold">Fecha de fin:</label>
-            <input type="date" id="fecha_fin" name="fecha_fin" class="form-control"
-                   value="{{ fecha_fin }}" required>
-        </div>
-        <div class="col-md-4 d-grid">
-            <button type="submit" class="btn btn-primary">
-                <i class="fas fa-search me-1"></i> Filtrar
-            </button>
-        </div>
-    </form>
-
-    <!-- Botón PDF -->
-    {% if turnos %}
-    <div class="mb-3 text-end">
-        <a href="{% url 'reportes:exportar_reporte_cajas_pdf' %}?fecha_inicio={{ fecha_inicio }}&fecha_fin={{ fecha_fin }}" 
-           target="_blank" 
-           class="btn btn-danger">
-            <i class="fas fa-file-pdf me-1"></i> Exportar a PDF
+<div class="report-container">
+    <div class="report-header">
+        <h1 class="report-title">
+            <i class="fas fa-cash-register"></i> Reporte de Cajas General
+        </h1>
+        <a href="{% url 'reportes:dashboard_reportes' %}" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Regresar al panel
         </a>
     </div>
-    {% endif %}
-
-    <!-- Tabla de resultados -->
+    
+    <div class="filter-container">
+        <form method="get" class="filter-form">
+            <div class="form-group form-group-date">
+                <label for="fecha_inicio" class="form-label">Fecha de inicio:</label>
+                <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control" value="{{ fecha_inicio }}" required>
+            </div>
+            
+            <div class="form-group form-group-date">
+                <label for="fecha_fin" class="form-label">Fecha de fin:</label>
+                <input type="date" id="fecha_fin" name="fecha_fin" class="form-control" value="{{ fecha_fin }}" required>
+            </div>
+            
+            <div class="form-group form-group-button">
+                <button type="submit" class="filter-btn">
+                    <i class="fas fa-search"></i> Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+    
     {% if turnos %}
-        <div class="table-responsive shadow-sm rounded">
-            <table class="table table-bordered table-hover align-middle text-center">
-                <thead class="table-dark">
+        <div class="actions-bar">
+            <a href="{% url 'reportes:exportar_reporte_cajas_pdf' %}?fecha_inicio={{ fecha_inicio }}&fecha_fin={{ fecha_fin }}" target="_blank" class="export-btn">
+                <i class="fas fa-file-pdf"></i> Exportar a PDF
+            </a>
+        </div>
+        
+        <div class="table-container">
+            <table class="report-table">
+                <thead>
                     <tr>
                         <th>ID</th>
                         <th>Usuario</th>
                         <th>Fecha</th>
-                        <th>Monto Inicial</th>
-                        <th>Efectivo</th>
-                        <th>Tarjeta</th>
-                        <th>Transferencia</th>
-                        <th>Cheque</th>
-                        <th>Total Ventas</th>
-                        <th>Efectivo Final</th>
+                        <th class="text-right">Monto Inicial</th>
+                        <th class="text-right">Efectivo</th>
+                        <th class="text-right">Tarjeta</th>
+                        <th class="text-right">Transferencia</th>
+                        <th class="text-right">Cheque</th>
+                        <th class="text-right">Total Ventas</th>
+                        <th class="text-right">Efectivo Final</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -64,30 +338,23 @@
                         <td>{{ turno.id }}</td>
                         <td>{{ turno.usuario.username }}</td>
                         <td>{{ turno.hora_inicio|date:"d/m/Y" }}</td>
-                        <td class="text-end">${{ turno.monto_inicial }}</td>
-                        <td class="text-end text-success">${{ turno.monto_total_efectivo }}</td>
-                        <td class="text-end">${{ turno.monto_total_tarjeta }}</td>
-                        <td class="text-end">${{ turno.monto_total_transferencia }}</td>
-                        <td class="text-end">${{ turno.monto_total_cheque }}</td>
-                        <td class="text-end fw-bold">${{ turno.total_ventas_turno }}</td>
-                        <td class="text-end fw-bold text-primary">${{ turno.efectivo_final_en_caja }}</td>
+                        <td class="text-right">${{ turno.monto_inicial|floatformat:2 }}</td>
+                        <td class="text-right text-success">${{ turno.monto_total_efectivo|floatformat:2 }}</td>
+                        <td class="text-right">${{ turno.monto_total_tarjeta|floatformat:2 }}</td>
+                        <td class="text-right">${{ turno.monto_total_transferencia|floatformat:2 }}</td>
+                        <td class="text-right">${{ turno.monto_total_cheque|floatformat:2 }}</td>
+                        <td class="text-right fw-bold">${{ turno.total_ventas_turno|floatformat:2 }}</td>
+                        <td class="text-right fw-bold text-primary">${{ turno.efectivo_final_en_caja|floatformat:2 }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     {% else %}
-        <div class="alert alert-warning mt-4 text-center">
-            <i class="fas fa-exclamation-circle me-2"></i>
-            No se encontraron cortes en el rango de fechas seleccionado.
+        <div class="empty-message">
+            <i class="fas fa-exclamation-circle empty-icon"></i>
+            <p>No se encontraron cortes en el rango de fechas seleccionado.</p>
         </div>
     {% endif %}
-
-    <!-- Botón de regreso -->
-    <div class="mt-4">
-        <a href="{% url 'reportes:dashboard_reportes' %}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left me-1"></i> Regresar al panel
-        </a>
-    </div>
 </div>
 {% endblock %}

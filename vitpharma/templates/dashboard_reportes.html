@@ -2,48 +2,296 @@
 {% load static %}
 
 {% block content %}
-<div class="container mt-5">
-    <!-- TÍTULO -->
-    <div class="text-center mb-5">
-        <h2 class="fw-bold text-primary">
-            <i class="fas fa-chart-bar me-2"></i> Panel de Reportes del Administrador
-        </h2>
-        <p class="text-muted">Seleccione el tipo de reporte que desea consultar o exportar.</p>
+<style>
+    :root {
+        --primary: #004AAD;
+        --primary-light: #E6F0FF;
+        --success: #28a745;
+        --warning: #ffc107;
+        --orange: #fd7e14;
+        --purple: #6f42c1;
+        --blue: #0d6efd;
+        --dark: #343a40;
+        --light: #f8f9fa;
+        --border-radius: 8px;
+        --shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        --transition: all 0.3s ease;
+    }
+    
+    .reports-dashboard {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1.5rem;
+        position: relative;
+    }
+    
+    .dashboard-header {
+        margin-bottom: 2rem;
+        position: relative;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e0e0e0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .header-title-group {
+        max-width: 60%;
+    }
+    
+    .dashboard-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin-bottom: 0.3rem;
+        color: var(--primary);
+    }
+    
+    .dashboard-subtitle {
+        color: #6B7280;
+        font-size: 0.95rem;
+        font-weight: 400;
+    }
+    
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background-color: var(--light);
+        color: var(--dark);
+        border: 1px solid #dee2e6;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border-radius: var(--border-radius);
+        text-decoration: none;
+        transition: var(--transition);
+        font-size: 0.9rem;
+    }
+    
+    .back-btn:hover {
+        background-color: #e9ecef;
+        transform: translateY(-2px);
+        box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .reports-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.25rem;
+        margin-bottom: 2rem;
+    }
+    
+    .report-card {
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: var(--transition);
+        position: relative;
+        height: 170px;
+        display: flex;
+        flex-direction: column;
+        background-color: white;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .report-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .report-card-header {
+        height: 55px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+    }
+    
+    .report-card-green .report-card-header {
+        background-color: #28a745;
+    }
+    
+    .report-card-orange .report-card-header {
+        background-color: #fd7e14;
+    }
+    
+    .report-card-yellow .report-card-header {
+        background-color: #ffc107;
+    }
+    
+    .report-card-purple .report-card-header {
+        background-color: #6f42c1;
+    }
+    
+    .report-card-blue .report-card-header {
+        background-color: #0d6efd;
+    }
+    
+    .report-card-body {
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        flex-grow: 1;
+        background-color: white;
+        color: var(--dark);
+    }
+    
+    .report-card-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        color: #656565;
+    }
+    
+    .report-card-title {
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 0.35rem;
+        color: #212529;
+    }
+    
+    .report-card-description {
+        font-size: 0.85rem;
+        color: #6c757d;
+        line-height: 1.3;
+    }
+    
+    .report-card-link {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 2;
+    }
+    
+    @media (max-width: 992px) {
+        .reports-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .dashboard-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .header-title-group {
+            max-width: 100%;
+            margin-bottom: 1rem;
+        }
+        
+        .back-btn {
+            align-self: flex-start;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .reports-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .report-card {
+            height: auto;
+        }
+        
+        .dashboard-title {
+            font-size: 1.4rem;
+        }
+    }
+</style>
+
+<div class="reports-dashboard">
+    <div class="dashboard-header">
+        <div class="header-title-group">
+            <h1 class="dashboard-title">
+                <i class="fas fa-chart-bar me-2"></i> Panel de Reportes
+            </h1>
+            <p class="dashboard-subtitle">Seleccione el tipo de reporte que desea consultar o exportar</p>
+        </div>
+        <a href="{% url 'authapp:admin_dashboard' %}" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Regresar al Panel
+        </a>
     </div>
-
-    <!-- BOTONES DE REPORTES -->
-    <div class="d-flex flex-wrap justify-content-center gap-3 mb-4">
-        <a href="{% url 'reportes:reporte_cajas_general' %}" class="btn text-white fw-semibold px-4 py-3"
-           style="background-color: #28a745; min-width: 200px;">
-            <i class="fas fa-cash-register me-2"></i> Corte de Caja General
-        </a>
-
-        <a href="{% url 'turnos:historial_turnos' %}" class="btn text-white fw-semibold px-4 py-3"
-           style="background-color: #fd7e14; min-width: 200px;">
-            <i class="fas fa-history me-2"></i> Historial de Cortes
-        </a>
-
-        <a href="{% url 'ventas:historial_ventas' %}" class="btn text-dark fw-semibold px-4 py-3"
-           style="background-color: #ffc107; min-width: 200px;">
-            <i class="fas fa-file-invoice-dollar me-2"></i> Historial de Ventas
-        </a>
-
-        <a href="{% url 'reportes:reporte_inventario_admin' %}" class="btn text-white fw-semibold px-4 py-3"
-           style="background-color: #6f42c1; min-width: 200px;">
-            <i class="fas fa-boxes-stacked me-2"></i> Historial de Inventario
-        </a>
-
-        <a href="{% url 'reportes:reporte_proveedores' %}" class="btn text-white fw-semibold px-4 py-3"
-           style="background-color: #0d6efd; min-width: 200px;">
-            <i class="fas fa-truck me-2"></i> Historial de Proveedores
-        </a>
-    </div>
-
-    <!-- BOTÓN REGRESAR -->
-    <div class="text-center mt-5">
-        <a href="{% url 'authapp:admin_dashboard' %}" class="btn btn-dark px-4 py-2">
-            <i class="fas fa-arrow-left me-2"></i> Regresar al Panel
-        </a>
+    
+    <div class="reports-grid">
+        <!-- Corte de Caja General -->
+        <div class="report-card report-card-green">
+            <div class="report-card-header">
+                Corte de Caja General
+            </div>
+            <div class="report-card-body">
+                <div class="report-card-icon">
+                    <i class="fas fa-cash-register"></i>
+                </div>
+                <h3 class="report-card-title">Reporte de Cajas</h3>
+                <p class="report-card-description">Historial de todos los cortes de caja del sistema</p>
+            </div>
+            <a href="{% url 'reportes:reporte_cajas_general' %}" class="report-card-link" aria-label="Corte de Caja General"></a>
+        </div>
+        
+        <!-- Historial de Cortes -->
+        <div class="report-card report-card-orange">
+            <div class="report-card-header">
+                Historial de Cortes
+            </div>
+            <div class="report-card-body">
+                <div class="report-card-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <h3 class="report-card-title">Cortes por Fechas</h3>
+                <p class="report-card-description">Registro histórico de cortes de caja por fechas</p>
+            </div>
+            <a href="{% url 'turnos:historial_turnos' %}" class="report-card-link" aria-label="Historial de Cortes"></a>
+        </div>
+        
+        <!-- Historial de Ventas -->
+        <div class="report-card report-card-yellow">
+            <div class="report-card-header">
+                Historial de Ventas
+            </div>
+            <div class="report-card-body">
+                <div class="report-card-icon">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+                <h3 class="report-card-title">Ventas</h3>
+                <p class="report-card-description">Registro completo de las ventas realizadas</p>
+            </div>
+            <a href="{% url 'ventas:historial_ventas' %}" class="report-card-link" aria-label="Historial de Ventas"></a>
+        </div>
+        
+        <!-- Historial de Inventario -->
+        <div class="report-card report-card-purple">
+            <div class="report-card-header">
+                Inventario
+            </div>
+            <div class="report-card-body">
+                <div class="report-card-icon">
+                    <i class="fas fa-boxes-stacked"></i>
+                </div>
+                <h3 class="report-card-title">Existencias</h3>
+                <p class="report-card-description">Reporte detallado de productos y existencias</p>
+            </div>
+            <a href="{% url 'reportes:reporte_inventario_admin' %}" class="report-card-link" aria-label="Historial de Inventario"></a>
+        </div>
+        
+        <!-- Historial de Proveedores -->
+        <div class="report-card report-card-blue">
+            <div class="report-card-header">
+                Proveedores
+            </div>
+            <div class="report-card-body">
+                <div class="report-card-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <h3 class="report-card-title">Catálogo</h3>
+                <p class="report-card-description">Información completa de proveedores</p>
+            </div>
+            <a href="{% url 'reportes:reporte_proveedores' %}" class="report-card-link" aria-label="Historial de Proveedores"></a>
+        </div>
     </div>
 </div>
 {% endblock %}
